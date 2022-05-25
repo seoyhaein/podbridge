@@ -40,7 +40,7 @@ func GetConnection(ipcName string, ctx context.Context) (*context.Context, error
 // help function
 // podman 이 설치 되어 있는 것을 전제로 한다.
 // 리눅스에서만...
-func initSockDir() (socket string) {
+func InitSockDir() (socket string) {
 	sockDir := os.Getenv("XDG_RUNTIME_DIR")
 	if sockDir == "" {
 		sockDir = "/var/run"
