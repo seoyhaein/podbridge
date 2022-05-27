@@ -26,6 +26,7 @@ func CreatePod(ctx *context.Context, podId string) error {
 	return nil
 }
 
+// TODO CreateContainerWithSpec 으로 대체한다.
 func CreateContainer(ctx *context.Context, conName string, imgName string) (containerID string) {
 	// types.go 참고.
 
@@ -65,7 +66,7 @@ func CreateContainer(ctx *context.Context, conName string, imgName string) (cont
 
 		fmt.Printf("Creating %s container using %s image...\n", conName, imgName)
 
-		spec := CreateContainerSpec(imgName)
+		spec := CreateContainerWithSpec(imgName)
 		/*s := specgen.NewSpecGenerator(imgName, false)
 		s.Name = conName*/
 
@@ -80,7 +81,10 @@ func CreateContainer(ctx *context.Context, conName string, imgName string) (cont
 	return
 }
 
-func CreateContainerSpec(imgName string, options ...Option) *specgen.SpecGenerator {
+// TODO 컨테이너를 여러개 만들어야 하는 문제??
+// 여기서는 문제가 안될 듯한데..
+
+func CreateContainerWithSpec(imgName string, options ...Option) *specgen.SpecGenerator {
 
 	var spec = specgen.NewSpecGenerator(imgName, false)
 

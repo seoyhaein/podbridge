@@ -1,6 +1,7 @@
 package podbridge
 
 import (
+	"fmt"
 	nettypes "github.com/containers/common/libnetwork/types"
 	"github.com/containers/podman/v4/pkg/specgen"
 )
@@ -48,11 +49,10 @@ type (
 // slice 관년 해서 참고하도록. append 하기 때문에 nil 로 해줘야 한다. https://yourbasic.org/golang/clear-slice/
 // 테스트 진행하자.
 // return 의 의미를 되짚어보자.
-// TODO 파라미터가 BasicConfig 로 고정되는 문제점이 있다. 따라서 이부분도 생각해야 한다. interface, 생각해보기
 
 func WithBasic(basic *BasicConfig) Option {
 	return func(spec *specgen.SpecGenerator) Option {
-		var old *BasicConfig
+		var old = new(BasicConfig)
 		// old 한 정보를 복사를 한다.
 		// name
 		old.Name = spec.Name
@@ -105,5 +105,12 @@ func WithBasic(basic *BasicConfig) Option {
 		}
 
 		return WithBasic(old)
+	}
+}
+
+func WithTester(str string) Option {
+	return func(spec *specgen.SpecGenerator) Option {
+		fmt.Println(str)
+		return WithTester("old")
 	}
 }

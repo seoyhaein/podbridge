@@ -16,18 +16,6 @@ import (
 // 소스 정리전.
 
 func GetConnection(ipcName string, ctx context.Context) (*context.Context, error) {
-	// 주석처리된 코드는 필요없지만 일단은 주석 처리된 상태로 넣어 놓았다.
-	/*
-		ctx, cancel := context.WithCancel(ctx)
-		defer cancel()
-	*/
-	/*sockDir := os.Getenv("XDG_RUNTIME_DIR")
-
-	if sockDir == "" {
-		sockDir = "/var/run"
-	}
-
-	socket := "unix:" + sockDir + "/podman/podman.sock"*/
 
 	if len(strings.TrimSpace(ipcName)) == 0 {
 		return nil, errors.New("ipcName cannot be an empty string")
