@@ -101,6 +101,6 @@ func CreateContainerWithSpec(imgName string, options ...Option) *specgen.SpecGen
 func InitBasicConfig() *BasicConfig {
 	return &BasicConfig{
 		Name:  "hello",
-		Image: "centos", // 이건 쓰리기 값
+		Image: "docker.io/centos:latest",
 	}
 }
