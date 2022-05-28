@@ -11,7 +11,8 @@ import (
 // BasicConfig 와 관련해서 specgen.SpecGenerator 를 그대로 차용하는 건 어떨지 생각해보자.
 
 type (
-	Option func(*specgen.SpecGenerator) Option
+	Option  func(*specgen.SpecGenerator) Option
+	Recover func(*specgen.SpecGenerator) Option
 
 	BasicConfig struct {
 		Tag          string
@@ -21,6 +22,8 @@ type (
 		PortMappings []PortMapping
 		Env          []EnvVar
 		Command      []string
+
+		Old *specgen.SpecGenerator
 	}
 
 	PortMapping struct {
@@ -43,6 +46,12 @@ type (
 	}
 )
 
+var recovery *specgen.SpecGenerator
+
+func init() {
+	recovery = new(specgen.SpecGenerator)
+}
+
 // 여기서 하나씩 추가할 수 있도록 한다.
 // 테스트 진행하자.
 // old 에러
@@ -50,61 +59,63 @@ type (
 // 테스트 진행하자.
 // return 의 의미를 되짚어보자.
 
-func WithBasic(basic *BasicConfig) Option {
+// 포인터로 될까????
+
+//func WithBasic(basic *BasicConfig) Option {
+func WithBasic(basic interface{}) Option {
 	return func(spec *specgen.SpecGenerator) Option {
-		var old = new(BasicConfig)
-		// old 한 정보를 복사를 한다.
-		// name
-		old.Name = spec.Name
-		//port
-		for _, mapping := range spec.PortMappings {
-			old.PortMappings = append(old.PortMappings, PortMapping{
-				ContainerPort: mapping.ContainerPort,
-				HostPort:      mapping.HostPort,
-			})
-		}
-		// command
-		old.Command = spec.Command
-		// env
-		// TODO old - env 일단 테스트 후 구현.
-		// TODO old - volume 일단 테스트 후 구현.
+		oldbasic, isBasicConfig := basic.(*BasicConfig)
 
-		// 복사한 정보를 지운다. append 로 slice 를 채우기때문에 nil 처리한다.
-		spec.PortMappings = nil
-		spec.Env = nil
-		spec.Volumes = nil
+		// true 이면
+		if isBasicConfig {
+			oldbasic.Old = new(specgen.SpecGenerator)
+			oldbasic.Old = spec
 
-		spec.Name = basic.Name
-		for _, mapping := range basic.PortMappings {
-			spec.PortMappings = append(spec.PortMappings, nettypes.PortMapping{
-				ContainerPort: mapping.ContainerPort,
-				HostPort:      mapping.HostPort,
-			})
-		}
+			// 복사한 정보를 지운다. append 로 slice 를 채우기때문에 nil 처리한다.
+			spec.PortMappings = nil
+			spec.Env = nil
+			spec.Volumes = nil
 
-		if len(basic.Command) > 0 {
-			spec.Command = basic.Command
-		}
-
-		if len(basic.Env) > 0 {
-			e := make(map[string]string)
-			for _, env := range basic.Env {
-				e[env.Key] = env.Value
-				spec.Env = e
+			spec.Name = oldbasic.Name
+			for _, mapping := range oldbasic.PortMappings {
+				spec.PortMappings = append(spec.PortMappings, nettypes.PortMapping{
+					ContainerPort: mapping.ContainerPort,
+					HostPort:      mapping.HostPort,
+				})
 			}
-		}
 
-		if len(basic.Volumes) > 0 {
-			for _, volume := range basic.Volumes {
-				vol := specgen.NamedVolume{
-					Name: volume.Name,
-					Dest: volume.Dest,
+			if len(oldbasic.Command) > 0 {
+				spec.Command = oldbasic.Command
+			}
+
+			if len(oldbasic.Env) > 0 {
+				e := make(map[string]string)
+				for _, env := range oldbasic.Env {
+					e[env.Key] = env.Value
+					spec.Env = e
 				}
-				spec.Volumes = append(spec.Volumes, &vol)
 			}
+
+			if len(oldbasic.Volumes) > 0 {
+				for _, volume := range oldbasic.Volumes {
+					vol := specgen.NamedVolume{
+						Name: volume.Name,
+						Dest: volume.Dest,
+					}
+					spec.Volumes = append(spec.Volumes, &vol)
+				}
+			}
+
+			return WithBasic(oldbasic.Old)
 		}
 
-		return WithBasic(old)
+		oldspec, isSpec := basic.(*specgen.SpecGenerator)
+
+		if isSpec {
+			return WithBasic(oldspec)
+		}
+
+		return nil
 	}
 }
 

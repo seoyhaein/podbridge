@@ -15,7 +15,7 @@ import (
 // https://github.com/james-barrow/golang-ipc 참고
 // 소스 정리전.
 
-func GetConnection(ipcName string, ctx context.Context) (*context.Context, error) {
+func GetConnPodman(ipcName string, ctx context.Context) (*context.Context, error) {
 
 	if len(strings.TrimSpace(ipcName)) == 0 {
 		return nil, errors.New("ipcName cannot be an empty string")

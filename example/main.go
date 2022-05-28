@@ -11,7 +11,7 @@ import (
 
 func main() {
 	sockDir := pbr.InitSockDir()
-	_, err := pbr.GetConnection(sockDir, context.Background())
+	_, err := pbr.GetConnPodman(sockDir, context.Background())
 
 	if err != nil {
 		fmt.Println("error")

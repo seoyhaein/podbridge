@@ -97,8 +97,10 @@ func CreateContainerWithSpec(imgName string, options ...Option) *specgen.SpecGen
 	return spec
 }
 
+// 테스트 용으로 제작
 func InitBasicConfig() *BasicConfig {
 	return &BasicConfig{
-		Name: "hello",
+		Name:  "hello",
+		Image: "centos", // 이건 쓰리기 값
 	}
 }

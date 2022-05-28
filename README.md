@@ -11,3 +11,7 @@ podman 설치 되어야 한다.
 3. spec 을 설정해서 컨테이너 만들기
 3.1 컨테이너의 healthcheck, healthcheck 에 따라서 반응하는 루틴 필요
 4. 호스트에서 컨테이너로 데이터 전송 podman cp 관련 자료 찾기
+
+
+## 읽어보기
+https://medium.com/safetycultureengineering/an-overview-of-memory-management-in-go-9a72ec7c76a8
