@@ -174,3 +174,8 @@ func deepCopySpec(oldOne *specgen.SpecGenerator, newOne *specgen.SpecGenerator) 
 }
 
 // defaultSpec 에서 생성된 Spec 의 특정 필드만을 바꾸는 함수 필요
+func changeName(name string) *specgen.SpecGenerator {
+
+	Spec.Name = name
+	return Spec
+}
