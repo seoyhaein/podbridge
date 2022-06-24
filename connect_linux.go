@@ -15,7 +15,7 @@ import (
 // https://github.com/james-barrow/golang-ipc 참고
 // 소스 정리전.
 
-func GetConnPodman(ipcName string, ctx context.Context) (*context.Context, error) {
+func NewConnection(ipcName string, ctx context.Context) (*context.Context, error) {
 
 	if len(strings.TrimSpace(ipcName)) == 0 {
 		return nil, errors.New("ipcName cannot be an empty string")
@@ -25,10 +25,7 @@ func GetConnPodman(ipcName string, ctx context.Context) (*context.Context, error
 	return &connText, err
 }
 
-// help function
-// podman 이 설치 되어 있는 것을 전제로 한다.
-// 리눅스에서만...
-func InitSockDir() (socket string) {
+func DefaultLinuxSockDir() (socket string) {
 	sockDir := os.Getenv("XDG_RUNTIME_DIR")
 	if sockDir == "" {
 		sockDir = "/var/run"

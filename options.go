@@ -1,8 +1,6 @@
 package podbridge
 
 import (
-	"fmt"
-
 	nettypes "github.com/containers/common/libnetwork/types"
 	deepcopy "github.com/containers/podman/v4/pkg/domain/utils"
 	"github.com/containers/podman/v4/pkg/specgen"
@@ -126,13 +124,6 @@ func WithBasic(basic interface{}) Option {
 		}
 
 		return WithBasic(Backup)
-	}
-}
-
-func WithTester(str string) Option {
-	return func(spec *specgen.SpecGenerator) Option {
-		fmt.Println(str)
-		return WithTester("old")
 	}
 }
 

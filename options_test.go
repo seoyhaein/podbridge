@@ -3,10 +3,9 @@ package podbridge
 import (
 	"fmt"
 	"testing"
-
-	"github.com/containers/podman/v4/pkg/specgen"
 )
 
+// TODO 차후 신규 테스트 진행 필요
 func TestWithBasic(t *testing.T) {
 
 	// name 만 설정 되어 있음.
@@ -38,12 +37,4 @@ func TestWithBasic(t *testing.T) {
 	} else {
 		fmt.Println("opt nil 이네.")
 	}
-}
-
-func TestWithTester(t *testing.T) {
-	opt := WithTester("hello world")
-	var spec = new(specgen.SpecGenerator)
-	opt1 := opt(spec)
-
-	opt1(spec)
 }
