@@ -2,7 +2,9 @@ package podbridge
 
 import (
 	"fmt"
+
 	nettypes "github.com/containers/common/libnetwork/types"
+	deepcopy "github.com/containers/podman/v4/pkg/domain/utils"
 	"github.com/containers/podman/v4/pkg/specgen"
 )
 
@@ -46,7 +48,9 @@ type (
 	}
 )
 
-// 전역적으로 재활용하면서 swap 할 2개의 포인터를 만들어 놓는다.
+/*
+	전역적으로 재활용하면서 swap 할 2개의 포인터를 만들어 놓는다.
+*/
 var (
 	Spec   *specgen.SpecGenerator
 	Backup *specgen.SpecGenerator
@@ -83,17 +87,18 @@ func WithBasic(basic interface{}) Option {
 			s, b := basic.(*specgen.SpecGenerator)
 
 			if b {
-				Spec = s
+				deepcopy.DeepCopy(Spec, s)
+				//Spec = s
 			}
 		}
 
 		// 기존 spec 있던것을 Backup 에 넣는다.
 		// Backup 을 초기화 상태로 만든다.
-		Backup = eraseSpec(Backup)
+		//Backup = eraseSpec(Backup)
 		// TODO deepcopy 문제 살펴보기.
-		Backup = spec
-
-		spec = eraseSpec(spec)
+		deepcopy.DeepCopy(Backup, spec)
+		//Backup = spec
+		//spec = eraseSpec(spec)
 
 		basicon, isBasicConfig := basic.(*BasicConfig)
 
@@ -160,17 +165,6 @@ func defaultSpec(spec *specgen.SpecGenerator) *specgen.SpecGenerator {
 	spec.Image = "docker.io/centos:latest"
 
 	return spec
-}
-
-// TODO
-func deepCopySpec(oldOne *specgen.SpecGenerator, newOne *specgen.SpecGenerator) *specgen.SpecGenerator {
-
-	if oldOne == nil || newOne == nil {
-		return nil
-	}
-	// TODO deepCopy 해야 한다.
-	newOne = oldOne
-	return newOne
 }
 
 // defaultSpec 에서 생성된 Spec 의 특정 필드만을 바꾸는 함수 필요
