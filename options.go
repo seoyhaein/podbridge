@@ -23,7 +23,7 @@ type (
 		Command      []string
 
 		// TODO 생각하자.
-		Old *specgen.SpecGenerator
+		//Old *specgen.SpecGenerator
 	}
 
 	PortMapping struct {
@@ -51,14 +51,15 @@ type (
 */
 var (
 	Spec   *specgen.SpecGenerator
-	Backup *specgen.SpecGenerator
+	backup *specgen.SpecGenerator
 )
 
 func init() {
 	Spec = new(specgen.SpecGenerator)
-	Spec = defaultSpec(Spec)
+	Spec.Name = "old hello world"
+	Spec.Image = "docker.io/centos:latest"
 
-	Backup = new(specgen.SpecGenerator)
+	backup = new(specgen.SpecGenerator)
 }
 
 func eraseSpec(spec *specgen.SpecGenerator) *specgen.SpecGenerator {
@@ -83,8 +84,8 @@ func WithBasic(basic interface{}) Option {
 
 		// 기존 spec 있던것을 Backup 에 넣는다.
 		// Backup 을 초기화 상태로 만든다.
-		Backup = eraseSpec(Backup)
-		deepcopy.DeepCopy(Backup, spec)
+		backup = eraseSpec(backup)
+		deepcopy.DeepCopy(backup, spec)
 		//Backup = spec
 		//spec = eraseSpec(spec)
 
@@ -123,7 +124,7 @@ func WithBasic(basic interface{}) Option {
 			}
 		}
 
-		return WithBasic(Backup)
+		return WithBasic(backup)
 	}
 }
 
@@ -132,22 +133,6 @@ func InitBasicConfig() *BasicConfig {
 	return &BasicConfig{
 		Name: "new hello world",
 	}
-}
-
-/*
-	init 에서만 사용되어야 함.
-	default 값에 대한 세부적인 설정은 추후에 한다.
-*/
-func defaultSpec(spec *specgen.SpecGenerator) *specgen.SpecGenerator {
-
-	if spec == nil {
-		return nil
-	}
-
-	spec.Name = "old hello world"
-	spec.Image = "docker.io/centos:latest"
-
-	return spec
 }
 
 // defaultSpec 에서 생성된 Spec 의 특정 필드만을 바꾸는 함수 필요

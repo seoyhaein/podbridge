@@ -10,6 +10,20 @@ import (
 	"github.com/containers/podman/v4/pkg/specgen"
 )
 
+// TODO 에러에 관해서 좀 살펴보자.
+// http://cloudrain21.com/golang-graceful-error-handling
+
+type ResultCreateContainer struct {
+	ErrorMessage string
+
+	Name     string
+	ID       string
+	Warnings []string
+
+	backup *specgen.SpecGenerator
+}
+
+// TODO 구현중
 func CreatePod(ctx *context.Context, podId string) error {
 	var podExistsOptions pods.ExistsOptions
 
@@ -26,73 +40,91 @@ func CreatePod(ctx *context.Context, podId string) error {
 	return nil
 }
 
-// TODO CreateContainerWithSpec 으로 대체한다.
-func CreateContainer(ctx *context.Context, conName string, imgName string) (containerID string) {
-	// types.go 참고.
+// TODO 컨테이너를 여러개 만들어야 하는 문제??
+// 리턴값을 통합하자. 지금은 일단 그냥 처리.
+// 컨테이너를 생성하기만 한다.
+
+func CreateContainerWithSpec(ctx *context.Context, options ...Option) *ResultCreateContainer {
+
+	var (
+		result *ResultCreateContainer
+		old    Option
+	)
+
+	result = new(ResultCreateContainer)
+
+	for _, opt := range options {
+		if opt != nil {
+			old = opt(Spec)
+		}
+	}
 
 	var containerExistsOptions containers.ExistsOptions
 
 	containerExistsOptions.External = PFalse
-	containerExists, err := containers.Exists(*ctx, conName, &containerExistsOptions)
+	containerExists, err := containers.Exists(*ctx, Spec.Name, &containerExistsOptions)
+
 	if err != nil {
-		//return nil
+		result.ErrorMessage = err.Error()
+		return result
 	}
 
+	// 컨테이너가 local storage 에 존재하고 있다면~
 	if containerExists {
+		// 참고, 다만 잘못된 정보일 수 있음.
+		// https://docs.podman.io/en/latest/_static/api.html?version=v4.1#operation/ContainerInitLibpod
 		var containerInspectOptions containers.InspectOptions
 		containerInspectOptions.Size = PFalse
-		ins, err := containers.Inspect(*ctx, conName, &containerInspectOptions)
+		containerData, err := containers.Inspect(*ctx, Spec.Name, &containerInspectOptions)
 		if err != nil {
-			//log.Fatalln(err)
+			result.ErrorMessage = err.Error()
+			return result
 		}
 
-		if ins.State.Running {
-			fmt.Printf("%s container already running", conName)
+		if containerData.State.Running {
+			result.ErrorMessage = fmt.Sprintf("%s container already running", Spec.Name)
+			result.ID = containerData.ID
+			result.Name = Spec.Name
+			return result
 		} else {
-			containerID = ins.ID
+			result.ErrorMessage = fmt.Sprintf("%s container already exists", Spec.Name)
+			result.ID = containerData.ID
+			result.Name = Spec.Name
+			return result
 		}
 	} else {
-		imageExists, err := images.Exists(*ctx, conName, nil)
+		imageExists, err := images.Exists(*ctx, Spec.Name, nil)
 		if err != nil {
-			//log.Fatalln(err)
+			result.ErrorMessage = err.Error()
+			return result
 		}
 
 		if !imageExists {
-			_, err := images.Pull(*ctx, conName, nil)
+			_, err := images.Pull(*ctx, Spec.Image, nil)
 			if err != nil {
-				//log.Fatalln(err)
+				result.ErrorMessage = err.Error()
+				return result
 			}
 		}
 
-		fmt.Printf("Creating %s container using %s image...\n", conName, imgName)
+		fmt.Printf("Pulling %s image...\n", Spec.Image)
 
-		spec := CreateContainerWithSpec(imgName)
-		/*s := specgen.NewSpecGenerator(imgName, false)
-		s.Name = conName*/
-
-		createResponse, err := containers.CreateWithSpec(*ctx, spec, nil)
+		createResponse, err := containers.CreateWithSpec(*ctx, Spec, nil)
 		if err != nil {
-			//log.Fatalln(err)
+			result.ErrorMessage = err.Error()
+			return result
 		}
 
-		containerID = createResponse.ID
+		fmt.Printf("Creating %s container using %s image...\n", Spec.Name, Spec.Image)
+
+		result.Name = Spec.Name
+		result.ID = createResponse.ID
+		result.Warnings = createResponse.Warnings
 	}
 
-	return
-}
+	// default 값으로 저장
+	old(nil)
+	result.backup = Spec
 
-// TODO 컨테이너를 여러개 만들어야 하는 문제??
-// 여기서는 문제가 안될 듯한데..
-
-func CreateContainerWithSpec(imgName string, options ...Option) *specgen.SpecGenerator {
-
-	var spec = specgen.NewSpecGenerator(imgName, false)
-
-	for _, opt := range options {
-		if opt != nil {
-			opt(spec)
-		}
-	}
-
-	return spec
+	return result
 }
