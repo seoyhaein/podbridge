@@ -6,10 +6,6 @@ import (
 	"github.com/containers/podman/v4/pkg/specgen"
 )
 
-// TODO 생각하기
-// 이부분은 패키지를 달리 두는 방향으로 하고, 옵션을 여러개 둘수 있도록 한다.
-// BasicConfig 와 관련해서 specgen.SpecGenerator 를 그대로 차용하는 건 어떨지 생각해보자.
-
 type (
 	Option func(*specgen.SpecGenerator) Option
 
@@ -21,9 +17,6 @@ type (
 		PortMappings []PortMapping
 		Env          []EnvVar
 		Command      []string
-
-		// TODO 생각하자.
-		//Old *specgen.SpecGenerator
 	}
 
 	PortMapping struct {
@@ -46,22 +39,6 @@ type (
 	}
 )
 
-/*
-	전역적으로 재활용하면서 swap 할 2개의 포인터를 만들어 놓는다.
-*/
-var (
-	Spec   *specgen.SpecGenerator
-	backup *specgen.SpecGenerator
-)
-
-func init() {
-	Spec = new(specgen.SpecGenerator)
-	Spec.Name = "old hello world"
-	Spec.Image = "docker.io/centos:latest"
-
-	backup = new(specgen.SpecGenerator)
-}
-
 func eraseSpec(spec *specgen.SpecGenerator) *specgen.SpecGenerator {
 	eraser := new(specgen.SpecGenerator)
 
@@ -78,16 +55,11 @@ func WithBasic(basic interface{}) Option {
 
 			if b {
 				deepcopy.DeepCopy(Spec, s)
-				//Spec = s
 			}
 		}
 
-		// 기존 spec 있던것을 Backup 에 넣는다.
-		// Backup 을 초기화 상태로 만든다.
 		backup = eraseSpec(backup)
 		deepcopy.DeepCopy(backup, spec)
-		//Backup = spec
-		//spec = eraseSpec(spec)
 
 		basicon, isBasicConfig := basic.(*BasicConfig)
 
@@ -128,14 +100,17 @@ func WithBasic(basic interface{}) Option {
 	}
 }
 
-// 테스트 용으로 제작
+// TODO
+// default 값으로 구체적인 값을 적용해놓자.
 func InitBasicConfig() *BasicConfig {
 	return &BasicConfig{
 		Name: "new hello world",
 	}
 }
 
-// defaultSpec 에서 생성된 Spec 의 특정 필드만을 바꾸는 함수 필요
+// TODO
+// Spec 의 특정 필드만을 바꾸는 함수 필요
+// 바꾸지만, 기본값은 본 상태로 돌려놓아야 한다.
 func changeName(name string) *specgen.SpecGenerator {
 
 	Spec.Name = name

@@ -10,6 +10,22 @@ import (
 	"github.com/containers/podman/v4/pkg/specgen"
 )
 
+/*
+	전역적으로 재활용하면서 swap 할 2개의 포인터를 만들어 놓는다.
+*/
+var (
+	Spec   *specgen.SpecGenerator
+	backup *specgen.SpecGenerator
+)
+
+func init() {
+	Spec = new(specgen.SpecGenerator)
+	Spec.Name = "old hello world"
+	Spec.Image = "docker.io/centos:latest"
+
+	backup = new(specgen.SpecGenerator)
+}
+
 // TODO 에러에 관해서 좀 살펴보자.
 // http://cloudrain21.com/golang-graceful-error-handling
 
