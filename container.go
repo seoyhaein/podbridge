@@ -3,28 +3,12 @@ package podbridge
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/containers/podman/v4/pkg/bindings/containers"
 	"github.com/containers/podman/v4/pkg/bindings/images"
-	"github.com/containers/podman/v4/pkg/bindings/pods"
 	"github.com/containers/podman/v4/pkg/specgen"
 )
-
-/*
-	전역적으로 재활용하면서 swap 할 2개의 포인터를 만들어 놓는다.
-*/
-var (
-	Spec   *specgen.SpecGenerator
-	backup *specgen.SpecGenerator
-)
-
-func init() {
-	Spec = new(specgen.SpecGenerator)
-	Spec.Name = "old hello world"
-	Spec.Image = "docker.io/centos:latest"
-
-	backup = new(specgen.SpecGenerator)
-}
 
 // TODO 에러에 관해서 좀 살펴보자.
 // http://cloudrain21.com/golang-graceful-error-handling
@@ -39,28 +23,11 @@ type ResultCreateContainer struct {
 	backup *specgen.SpecGenerator
 }
 
-// TODO 구현중
-func CreatePod(ctx *context.Context, podId string) error {
-	var podExistsOptions pods.ExistsOptions
-
-	podExists, err := pods.Exists(*ctx, podId, &podExistsOptions)
-
-	if err != nil {
-		return err
-	}
-	// 기존에 pod 가 존재할 경우는 무조건 해당 pod 를 지운다.
-	if podExists {
-		return nil
-	}
-
-	return nil
-}
-
 // TODO 컨테이너를 여러개 만들어야 하는 문제??
-// 리턴값을 통합하자. 지금은 일단 그냥 처리.
 // 컨테이너를 생성하기만 한다.
+// 컨테이너 이름 자동생성
 
-func CreateContainerWithSpec(ctx *context.Context, options ...Option) *ResultCreateContainer {
+func CreateContainerWithSpec(ctx *context.Context, options ...Option) (*ResultCreateContainer, bool) {
 
 	var (
 		result *ResultCreateContainer
@@ -82,7 +49,7 @@ func CreateContainerWithSpec(ctx *context.Context, options ...Option) *ResultCre
 
 	if err != nil {
 		result.ErrorMessage = err.Error()
-		return result
+		return result, false
 	}
 
 	// 컨테이너가 local storage 에 존재하고 있다면~
@@ -94,41 +61,44 @@ func CreateContainerWithSpec(ctx *context.Context, options ...Option) *ResultCre
 		containerData, err := containers.Inspect(*ctx, Spec.Name, &containerInspectOptions)
 		if err != nil {
 			result.ErrorMessage = err.Error()
-			return result
+			return result, false
 		}
 
 		if containerData.State.Running {
 			result.ErrorMessage = fmt.Sprintf("%s container already running", Spec.Name)
 			result.ID = containerData.ID
 			result.Name = Spec.Name
-			return result
+			return result, false
 		} else {
 			result.ErrorMessage = fmt.Sprintf("%s container already exists", Spec.Name)
 			result.ID = containerData.ID
 			result.Name = Spec.Name
-			return result
+			return result, false
 		}
 	} else {
 		imageExists, err := images.Exists(*ctx, Spec.Name, nil)
 		if err != nil {
 			result.ErrorMessage = err.Error()
-			return result
+			return result, false
 		}
 
 		if !imageExists {
 			_, err := images.Pull(*ctx, Spec.Image, nil)
 			if err != nil {
 				result.ErrorMessage = err.Error()
-				return result
+				return result, false
 			}
 		}
 
 		fmt.Printf("Pulling %s image...\n", Spec.Image)
 
+		// 이름은 컨테이너를 생성할때 만들어준다.
+		Spec.Name = createContainerName()
+
 		createResponse, err := containers.CreateWithSpec(*ctx, Spec, nil)
 		if err != nil {
 			result.ErrorMessage = err.Error()
-			return result
+			return result, false
 		}
 
 		fmt.Printf("Creating %s container using %s image...\n", Spec.Name, Spec.Image)
@@ -136,11 +106,24 @@ func CreateContainerWithSpec(ctx *context.Context, options ...Option) *ResultCre
 		result.Name = Spec.Name
 		result.ID = createResponse.ID
 		result.Warnings = createResponse.Warnings
+
+		// TODO 찾아보기  StartOptions
+		err = containers.Start(*ctx, result.ID, &containers.StartOptions{})
+		if err != nil {
+			result.ErrorMessage = err.Error()
+			return result, false
+		}
 	}
 
 	// default 값으로 저장
 	old(nil)
 	result.backup = Spec
 
-	return result
+	return result, true
+}
+
+// 일단 최초 컨테이너가 생성된 시점의 시간을 기록한다.
+// 추가적으로 기록될 필요가 있는 정보가 있으면 추가한다.
+func createContainerName() string {
+	return time.Now().String()
 }

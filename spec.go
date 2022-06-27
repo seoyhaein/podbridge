@@ -1,10 +1,30 @@
 package podbridge
 
 import (
+	"fmt"
+
 	nettypes "github.com/containers/common/libnetwork/types"
 	deepcopy "github.com/containers/podman/v4/pkg/domain/utils"
 	"github.com/containers/podman/v4/pkg/specgen"
+
+	"github.com/seoyhaein/go-tuple"
 )
+
+/*
+	전역적으로 재활용하면서 swap 할 2개의 포인터를 만들어 놓는다.
+*/
+var (
+	Spec   *specgen.SpecGenerator
+	backup *specgen.SpecGenerator
+)
+
+// default 값을 세팅해놓았다.
+func init() {
+	Spec = new(specgen.SpecGenerator)
+	Spec.Image = "alpine:latest"
+
+	backup = new(specgen.SpecGenerator)
+}
 
 type (
 	Option func(*specgen.SpecGenerator) Option
@@ -39,6 +59,7 @@ type (
 	}
 )
 
+// TODO 중요! 정상작동하는지 테스트 필요.
 func eraseSpec(spec *specgen.SpecGenerator) *specgen.SpecGenerator {
 	eraser := new(specgen.SpecGenerator)
 
@@ -46,7 +67,7 @@ func eraseSpec(spec *specgen.SpecGenerator) *specgen.SpecGenerator {
 	return spec
 }
 
-func WithBasic(basic interface{}) Option {
+func WithBasicConfig(basic interface{}) Option {
 	return func(spec *specgen.SpecGenerator) Option {
 
 		// for backup
@@ -96,7 +117,7 @@ func WithBasic(basic interface{}) Option {
 			}
 		}
 
-		return WithBasic(backup)
+		return WithBasicConfig(backup)
 	}
 }
 
@@ -104,15 +125,34 @@ func WithBasic(basic interface{}) Option {
 // default 값으로 구체적인 값을 적용해놓자.
 func InitBasicConfig() *BasicConfig {
 	return &BasicConfig{
-		Name: "new hello world",
+		Image: "docker.io/centos:latest",
 	}
 }
 
-// TODO
-// Spec 의 특정 필드만을 바꾸는 함수 필요
-// 바꾸지만, 기본값은 본 상태로 돌려놓아야 한다.
-func changeName(name string) *specgen.SpecGenerator {
+// tuple 적용
+// TODO 읽기 https://betterprogramming.pub/implementing-type-safe-tuples-with-go-1-18-9624010efaa
+// https://github.com/golang/example/tree/master/gotypes
 
-	Spec.Name = name
-	return Spec
+func GenBasicConfig(as ...any) *BasicConfig {
+
+	for _, a := range as {
+		if a != nil {
+			//if a
+		}
+	}
+
+	return &BasicConfig{
+		Image: "docker.io/centos:latest",
+	}
+}
+
+// 1.18 에서는 constraints: move to x/exp for Go 1.18 이렇게됨. 향후 조정될 수도 있음.
+// https://github.com/golang/go/issues/50792
+
+func testuple() {
+
+	// goland 버그 때문에 짜증난다.
+	tup := tuple.New2(5, "hi!")
+	fmt.Println(tup.V1) // Outputs 5.
+	fmt.Println(tup.V2) // Outputs "hi!".
 }

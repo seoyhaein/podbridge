@@ -13,7 +13,7 @@ func TestWithBasic(t *testing.T) {
 
 	// opt(여기에는 항상 Spec 이 들어가야 한다.)
 	var opt Option
-	opt = WithBasic(basicConfig)
+	opt = WithBasicConfig(basicConfig)
 	// 이렇게 하면 spec 이 Old 값으로 저장됨으로 에러가 난다.
 	//var spec = specgen.NewSpecGenerator(imgName, false)
 	//var spec = new(specgen.SpecGenerator)

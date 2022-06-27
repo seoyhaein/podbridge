@@ -17,7 +17,7 @@ func TestCreateContainerWithSpec(t *testing.T) {
 	}
 
 	basicConfig := InitBasicConfig()
-	opt := WithBasic(basicConfig)
+	opt := WithBasicConfig(basicConfig)
 
 	CreateContainerWithSpec(conText, opt)
 }
