@@ -1,13 +1,11 @@
 package podbridge
 
 import (
-	"fmt"
+	"reflect"
 
 	nettypes "github.com/containers/common/libnetwork/types"
 	deepcopy "github.com/containers/podman/v4/pkg/domain/utils"
 	"github.com/containers/podman/v4/pkg/specgen"
-
-	"github.com/seoyhaein/go-tuple"
 )
 
 /*
@@ -56,6 +54,11 @@ type (
 		Text string
 		Name string
 		Dest string
+	}
+
+	pair struct {
+		p1 any
+		p2 any
 	}
 )
 
@@ -129,30 +132,62 @@ func InitBasicConfig() *BasicConfig {
 	}
 }
 
-// tuple 적용
 // TODO 읽기 https://betterprogramming.pub/implementing-type-safe-tuples-with-go-1-18-9624010efaa
 // https://github.com/golang/example/tree/master/gotypes
+// 1.18 에서는 constraints: move to x/exp for Go 1.18 이렇게됨. 향후 조정될 수도 있음.
+// https://github.com/golang/go/issues/50792
+// 참고 : https://pkg.go.dev/go/types
+// tuple 은 사용하지 않는다.
 
-func GenBasicConfig(as ...any) *BasicConfig {
+// TODO spec 테스트 하자.
+// a 는 컨테이너나 pod 의 spec struct 이고, p 는 struct 에 넣을 필드와 값이다.
+// 일단 string 만 적용되도록 했다.
 
-	for _, a := range as {
-		if a != nil {
-			//if a
+func SetStringField(a interface{}, p pair) {
+
+	specType := reflect.TypeOf(a)
+	specValue := reflect.ValueOf(a)
+
+	if specType.Kind() == reflect.Struct {
+		//for _, p := range ps {
+		v1, b1 := p.p1.(string)
+		if b1 {
+			_, find := specType.FieldByName(v1)
+
+			if find {
+				// 값을 설정 할 수 있다면...
+				if specValue.FieldByName(v1).CanSet() {
+					v2, b2 := p.p2.(string)
+					if b2 {
+						specValue.SetString(v2)
+					}
+				}
+			}
 		}
-	}
-
-	return &BasicConfig{
-		Image: "docker.io/centos:latest",
+		//}
 	}
 }
 
-// 1.18 에서는 constraints: move to x/exp for Go 1.18 이렇게됨. 향후 조정될 수도 있음.
-// https://github.com/golang/go/issues/50792
+// TODO test
+func WithValues(a interface{}, ps ...pair) Option {
+	return func(spec *specgen.SpecGenerator) Option {
 
-func testuple() {
+		// for backup
+		if spec == nil {
+			s, b := a.(*specgen.SpecGenerator)
 
-	// goland 버그 때문에 짜증난다.
-	tup := tuple.New2(5, "hi!")
-	fmt.Println(tup.V1) // Outputs 5.
-	fmt.Println(tup.V2) // Outputs "hi!".
+			if b {
+				deepcopy.DeepCopy(Spec, s)
+			}
+		}
+
+		backup = eraseSpec(backup)
+		deepcopy.DeepCopy(backup, spec)
+
+		for _, p := range ps {
+			SetStringField(a, p)
+		}
+
+		return WithValues(backup)
+	}
 }
