@@ -3,6 +3,8 @@ package podbridge
 import (
 	"fmt"
 	"testing"
+
+	"github.com/containers/podman/v4/pkg/specgen"
 )
 
 // TODO 차후 신규 테스트 진행 필요
@@ -37,4 +39,50 @@ func TestWithBasic(t *testing.T) {
 	} else {
 		fmt.Println("opt nil 이네.")
 	}
+}
+
+// TODO
+// Test SetField
+// 나머지 필드들에 대한 테스트를 진행해야한다.
+// 하지만 세부적인 테스트는 개발진행하면서 진행한다.
+
+func TestSetField(t *testing.T) {
+
+	spec := new(specgen.SpecGenerator)
+	fmt.Println("01: 테스트전")
+	fmt.Println(spec.Name)
+	SetField(spec, "Name", "test")
+	fmt.Println("01: 테스트후 test 가 나오면 정상")
+	fmt.Println(spec.Name)
+
+	fmt.Println("02: 테스트전")
+
+	for _, ss := range spec.Command {
+		fmt.Println(ss)
+	}
+	ss := []string{"hello", "world"}
+
+	SetField(spec, "Command", ss)
+	fmt.Println("02: 테스트후 hello world 가 나오면 정상")
+
+	for _, ss := range spec.Command {
+		fmt.Println(ss)
+	}
+}
+
+// TODO
+// Test WithValues
+func TestWithValues(t *testing.T) {
+	ps := new(pair)
+
+	ps.p1 = "Name"
+	ps.p2 = "hello world"
+
+	old := WithValues(Spec, ps)
+	fmt.Println("Spec.Name", Spec.Name)
+	fmt.Println("hello world 가 나오면 정상")
+
+	old(nil)
+	fmt.Println("Spec.Name", Spec.Name)
+	fmt.Println("아무것도 안나오면 정상")
 }
