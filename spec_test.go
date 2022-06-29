@@ -72,6 +72,7 @@ func TestSetField(t *testing.T) {
 
 // TODO
 // Test WithValues
+// 오류 있음. 오류는 내일 고치는 걸로.
 func TestWithValues(t *testing.T) {
 	ps := new(pair)
 
