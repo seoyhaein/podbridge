@@ -24,6 +24,7 @@ type ResultCreateContainer struct {
 }
 
 // TODO 컨테이너를 여러개 만들어야 하는 문제??
+// TODO WithValues 를 새로 만들었기 때문에 CreateContainerWithSpec 수정 필요. 내일 하자.
 // 컨테이너를 생성하기만 한다.
 // 컨테이너 이름 자동생성
 

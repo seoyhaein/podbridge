@@ -1,15 +1,13 @@
 package podbridge
 
 import (
-	"context"
-	"fmt"
 	"testing"
 )
 
-// TODO 다양한 테스트 진행해야함.
+// TODO 테스트 진행해야함.
 func TestCreateContainerWithSpec(t *testing.T) {
 
-	sockDir := DefaultLinuxSockDir()
+	/*sockDir := DefaultLinuxSockDir()
 	conText, err := NewConnection(sockDir, context.Background())
 
 	if err != nil {
@@ -19,5 +17,5 @@ func TestCreateContainerWithSpec(t *testing.T) {
 	basicConfig := InitBasicConfig()
 	opt := WithBasicConfig(basicConfig)
 
-	CreateContainerWithSpec(conText, opt)
+	CreateContainerWithSpec(conText, opt)*/
 }
