@@ -24,7 +24,7 @@ type ResultCreateContainer struct {
 }
 
 // TODO 컨테이너를 여러개 만들어야 하는 문제??
-// TODO WithValues 를 새로 만들었기 때문에 CreateContainerWithSpec 수정 필요. 내일 하자.
+// TODO 중요 WithValues 를 새로 만들었기 때문에 CreateContainerWithSpec 수정 필요. 내일 하자.
 // 컨테이너를 생성하기만 한다.
 // 컨테이너 이름 자동생성
 
@@ -123,6 +123,7 @@ func CreateContainerWithSpec(ctx *context.Context, options ...Option) (*ResultCr
 	return result, true
 }
 
+// TODO apis.go 로 이동 및 옵션을 만들어서 이름을 자동으로 만들어 줄지 설정할 수 있도록 한다.
 // 일단 최초 컨테이너가 생성된 시점의 시간을 기록한다.
 // 추가적으로 기록될 필요가 있는 정보가 있으면 추가한다.
 func createContainerName() string {
