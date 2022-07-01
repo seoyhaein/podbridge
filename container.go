@@ -22,11 +22,11 @@ type ResultCreateContainer struct {
 }
 
 // TODO 컨테이너를 여러개 만들어야 하는 문제??
-// TODO 중요 WithValues 를 새로 만들었기 때문에 CreateContainerWithSpec 수정 필요. 내일 하자.
+// TODO 꼼꼼히 테스트 해야함.
 // 컨테이너를 생성하기만 한다.
 // 컨테이너 이름 자동생성
 
-// 오류 찾기 NewSpecGenerator 과 비교해야 함
+// 오류 찾기 NewSpecGenerator 과 비교해야 함.
 
 func StartContainerWithSpec(ctx *context.Context, conf *ContainerConfig) *ResultCreateContainer {
 
@@ -77,8 +77,8 @@ func StartContainerWithSpec(ctx *context.Context, conf *ContainerConfig) *Result
 			return result
 		}
 	} else {
-		// TODO 확인하자. 계속 pull 한다.
-		imageExists, err := images.Exists(*ctx, Spec.Name, nil)
+
+		imageExists, err := images.Exists(*ctx, Spec.Image, nil)
 		if err != nil {
 			result.ErrorMessage = err.Error()
 			result.success = false
@@ -86,7 +86,7 @@ func StartContainerWithSpec(ctx *context.Context, conf *ContainerConfig) *Result
 		}
 
 		if !imageExists {
-			_, err := images.Pull(*ctx, Spec.Image, nil)
+			_, err := images.Pull(*ctx, Spec.Image, &images.PullOptions{})
 			if err != nil {
 				result.ErrorMessage = err.Error()
 				result.success = false
