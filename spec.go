@@ -85,6 +85,7 @@ func clearStruct(a interface{}) interface{} {
 // 일단 string 만 적용되도록 했다.
 // spec 과 Spec 이름을 혼동하지 말자.
 // 여기서 struct 의 field name 을 잘못 작성하면 panic 이 발생하도록 했다.
+// TODO 반드시 Set 해야 하는 field 에 대한 부분을 넣어줘야 한다.
 
 func WithValues(as ...any) Option {
 	return func(spec *specgen.SpecGenerator) Option {
@@ -138,4 +139,11 @@ func SetField(a interface{}, fieldName string, value interface{}) error {
 	}
 
 	return nil
+}
+
+func Finally(option ...Option) {
+
+	for _, op := range option {
+		op(nil)
+	}
 }
