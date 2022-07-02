@@ -1,6 +1,8 @@
 package podbridge
 
 import (
+	"time"
+
 	"github.com/containers/podman/v4/pkg/specgen"
 )
 
@@ -34,7 +36,8 @@ func (conf *ContainerConfig) IsAutoCreateContainerName() *bool {
 	return conf.AutoCreateContainerName
 }
 
-// 이름을 설정하고 이 메서드를 호출한다.
+// 이름을 자동 설정하고 이 메서드를 호출한다.
+// 에러 조심하자. nil 의 의미.
 
 func (conf *ContainerConfig) TrueAutoCreateContainerName(spec *specgen.SpecGenerator) *bool {
 
@@ -43,8 +46,11 @@ func (conf *ContainerConfig) TrueAutoCreateContainerName(spec *specgen.SpecGener
 		conf.createSpecContainerName()
 		conf.AutoCreateContainerName = PTrue
 		return conf.AutoCreateContainerName
-	} else {
-		// 만약 Spec.Name 이 세팅되어 있으면 nil 반환.
+	} else { // 만약 Spec.Name 이 세팅되어 있으면 nil 반환.
+		if conf.AutoCreateContainerName == PTrue {
+			conf.AutoCreateContainerName = PFalse
+		}
+
 		return nil
 	}
 }
@@ -58,9 +64,5 @@ func (conf *ContainerConfig) FalseAutoCreateContainerName() {
 // 추가적으로 기록될 필요가 있는 정보가 있으면 추가한다.
 
 func (conf *ContainerConfig) createSpecContainerName() {
-
-	//Spec.Name = time.Now().String()
-
-	Spec.Name = "hello babo"
-
+	Spec.Name = time.Now().Format("20220702-15h04m05s")
 }

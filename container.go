@@ -85,7 +85,7 @@ func StartContainerWithSpec(ctx *context.Context, conf *ContainerConfig) *Result
 			return result
 		}
 
-		if !imageExists {
+		if imageExists == false {
 			_, err := images.Pull(*ctx, Spec.Image, &images.PullOptions{})
 			if err != nil {
 				result.ErrorMessage = err.Error()
@@ -97,6 +97,7 @@ func StartContainerWithSpec(ctx *context.Context, conf *ContainerConfig) *Result
 		if conf.IsSetSpec() == PTrue {
 
 			fmt.Printf("Pulling %s image...\n", Spec.Image)
+
 			createResponse, err := containers.CreateWithSpec(*ctx, Spec, &containers.CreateOptions{})
 			if err != nil {
 				result.ErrorMessage = err.Error()
