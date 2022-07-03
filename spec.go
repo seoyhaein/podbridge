@@ -9,6 +9,8 @@ import (
 	"github.com/containers/podman/v4/pkg/specgen"
 )
 
+// TODO PodSepc 작성 해야함.
+
 // 전역적으로 재활용하면서 swap 할 2개의 포인터를 만들어 놓는다.
 var (
 	Spec   *specgen.SpecGenerator
