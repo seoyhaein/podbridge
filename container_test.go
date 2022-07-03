@@ -5,11 +5,7 @@ import (
 	"fmt"
 	"testing"
 	"time"
-
-	"github.com/containers/podman/v4/pkg/bindings/containers"
 )
-
-// TODO 테스트 진행해야함. 오류 있음.
 
 func TestStartContainerWithSpec(t *testing.T) {
 
@@ -43,10 +39,6 @@ func TestStartContainerWithSpec(t *testing.T) {
 
 	conf.TrueAutoCreateContainerName(Spec)
 
-	/*tspec := specgen.NewSpecGenerator(busybox, false)
-	tspec.Terminal = false
-	tspec.Name = "hellobabo"*/
-
 	if conf.AutoCreateContainerName == PFalse || conf.AutoCreateContainerName == nil { // 설정되어 있으면
 		name := new(pair)
 		name.p1 = "Name"
@@ -57,25 +49,21 @@ func TestStartContainerWithSpec(t *testing.T) {
 		opt1(Spec)
 	}
 
-	//b := reflect.DeepEqual(tspec, Spec)
-
-	/*if b == false {
-		fmt.Println("not same")
-	} else {
-		fmt.Println("same")
-	}*/
-
 	b := conf.TrueSetSpec()
 
 	if b == PTrue {
-		_, err := containers.CreateWithSpec(*ctx, Spec, &containers.CreateOptions{})
-		if err != nil {
-			fmt.Println(err.Error())
-		}
 
 		fmt.Printf("Creating %s container using %s image...\n", Spec.Name, Spec.Image)
 
-		//result := StartContainerWithSpec(ctx, conf)
+		result := ContainerWithSpec(ctx, conf)
+
+		if result.success {
+			fmt.Printf("ID: %s, Name: %s \n", result.ID, result.Name)
+
+			for i, s := range result.Warnings {
+				fmt.Printf("warning(%d): %s \n", i, s)
+			}
+		}
 
 		Finally(finally)
 

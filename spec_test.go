@@ -13,7 +13,7 @@ import (
 	"github.com/containers/podman/v4/pkg/specgen"
 )
 
-// TODO
+// TODO 기타 다른 값들도 테스트 진행해야 함. cf volume
 // Test SetField
 // 나머지 필드들에 대한 테스트를 진행해야한다.
 // 하지만 세부적인 테스트는 개발진행하면서 진행한다.

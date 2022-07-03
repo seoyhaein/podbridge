@@ -2,6 +2,7 @@ package podbridge
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/containers/podman/v4/pkg/bindings/containers"
@@ -11,8 +12,10 @@ import (
 // TODO 에러에 관해서 좀 살펴보자.
 // http://cloudrain21.com/golang-graceful-error-handling
 
+// TODO podman/libpod 에서 container.go 잘 살펴보기
+
 type ResultCreateContainer struct {
-	ErrorMessage string
+	ErrorMessage error
 
 	Name     string
 	ID       string
@@ -28,7 +31,7 @@ type ResultCreateContainer struct {
 
 // 오류 찾기 NewSpecGenerator 과 비교해야 함.
 
-func StartContainerWithSpec(ctx *context.Context, conf *ContainerConfig) *ResultCreateContainer {
+func ContainerWithSpec(ctx *context.Context, conf *ContainerConfig) *ResultCreateContainer {
 
 	if conf.IsSetSpec() == PFalse || conf.IsSetSpec() == nil {
 		return nil
@@ -45,7 +48,7 @@ func StartContainerWithSpec(ctx *context.Context, conf *ContainerConfig) *Result
 	containerExists, err := containers.Exists(*ctx, Spec.Name, &containerExistsOptions)
 
 	if err != nil {
-		result.ErrorMessage = err.Error()
+		result.ErrorMessage = err
 		result.success = false
 		return result
 	}
@@ -58,19 +61,19 @@ func StartContainerWithSpec(ctx *context.Context, conf *ContainerConfig) *Result
 		containerInspectOptions.Size = PFalse
 		containerData, err := containers.Inspect(*ctx, Spec.Name, &containerInspectOptions)
 		if err != nil {
-			result.ErrorMessage = err.Error()
+			result.ErrorMessage = err
 			result.success = false
 			return result
 		}
 
 		if containerData.State.Running {
-			result.ErrorMessage = fmt.Sprintf("%s container already running", Spec.Name)
+			result.ErrorMessage = errors.New(fmt.Sprintf("%s container already running", Spec.Name))
 			result.ID = containerData.ID
 			result.Name = Spec.Name
 			result.success = false
 			return result
 		} else {
-			result.ErrorMessage = fmt.Sprintf("%s container already exists", Spec.Name)
+			result.ErrorMessage = errors.New(fmt.Sprintf("%s container already exists", Spec.Name))
 			result.ID = containerData.ID
 			result.Name = Spec.Name
 			result.success = false
@@ -80,7 +83,7 @@ func StartContainerWithSpec(ctx *context.Context, conf *ContainerConfig) *Result
 
 		imageExists, err := images.Exists(*ctx, Spec.Image, nil)
 		if err != nil {
-			result.ErrorMessage = err.Error()
+			result.ErrorMessage = err
 			result.success = false
 			return result
 		}
@@ -88,7 +91,7 @@ func StartContainerWithSpec(ctx *context.Context, conf *ContainerConfig) *Result
 		if imageExists == false {
 			_, err := images.Pull(*ctx, Spec.Image, &images.PullOptions{})
 			if err != nil {
-				result.ErrorMessage = err.Error()
+				result.ErrorMessage = err
 				result.success = false
 				return result
 			}
@@ -100,7 +103,7 @@ func StartContainerWithSpec(ctx *context.Context, conf *ContainerConfig) *Result
 
 			createResponse, err := containers.CreateWithSpec(*ctx, Spec, &containers.CreateOptions{})
 			if err != nil {
-				result.ErrorMessage = err.Error()
+				result.ErrorMessage = err
 				result.success = false
 				return result
 			}
@@ -111,16 +114,55 @@ func StartContainerWithSpec(ctx *context.Context, conf *ContainerConfig) *Result
 			result.ID = createResponse.ID
 			result.Warnings = createResponse.Warnings
 		}
-
-		// TODO 찾아보기  StartOptions
-		err = containers.Start(*ctx, result.ID, &containers.StartOptions{})
-		if err != nil {
-			result.ErrorMessage = err.Error()
-			result.success = false
-			return result
-		}
 	}
 
 	result.success = true
 	return result
 }
+
+func (Res *ResultCreateContainer) Start(ctx *context.Context) error {
+	// TODO 이 코드는 의미 없을것 같다. 테스트 할때 해보자.
+	if Res == nil {
+		return nil
+	}
+
+	if Res.success {
+		// startOptions 는 default 값을 사용한다.
+		// https://docs.podman.io/en/latest/_static/api.html?version=v4.1#operation/ContainerStartLibpod
+		err := containers.Start(*ctx, Res.ID, &containers.StartOptions{})
+		return err
+	} else {
+		return Res.ErrorMessage
+	}
+}
+
+func (Res *ResultCreateContainer) Stop(ctx *context.Context, options ...any) error {
+
+	// https://docs.podman.io/en/latest/_static/api.html?version=v4.1#operation/ContainerStopLibpod
+	// default 값은 timeout 은  10 으로 세팅되어 있고, ignore 는 false 이다.
+	// ignore 는 만약 stop 된 컨테이너를 stop 되어 있을 때 stop 하는 경우 true 하면 에러 무시, false 로 하면 에러 리턴
+	// timeout 은 몇 후에 컨테어너를 kill 할지 정한다.
+
+	if Res == nil {
+		return nil
+	}
+	stopOption := new(containers.StopOptions)
+	for _, op := range options {
+		v, b := op.(*bool)
+		if b {
+			stopOption.Ignore = v
+		} else {
+			v1, b1 := op.(*uint)
+			if b1 {
+				stopOption.Timeout = v1
+			}
+		}
+	}
+
+	err := containers.Stop(*ctx, Res.ID, stopOption)
+	return err
+}
+
+// TODO wait 함수 구체적으로 살펴보기기
+// 나머지들은 조금씩 구현해 나간다.
+// containers.go
