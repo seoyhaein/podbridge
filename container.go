@@ -26,10 +26,7 @@ type ResultCreateContainer struct {
 
 // TODO 컨테이너를 여러개 만들어야 하는 문제??
 // TODO 꼼꼼히 테스트 해야함.
-// 컨테이너를 생성하기만 한다.
-// 컨테이너 이름 자동생성
-
-// 오류 찾기 NewSpecGenerator 과 비교해야 함.
+// pull goroutine
 
 func ContainerWithSpec(ctx *context.Context, conf *ContainerConfig) *ResultCreateContainer {
 
