@@ -3,6 +3,7 @@ package podbridge
 // TODO 문제 있음.
 // 링크가 충돌하는 문제가 발생하는 것 같다.
 // 일단 주석처리 한다.
+// 일단 이 문제를 긴급하게 해결한다.
 
 import (
 	"context"
