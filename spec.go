@@ -149,3 +149,13 @@ func Finally(option ...Option) {
 		op(nil)
 	}
 }
+
+// TODO
+// Volumes []*NamedVolume `json:"volumes,omitempty"` 이걸 스팩이용해서 붙이는 걸 해야한다.
+
+// volume 을 생성해서 container 에 붙인다.
+// specgen/volumes.go 에 비슷한 기능의 함수가(GenVolumeMounts) 있지만 사용하지 않고 자체적으로 제작한다.
+
+func GenNamedVolumes() []*specgen.NamedVolume {
+	return nil
+}

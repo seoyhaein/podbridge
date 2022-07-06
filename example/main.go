@@ -3,8 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
-	"reflect"
 
+	v4en "github.com/containers/podman/pkg/domain/entities"
+	"github.com/containers/podman/v4/pkg/bindings/volumes"
 	pbr "github.com/seoyhaein/podbridge"
 )
 
@@ -12,17 +13,21 @@ import (
 
 func main() {
 	sockDir := pbr.DefaultLinuxSockDir()
-	_, err := pbr.NewConnection(sockDir, context.Background())
+	ctx, err := pbr.NewConnection(sockDir, context.Background())
 
 	if err != nil {
 		fmt.Println("error")
 	}
+	var (
+		report []*v4en.VolumeListReport
+		er     error
+	)
 
-	findField()
-}
+	report, er = volumes.List(*ctx, &volumes.ListOptions{})
 
-func findField() {
-	//t := reflect.TypeOf(*pbr.Spec)
-
-	fmt.Println(reflect.TypeOf(*pbr.Spec).Kind().String())
+	if er != nil {
+		for i, r := range report {
+			fmt.Sprintf("%d: name:%s, driver:%s", i, r.Name, r.Driver)
+		}
+	}
 }
