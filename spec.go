@@ -9,18 +9,19 @@ import (
 	"github.com/containers/podman/v4/pkg/specgen"
 )
 
-// TODO PodSepc 작성 해야함.
-
-// 전역적으로 재활용하면서 swap 할 2개의 포인터를 만들어 놓는다.
 var (
 	Spec   *specgen.SpecGenerator
 	backup *specgen.SpecGenerator
+
+	PodSpec   *specgen.PodSpecGenerator
+	podbackup *specgen.PodSpecGenerator
 
 	cleanBackup bool
 )
 
 type (
-	Option func(*specgen.SpecGenerator) Option
+	Option    func(*specgen.SpecGenerator) Option
+	PodOption func(*specgen.PodSpecGenerator) PodOption
 
 	pair struct {
 		p1 any
@@ -31,10 +32,10 @@ type (
 // default 값을 세팅할 수 있다.
 func init() {
 	Spec = new(specgen.SpecGenerator)
-	// default 값 세팅
-	Spec.Image = "alpine:latest"
-
 	backup = new(specgen.SpecGenerator)
+
+	PodSpec = new(specgen.PodSpecGenerator)
+	podbackup = new(specgen.PodSpecGenerator)
 	cleanBackup = true
 }
 
@@ -45,6 +46,22 @@ func eraseSpec(spec *specgen.SpecGenerator) *specgen.SpecGenerator {
 		return nil
 	}
 	s, b := clear.(*specgen.SpecGenerator)
+
+	if b {
+		return s
+	} else {
+		return nil
+	}
+
+}
+
+func erasePodSpec(podspec *specgen.PodSpecGenerator) *specgen.PodSpecGenerator {
+	clear := clearStruct(podspec)
+
+	if clear == nil {
+		return nil
+	}
+	s, b := clear.(*specgen.PodSpecGenerator)
 
 	if b {
 		return s
@@ -99,6 +116,7 @@ func WithValues(as ...any) Option {
 				// 여기서 s 는 backup 이다.
 				if b {
 					Spec = eraseSpec(Spec)
+					// TODO error 처리하자.
 					deepcopy.DeepCopy(Spec, s)
 					cleanBackup = false
 				}
@@ -150,12 +168,49 @@ func Finally(option ...Option) {
 	}
 }
 
-// TODO
-// Volumes []*NamedVolume `json:"volumes,omitempty"` 이걸 스팩이용해서 붙이는 걸 해야한다.
+func FinallyPod(podoption ...PodOption) {
 
-// volume 을 생성해서 container 에 붙인다.
-// specgen/volumes.go 에 비슷한 기능의 함수가(GenVolumeMounts) 있지만 사용하지 않고 자체적으로 제작한다.
+	for _, op := range podoption {
+		op(nil)
+	}
+}
 
-func GenNamedVolumes() []*specgen.NamedVolume {
-	return nil
+func WithPodValues(as ...any) PodOption {
+	return func(podspec *specgen.PodSpecGenerator) PodOption {
+
+		// for backup
+		if podspec == nil {
+			for _, a := range as {
+				s, b := a.(*specgen.PodSpecGenerator)
+				// 여기서 s 는 backup 이다.
+				if b {
+					PodSpec = erasePodSpec(PodSpec)
+					deepcopy.DeepCopy(PodSpec, s)
+					cleanBackup = false
+				}
+			}
+		} else {
+			if cleanBackup == false {
+				podbackup = erasePodSpec(podbackup)
+				cleanBackup = true
+			}
+			deepcopy.DeepCopy(podbackup, PodSpec)
+
+			for _, a := range as {
+				p, b := a.(*pair)
+				if b {
+					v1, b1 := p.p1.(string)
+					if b1 {
+						err := SetField(podspec, v1, p.p2)
+						if err != nil {
+							panic(err.Error())
+						}
+					} else {
+						panic(errors.New("the type of field name must be string"))
+					}
+				}
+			}
+		}
+		return WithPodValues(podbackup)
+	}
 }

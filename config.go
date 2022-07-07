@@ -38,6 +38,7 @@ func (conf *ContainerConfig) IsAutoCreateContainerName() *bool {
 
 // 이름을 자동 설정하고 이 메서드를 호출한다.
 // 에러 조심하자. nil 의 의미.
+// TODO 사용하는데 불편함이 있다. 추후 수정.
 
 func (conf *ContainerConfig) TrueAutoCreateContainerName(spec *specgen.SpecGenerator) *bool {
 

@@ -1,16 +1,17 @@
 package podbridge
 
-// TODO 문제 있음.
-// 링크가 충돌하는 문제가 발생하는 것 같다.
-// 일단 주석처리 한다.
-// 일단 이 문제를 긴급하게 해결한다.
-
 import (
 	"context"
 
 	"github.com/containers/podman/v4/pkg/bindings/volumes"
 	"github.com/containers/podman/v4/pkg/domain/entities"
+	"github.com/containers/podman/v4/pkg/specgen"
 )
+
+type VolumeConfig struct {
+	entities.VolumeCreateOptions
+	Dest string
+}
 
 // TODO 테스트
 // 조심해서 살펴보자.
@@ -19,21 +20,45 @@ import (
 
 // https://blog.meain.io/2020/mounting-s3-bucket-kube/
 
-func CreateVolume(ctx *context.Context, name string) (*entities.VolumeConfigResponse, error) {
+// 하나라도 에러나면 에러 리턴 하고 끝남.
+// volume 을 만들어 주고, NamedVolume 으로 다시 만들어 준다.
 
-	// field 의 정보는 아래 링크에서 확인
-	// https://docs.podman.io/en/latest/markdown/podman-volume-create.1.html
-	volcreateoption := new(entities.VolumeCreateOptions)
-	volcreateoption.Name = "my_vol"
-	volcreateoption.Driver = "local" // ec2 s3 를 및 기타 다른  클라우드 붙이는 방법 생각, s3 는 object store 인데 일반적인 file system 처럼 mount 한다는게 이해가 되지 않지만 찾아보자.
+func CreateNamedVolume(ctx *context.Context, conf ...*VolumeConfig) ([]*specgen.NamedVolume, error) {
+	var results []*specgen.NamedVolume
 
-	conf := *volcreateoption
+	for _, v := range conf {
+		volumeConfigResponse, err := volumes.Create(*ctx, v.VolumeCreateOptions, &volumes.CreateOptions{})
 
-	volumeConfigResponse, err := volumes.Create(*ctx, conf, &volumes.CreateOptions{})
+		if err == nil {
+			return nil, err
+		}
 
-	if err != nil {
-		return nil, err
+		namedVol := new(specgen.NamedVolume)
+
+		namedVol.Name = volumeConfigResponse.Name
+		namedVol.Dest = v.Dest
+		// TODO option setting
+
+		// append 사용의 꼼수.
+		results = append(results, namedVol)
 	}
 
-	return volumeConfigResponse, nil
+	return results, nil
+}
+
+// TODO volume 이 있으면 skip 하는 루틴 만들어야 함.
+
+func (vo *VolumeConfig) genVolumeCreateOptions(name string, driver string, dest string, a ...any) *VolumeConfig {
+
+	if IsEmptyString(name) || IsEmptyString(driver) || IsEmptyString(dest) {
+		return nil
+	}
+
+	vo.Name = name
+	vo.Driver = driver
+	vo.Dest = dest
+
+	// TODO option setting
+	return vo
+
 }

@@ -10,6 +10,7 @@ import (
 )
 
 // 터미널에서 확인하기 위해서 만듬.
+// go module 버그 있는 거 같다. 내가 잘못한 건가??
 
 func main() {
 	sockDir := pbr.DefaultLinuxSockDir()
