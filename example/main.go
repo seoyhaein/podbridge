@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	v4en "github.com/containers/podman/pkg/domain/entities"
 	"github.com/containers/podman/v4/pkg/bindings/volumes"
+	"github.com/containers/podman/v4/pkg/domain/entities"
 	pbr "github.com/seoyhaein/podbridge"
 )
 
@@ -19,15 +19,17 @@ func main() {
 		fmt.Println("error")
 	}
 	var (
-		report []*v4en.VolumeListReport
+		report []*entities.VolumeListReport
 		er     error
 	)
 
 	report, er = volumes.List(*ctx, &volumes.ListOptions{})
 
-	if er != nil {
+	if er == nil {
 		for i, r := range report {
-			fmt.Sprintf("%d: name:%s, driver:%s", i, r.Name, r.Driver)
+			fmt.Printf("%d: name:%s, driver:%s\n", i, r.Name, r.Driver)
 		}
+	} else {
+		fmt.Println(er.Error())
 	}
 }

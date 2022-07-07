@@ -8,8 +8,8 @@ package podbridge
 import (
 	"context"
 
-	"github.com/containers/podman/pkg/bindings/volumes"
-	"github.com/containers/podman/pkg/domain/entities"
+	"github.com/containers/podman/v4/pkg/bindings/volumes"
+	"github.com/containers/podman/v4/pkg/domain/entities"
 )
 
 // TODO 테스트
