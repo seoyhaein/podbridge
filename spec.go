@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/containers/podman/v4/pkg/domain/entities"
 	deepcopy "github.com/containers/podman/v4/pkg/domain/utils"
 	"github.com/containers/podman/v4/pkg/specgen"
 )
@@ -13,15 +14,15 @@ var (
 	Spec   *specgen.SpecGenerator
 	backup *specgen.SpecGenerator
 
-	PodSpec   *specgen.PodSpecGenerator
-	podbackup *specgen.PodSpecGenerator
+	PodSpec   *entities.PodSpec
+	podbackup *entities.PodSpec
 
 	cleanBackup bool
 )
 
 type (
 	Option    func(*specgen.SpecGenerator) Option
-	PodOption func(*specgen.PodSpecGenerator) PodOption
+	PodOption func(*entities.PodSpec) PodOption
 
 	pair struct {
 		p1 any
@@ -34,8 +35,8 @@ func init() {
 	Spec = new(specgen.SpecGenerator)
 	backup = new(specgen.SpecGenerator)
 
-	PodSpec = new(specgen.PodSpecGenerator)
-	podbackup = new(specgen.PodSpecGenerator)
+	PodSpec = new(entities.PodSpec)
+	podbackup = new(entities.PodSpec)
 	cleanBackup = true
 }
 
@@ -55,13 +56,13 @@ func eraseSpec(spec *specgen.SpecGenerator) *specgen.SpecGenerator {
 
 }
 
-func erasePodSpec(podspec *specgen.PodSpecGenerator) *specgen.PodSpecGenerator {
+func erasePodSpec(podspec *entities.PodSpec) *entities.PodSpec {
 	clear := clearStruct(podspec)
 
 	if clear == nil {
 		return nil
 	}
-	s, b := clear.(*specgen.PodSpecGenerator)
+	s, b := clear.(*entities.PodSpec)
 
 	if b {
 		return s
@@ -176,12 +177,12 @@ func FinallyPod(podoption ...PodOption) {
 }
 
 func WithPodValues(as ...any) PodOption {
-	return func(podspec *specgen.PodSpecGenerator) PodOption {
+	return func(podspec *entities.PodSpec) PodOption {
 
 		// for backup
 		if podspec == nil {
 			for _, a := range as {
-				s, b := a.(*specgen.PodSpecGenerator)
+				s, b := a.(*entities.PodSpec)
 				// 여기서 s 는 backup 이다.
 				if b {
 					PodSpec = erasePodSpec(PodSpec)
