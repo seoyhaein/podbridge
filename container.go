@@ -163,3 +163,5 @@ func (Res *CreateContainerResult) Stop(ctx *context.Context, options ...any) err
 
 // TODO 중요 resource 관련
 // https://github.com/containers/podman/issues/13145
+
+// podbridge 에서 생성된 것만 지워야 한다.

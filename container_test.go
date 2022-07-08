@@ -218,9 +218,15 @@ func TestPodSet(t *testing.T) {
 
 	conf.TrueAutoCreateContainerName(Spec)
 	podConf.TrueAutoCreatePodNameAndHost(PodSpec)
+	b := podConf.TrueSetPodSpec()
+
+	if b == nil || b == PFalse {
+		fmt.Println("failed")
+		return
+	}
 	result := PodWithSpec(ctx, podConf)
 
-	if result.success == false {
+	if result.success == false || result == nil {
 		fmt.Println("failed")
 		return
 	}
@@ -242,9 +248,9 @@ func TestPodSet(t *testing.T) {
 		opt1(Spec)
 	}
 
-	b := conf.TrueSetSpec()
+	bp := conf.TrueSetSpec()
 
-	if b == PTrue {
+	if bp == PTrue {
 
 		fmt.Printf("Creating %s container using %s image...\n", Spec.Name, Spec.Image)
 
