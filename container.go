@@ -165,3 +165,5 @@ func (Res *CreateContainerResult) Stop(ctx *context.Context, options ...any) err
 // https://github.com/containers/podman/issues/13145
 
 // podbridge 에서 생성된 것만 지워야 한다.
+
+// 명령어에 대한 heartbeat 관련 해서 처리 해야함.
