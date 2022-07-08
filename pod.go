@@ -58,3 +58,7 @@ func PodWithSpec(ctx *context.Context, podConfig *PodConfig) *CreatePodResult {
 
 	return result
 }
+
+func (podRes *CreatePodResult) GetPodId() string {
+	return podRes.ID
+}

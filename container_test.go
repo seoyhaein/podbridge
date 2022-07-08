@@ -42,7 +42,7 @@ func TestStartContainerWithSpec(t *testing.T) {
 	if conf.AutoCreateContainerName == PFalse || conf.AutoCreateContainerName == nil { // 설정되어 있으면
 		name := new(pair)
 		name.p1 = "Name"
-		name.p2 = time.Now().Format(time.RFC3339)
+		name.p2 = time.Now().Format("20220702-15h04m05s")
 
 		opt1 := WithValues(name)
 		finally1 = opt1(Spec)
@@ -154,6 +154,7 @@ func TestSetFieldVolume(t *testing.T) {
 
 }
 
+// TODO 오류 있음.
 func TestSetVolume(t *testing.T) {
 
 	sockDir := DefaultLinuxSockDir()
@@ -183,3 +184,85 @@ func TestSetVolume(t *testing.T) {
 }
 
 // TODO volume 연결해서 컨테이너 만들기 테스트
+
+// pod
+// TODO 공통적인 코드는 따로 함수로 만들어서 테스트에서 사용하자.
+
+func TestPodSet(t *testing.T) {
+	var (
+		finally  Option
+		finally1 Option
+	)
+
+	sockDir := DefaultLinuxSockDir()
+	ctx, err := NewConnection(sockDir, context.Background())
+
+	if err != nil {
+		fmt.Println("error")
+	}
+
+	conf := new(ContainerConfig)
+	podConf := new(PodConfig)
+
+	image := new(pair)
+	terminal := new(pair)
+	pod := new(pair)
+
+	busybox := "docker.io/busybox"
+
+	terminal.p1 = "Terminal"
+	terminal.p2 = false
+
+	image.p1 = "Image"
+	image.p2 = busybox
+
+	conf.TrueAutoCreateContainerName(Spec)
+	podConf.TrueAutoCreatePodNameAndHost(PodSpec)
+	result := PodWithSpec(ctx, podConf)
+
+	if result.success == false {
+		fmt.Println("failed")
+		return
+	}
+
+	pod.p1 = "Pod"
+	pod.p2 = result.GetPodId()
+
+	opt := WithValues(image, terminal, pod)
+	finally = opt(Spec)
+	opt(Spec)
+
+	if conf.AutoCreateContainerName == PFalse || conf.AutoCreateContainerName == nil { // 설정되어 있으면
+		name := new(pair)
+		name.p1 = "Name"
+		name.p2 = time.Now().Format("20220702-15h04m05s")
+
+		opt1 := WithValues(name)
+		finally1 = opt1(Spec)
+		opt1(Spec)
+	}
+
+	b := conf.TrueSetSpec()
+
+	if b == PTrue {
+
+		fmt.Printf("Creating %s container using %s image...\n", Spec.Name, Spec.Image)
+
+		result := ContainerWithSpec(ctx, conf)
+
+		if result.success {
+			fmt.Printf("ID: %s, Name: %s \n", result.ID, result.Name)
+
+			for i, s := range result.Warnings {
+				fmt.Printf("warning(%d): %s \n", i, s)
+			}
+		}
+
+		Finally(finally)
+
+		if conf.AutoCreateContainerName == PFalse || conf.AutoCreateContainerName == nil {
+			Finally(finally1)
+		}
+
+	}
+}
