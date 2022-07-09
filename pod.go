@@ -7,8 +7,6 @@ import (
 	"github.com/containers/podman/v4/pkg/bindings/pods"
 )
 
-// TODO 구현중
-
 type CreatePodResult struct {
 	ErrorMessage error
 
@@ -21,11 +19,23 @@ type CreatePodResult struct {
 
 func PodWithSpec(ctx *context.Context, podConfig *PodConfig) *CreatePodResult {
 
+	result := new(CreatePodResult)
+
 	if podConfig.IsSetPodSpec() == PFalse || podConfig.IsSetPodSpec() == nil {
-		return nil
+
+		result.ErrorMessage = errors.New("PodSpec is not set")
+		result.success = false
+		return result
 	}
 
-	result := new(CreatePodResult)
+	// 추가
+	err := PodSpec.PodSpecGen.Validate()
+
+	if err != nil {
+		result.ErrorMessage = err
+		result.success = false
+		return result
+	}
 
 	podExists, err := pods.Exists(*ctx, PodSpec.PodSpecGen.Name, &pods.ExistsOptions{})
 

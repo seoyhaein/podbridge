@@ -30,16 +30,26 @@ type CreateContainerResult struct {
 
 func ContainerWithSpec(ctx *context.Context, conf *ContainerConfig) *CreateContainerResult {
 
-	if conf.IsSetSpec() == PFalse || conf.IsSetSpec() == nil {
-		return nil
-	}
-
 	var (
 		result                 *CreateContainerResult
 		containerExistsOptions containers.ExistsOptions
 	)
 
 	result = new(CreateContainerResult)
+
+	if conf.IsSetSpec() == PFalse || conf.IsSetSpec() == nil {
+		result.ErrorMessage = errors.New("Spec is not set")
+		result.success = false
+		return result
+	}
+	// 추가
+	err := Spec.Validate()
+
+	if err != nil {
+		result.ErrorMessage = err
+		result.success = false
+		return result
+	}
 
 	containerExistsOptions.External = PFalse
 	containerExists, err := containers.Exists(*ctx, Spec.Name, &containerExistsOptions)
