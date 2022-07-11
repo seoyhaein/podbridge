@@ -2,8 +2,12 @@ package podbridge
 
 import (
 	"fmt"
+	"runtime"
+
 	"github.com/containers/podman/v4/pkg/util"
 	"github.com/opencontainers/runtime-spec/specs-go"
+	"github.com/shirou/gopsutil/v3/cpu"
+	"github.com/shirou/gopsutil/v3/mem"
 )
 
 // TODO 공부할게 많다. 힘들다. 젠장.
@@ -14,6 +18,12 @@ import (
 
 // cpu share 의 개념
 // https://kimmj.github.io/kubernetes/kubernetes-cpu-request-limit/
+
+// http://jake.dothome.co.kr/control-groups/
+// https://m.blog.naver.com/complusblog/220994619068
+
+// TODO 참고해서 작성해야 함.
+// https://pkg.go.dev/github.com/shirou/gopsutil@v3.21.11+incompatible/docker
 
 // 잠깐 조사를 거친 후 드는 생각은 mesos 의 리소스 설정의 경우는 cpu 는 코어 만 적용이되는 듯하다. 이 부분은 실제로 테스트 하면서 많이 조사를 해야 하는 부분이다.
 // nomad 참고하자. 이녀석은 specs-go 를 참고하지 않고 자체적으로 struct 를 구현했다. => 표준과 벗어난 거 아닌가?? 흠.
@@ -45,10 +55,14 @@ var (
 // TODO error prone!
 // return specs.LinuxResource 로 리턴해야 함.
 
-func LimitResources(cores float64, mems float64) *specs.LinuxCPU {
+// 참고
+// convert
+// https://www.gbmb.org/gigabytes
+
+func LimitResources(cores float64, mems float64) (*specs.LinuxCPU, *specs.LinuxResources) {
 
 	if cores <= 0 {
-		return nil
+		return nil, nil
 	}
 
 	LinuxCpus := new(specs.LinuxCPU)
@@ -59,5 +73,52 @@ func LimitResources(cores float64, mems float64) *specs.LinuxCPU {
 	LinuxCpus.Cpus = fmt.Sprintf("%f", cores)
 	LinuxCpus.Mems = fmt.Sprintf("%f", mems)
 
-	return LinuxCpus
+	return LinuxCpus, nil
 }
+
+/*func LimitResourceV2() *specs.LinuxResources {
+
+}*/
+
+// 특정 코어에 제한을 하는 방법과, 전체 cpu 와 mem 을 제한하는 방법이 있다. 일단 두가지다 제공해주는 방법을 사용하되, 혼용해서 쓰는 것은 제한한다.
+// 1 GiB = 1024 MiB = 1024 * 1024 KiB = 1024 * 1024 * 1024 B
+
+func getCores(isLogical bool) (uint8, error) {
+	cores, err := cpu.Counts(isLogical)
+
+	if err != nil {
+		return 0, err
+	}
+
+	cpus := runtime.NumCPU()
+
+	fmt.Printf("cpus:%d, cores:%d \n", cpus, cores)
+
+	return uint8(cores), nil
+}
+
+func getTotalUsedMem() (uint64, uint64, error) {
+	v, err := mem.VirtualMemory()
+
+	if err != nil {
+		return 0, 0, err
+	}
+	return v.Total, v.Used, nil
+
+}
+
+// 테스트 해야 함.
+// 0 번째 코어에 512kb 사용하는 방식임.
+// 고생좀 할 것 같다.
+
+func SetCpuSet() *specs.LinuxResources {
+
+	cpuset := new(specs.LinuxResources)
+
+	cpuset.CPU.Cpus = "0"
+	cpuset.CPU.Mems = "512*1024*1024"
+
+	return cpuset
+}
+
+// 특정 컨테이너가 특정 코어를 사용하는지 파악해야 한다.
