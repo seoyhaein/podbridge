@@ -10,7 +10,8 @@ import (
 	"github.com/shirou/gopsutil/v3/mem"
 )
 
-// TODO 공부할게 많다. 힘들다. 젠장.
+// TODO 잠시 미루고, containerfile, 생성 및 command, heartbeat?? 관련 완성한 다음에 진행하자.
+// 테스트 할 방법이 예매함.
 // 현재 os 의 resource  를 가지고 와서 이것과 비교해서 제한을 둬야 한다.
 // mesos resource 참고
 
