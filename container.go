@@ -95,6 +95,7 @@ func ContainerWithSpec(ctx *context.Context, conf *ContainerConfig) *CreateConta
 			return result
 		}
 
+		// TODO 아래 코드는 필요 없을 듯, 이미지를 일단 만들어서 local 에 저장하는 구조임.
 		if imageExists == false {
 			_, err := images.Pull(*ctx, Spec.Image, &images.PullOptions{})
 			if err != nil {
