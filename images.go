@@ -16,7 +16,7 @@ func init() {
 	unshare.MaybeReexecUsingUserNamespace(false)
 }
 
-func newBuildStore() (storage.Store, error) {
+func NewBuildStore() (storage.Store, error) {
 	buildStoreOptions, err := storage.DefaultStoreOptions(unshare.IsRootless(), unshare.GetRootlessUID())
 	if err != nil {
 		return nil, err
@@ -31,7 +31,7 @@ func newBuildStore() (storage.Store, error) {
 
 }
 
-func setFromImage(fromImage string) *buildah.BuilderOptions {
+func SetFromImage(fromImage string) *buildah.BuilderOptions {
 
 	if IsEmptyString(fromImage) {
 		return nil
