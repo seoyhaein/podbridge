@@ -52,8 +52,9 @@ func NewBuilder(ctx context.Context, store storage.Store, options *buildah.Build
 // 특수한 용도로만 사용된다.
 // repository 는 이미지 이름 ex> docker.io/busybox
 // TODO 시나리오를 생각하자.
+// 임시로 일단 이렇게 하자.
 
-func buildCustomImage(ctx context.Context, builder *buildah.Builder, store storage.Store, repository string) (*string, error) {
+func BuildCustomImage(ctx context.Context, builder *buildah.Builder, store storage.Store, repository string) (*string, error) {
 
 	imageRef, err := is.Transport.ParseStoreReference(store, repository)
 	if err != nil {
