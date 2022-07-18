@@ -20,3 +20,6 @@ https://medium.com/safetycultureengineering/an-overview-of-memory-management-in-
 - ipc 로 restful 연결 임으로 지속적으로 연결을 유지할 필요가 없지 않을까? 
 - 여기서는 client 입장에서 접근 한다.
 - https://github.com/james-barrow/golang-ipc 참고
+- 에러에 관해서 좀 살펴보자.
+  참고 : http://cloudrain21.com/golang-graceful-error-handling
+- podman/libpod 에서 container.go 잘 살펴보기

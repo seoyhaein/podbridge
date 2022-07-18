@@ -9,11 +9,6 @@ import (
 	"github.com/containers/podman/v4/pkg/bindings/images"
 )
 
-// TODO 에러에 관해서 좀 살펴보자.
-// http://cloudrain21.com/golang-graceful-error-handling
-
-// TODO podman/libpod 에서 container.go 잘 살펴보기
-
 type CreateContainerResult struct {
 	ErrorMessage error
 
@@ -60,7 +55,7 @@ func ContainerWithSpec(ctx *context.Context, conf *ContainerConfig) *CreateConta
 		return result
 	}
 
-	// 컨테이너가 local storage 에 존재하고 있다면~
+	// 컨테이너가 local storage 에 존재하고 있다면
 	if containerExists {
 		// 참고, 다만 잘못된 정보일 수 있음.
 		// https://docs.podman.io/en/latest/_static/api.html?version=v4.1#operation/ContainerInitLibpod
