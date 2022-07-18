@@ -24,13 +24,34 @@ func main() {
 		er     error
 	)
 
+	// 이미지 만들기. 통합할 수 있는 함수 또는 메서드 만들자.
+	store, err := pbr.NewBuildStore()
+
+	if err != nil {
+		return
+	}
+
+	builderOption := pbr.SetFromImage("alpine:latest")
+
+	if builderOption == nil {
+		return
+	}
+
+	builder, err := pbr.NewBuilder(*ctx, store, builderOption)
+
+	imageId, err := pbr.BuildCustomImage(*ctx, builder, store, "localhost/helloWorld")
+
+	if err != nil {
+		return
+	}
+
+	fmt.Println("Image Id is : ", imageId)
+
 	report, er = volumes.List(*ctx, &volumes.ListOptions{})
 
-	if er == nil {
+	if er != nil {
 		for i, r := range report {
-			fmt.Printf("%d: name:%s, driver:%s\n", i, r.Name, r.Driver)
+			fmt.Printf("%d: name:%s, driver:%s", i, r.Name, r.Driver)
 		}
-	} else {
-		fmt.Println(er.Error())
 	}
 }
