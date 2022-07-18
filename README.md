@@ -15,3 +15,8 @@ podman 설치 되어야 한다.
 
 ## 읽어보기
 https://medium.com/safetycultureengineering/an-overview-of-memory-management-in-go-9a72ec7c76a8
+
+## TODO
+- ipc 로 restful 연결 임으로 지속적으로 연결을 유지할 필요가 없지 않을까? 
+- 여기서는 client 입장에서 접근 한다.
+- https://github.com/james-barrow/golang-ipc 참고

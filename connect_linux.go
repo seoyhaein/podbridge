@@ -9,13 +9,7 @@ import (
 	"github.com/containers/podman/v4/pkg/bindings"
 )
 
-// TODO
-// return 값이 *context.Context 이라는 것을 주의하자.
-// ipc 로 restful 연결 임으로 지속적으로 연결을 유지할 필요가 없지 않을까?
-// 여기서는 client 입장에서 접근 한다.
-// https://github.com/james-barrow/golang-ipc 참고
-
-func NewConnection(ipcName string, ctx context.Context) (*context.Context, error) {
+func NewConnection(ctx context.Context, ipcName string) (*context.Context, error) {
 
 	if len(strings.TrimSpace(ipcName)) == 0 {
 		return nil, errors.New("ipcName cannot be an empty string")
@@ -33,4 +27,11 @@ func DefaultLinuxSockDir() (socket string) {
 	socket = "unix:" + sockDir + "/podman/podman.sock"
 
 	return
+}
+
+func NewConnectionLinux(ctx context.Context) (*context.Context, error) {
+	socket := DefaultLinuxSockDir()
+
+	ctx, err := bindings.NewConnection(ctx, socket)
+	return &ctx, err
 }

@@ -9,6 +9,9 @@ import (
 	"github.com/containers/storage/pkg/unshare"
 )
 
+// TODO  다른 함수로 처리, 오류 있음.
+// 함수 및 메서드 정리 필요.
+
 func init() {
 	if buildah.InitReexec() {
 		return
