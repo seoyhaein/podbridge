@@ -9,7 +9,7 @@ import (
 func TestPodWithSpec(t *testing.T) {
 
 	sockDir := DefaultLinuxSockDir()
-	ctx, err := NewConnection(sockDir, context.Background())
+	ctx, err := NewConnection(context.Background(), sockDir)
 
 	if err != nil {
 		fmt.Println("error")
