@@ -14,9 +14,9 @@ func NewConnection(ctx context.Context, ipcName string) (*context.Context, error
 	if len(strings.TrimSpace(ipcName)) == 0 {
 		return nil, errors.New("ipcName cannot be an empty string")
 	}
-	connText, err := bindings.NewConnection(ctx, ipcName)
+	conText, err := bindings.NewConnection(ctx, ipcName)
 
-	return &connText, err
+	return &conText, err
 }
 
 func DefaultLinuxSockDir() (socket string) {
@@ -32,6 +32,6 @@ func DefaultLinuxSockDir() (socket string) {
 func NewConnectionLinux(ctx context.Context) (*context.Context, error) {
 	socket := DefaultLinuxSockDir()
 
-	ctx, err := bindings.NewConnection(ctx, socket)
-	return &ctx, err
+	conText, err := bindings.NewConnection(ctx, socket)
+	return &conText, err
 }
