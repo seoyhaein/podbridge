@@ -19,7 +19,7 @@ func NewConnection(ctx context.Context, ipcName string) (*context.Context, error
 	return &conText, err
 }
 
-func DefaultLinuxSockDir() (socket string) {
+func defaultLinuxSockDir() (socket string) {
 	sockDir := os.Getenv("XDG_RUNTIME_DIR")
 	if sockDir == "" {
 		sockDir = "/var/run"
@@ -30,7 +30,7 @@ func DefaultLinuxSockDir() (socket string) {
 }
 
 func NewConnectionLinux(ctx context.Context) (*context.Context, error) {
-	socket := DefaultLinuxSockDir()
+	socket := defaultLinuxSockDir()
 
 	conText, err := bindings.NewConnection(ctx, socket)
 	return &conText, err

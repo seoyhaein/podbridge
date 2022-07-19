@@ -89,7 +89,7 @@ func TestDeepCopy(t *testing.T) {
 
 func TestSpecCompare(t *testing.T) {
 
-	sockDir := DefaultLinuxSockDir()
+	sockDir := defaultLinuxSockDir()
 	ctx, err := NewConnection(context.Background(), sockDir)
 
 	//centos := "docker.io/centos"
@@ -128,7 +128,7 @@ func TestSpecCompare(t *testing.T) {
 
 func TestTime(t *testing.T) {
 
-	sockDir := DefaultLinuxSockDir()
+	sockDir := defaultLinuxSockDir()
 	ctx, _ := NewConnection(context.Background(), sockDir)
 
 	busybox := "docker.io/busybox"

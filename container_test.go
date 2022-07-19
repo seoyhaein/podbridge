@@ -14,7 +14,7 @@ func TestStartContainerWithSpec(t *testing.T) {
 		finally1 Option
 	)
 
-	sockDir := DefaultLinuxSockDir()
+	sockDir := defaultLinuxSockDir()
 	ctx, err := NewConnection(context.Background(), sockDir)
 
 	if err != nil {
@@ -82,7 +82,7 @@ func TestSetFieldVolume(t *testing.T) {
 		finally1 Option
 	)
 
-	sockDir := DefaultLinuxSockDir()
+	sockDir := defaultLinuxSockDir()
 	ctx, err := NewConnection(context.Background(), sockDir)
 
 	if err != nil {
@@ -157,7 +157,7 @@ func TestSetFieldVolume(t *testing.T) {
 // TODO 오류 있음.
 func TestSetVolume(t *testing.T) {
 
-	sockDir := DefaultLinuxSockDir()
+	sockDir := defaultLinuxSockDir()
 	ctx, err := NewConnection(context.Background(), sockDir)
 
 	if err != nil {
@@ -194,7 +194,7 @@ func TestPodSet(t *testing.T) {
 		finally1 Option
 	)
 
-	sockDir := DefaultLinuxSockDir()
+	sockDir := defaultLinuxSockDir()
 	ctx, err := NewConnection(context.Background(), sockDir)
 
 	if err != nil {
