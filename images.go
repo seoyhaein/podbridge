@@ -20,46 +20,46 @@ type PreBuilderOption struct {
 
 func NewBuildImage(fromImage string) *PreBuilderOption {
 
-	newBuildImage := new(PreBuilderOption)
+	preBuilderOption := new(PreBuilderOption)
 
 	buildStoreOptions, err := storage.DefaultStoreOptions(unshare.IsRootless(), unshare.GetRootlessUID())
 
 	if err != nil {
-		newBuildImage.Store = nil
-		newBuildImage.BuilderOptions = nil
+		preBuilderOption.Store = nil
+		preBuilderOption.BuilderOptions = nil
 		//newBuildImage.Builder = nil
-		newBuildImage.ErrorMessage = err
+		preBuilderOption.ErrorMessage = err
 
-		return newBuildImage
+		return preBuilderOption
 	}
 
 	buildStore, err := storage.GetStore(buildStoreOptions)
 
 	if err != nil {
-		newBuildImage.Store = nil
-		newBuildImage.BuilderOptions = nil
+		preBuilderOption.Store = nil
+		preBuilderOption.BuilderOptions = nil
 		//newBuildImage.Builder = nil
-		newBuildImage.ErrorMessage = err
+		preBuilderOption.ErrorMessage = err
 
-		return newBuildImage
+		return preBuilderOption
 	}
 
-	newBuildImage.Store = buildStore
+	preBuilderOption.Store = buildStore
 
 	if IsEmptyString(fromImage) {
-		newBuildImage.BuilderOptions = nil
+		preBuilderOption.BuilderOptions = nil
 		//newBuildImage.Builder = nil
-		newBuildImage.ErrorMessage = errors.New("there is no image name")
+		preBuilderOption.ErrorMessage = errors.New("there is no image name")
 
-		return newBuildImage
+		return preBuilderOption
 	}
 	builderOption := new(buildah.BuilderOptions)
 	builderOption.FromImage = fromImage
-	newBuildImage.BuilderOptions = builderOption
+	preBuilderOption.BuilderOptions = builderOption
 
 	//builder, err := buildah.NewBuilder(ctx, store, *options)
 
-	return newBuildImage
+	return preBuilderOption
 }
 
 func (pbo *PreBuilderOption) NewBuilder(ctx context.Context) (*buildah.Builder, error) {
