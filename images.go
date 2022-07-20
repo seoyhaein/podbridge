@@ -10,16 +10,85 @@ import (
 	"github.com/containers/storage/pkg/unshare"
 )
 
-// TODO  다른 함수로 처리, 오류 있음.
-// 함수 및 메서드 정리 필요.
+type PreBuilderOption struct {
+	storage.Store
+	*buildah.BuilderOptions
+	//*buildah.Builder
 
-func NewBuildStore() (storage.Store, error) {
+	ErrorMessage error
+}
 
-	if buildah.InitReexec() {
-		return nil, errors.New("buildah init error")
+func NewBuildImage(fromImage string) *PreBuilderOption {
+
+	newBuildImage := new(PreBuilderOption)
+
+	buildStoreOptions, err := storage.DefaultStoreOptions(unshare.IsRootless(), unshare.GetRootlessUID())
+
+	if err != nil {
+		newBuildImage.Store = nil
+		newBuildImage.BuilderOptions = nil
+		//newBuildImage.Builder = nil
+		newBuildImage.ErrorMessage = err
+
+		return newBuildImage
 	}
 
-	unshare.MaybeReexecUsingUserNamespace(false)
+	buildStore, err := storage.GetStore(buildStoreOptions)
+
+	if err != nil {
+		newBuildImage.Store = nil
+		newBuildImage.BuilderOptions = nil
+		//newBuildImage.Builder = nil
+		newBuildImage.ErrorMessage = err
+
+		return newBuildImage
+	}
+
+	newBuildImage.Store = buildStore
+
+	if IsEmptyString(fromImage) {
+		newBuildImage.BuilderOptions = nil
+		//newBuildImage.Builder = nil
+		newBuildImage.ErrorMessage = errors.New("there is no image name")
+
+		return newBuildImage
+	}
+	builderOption := new(buildah.BuilderOptions)
+	builderOption.FromImage = fromImage
+	newBuildImage.BuilderOptions = builderOption
+
+	//builder, err := buildah.NewBuilder(ctx, store, *options)
+
+	return newBuildImage
+}
+
+func (pbo *PreBuilderOption) NewBuilder(ctx context.Context) (*buildah.Builder, error) {
+
+	builder, err := buildah.NewBuilder(ctx, pbo.Store, *pbo.BuilderOptions)
+
+	return builder, err
+}
+
+func (pbo *PreBuilderOption) DeleteAndShutdown(builder *buildah.Builder) error {
+	_, err := pbo.Store.Shutdown(false)
+
+	if err != nil {
+		return err
+	}
+
+	if builder == nil {
+		errors.New("invalid builder, builder is nil ")
+	}
+	err = builder.Delete()
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func NewBuildStore() (storage.Store, error) {
 
 	buildStoreOptions, err := storage.DefaultStoreOptions(unshare.IsRootless(), unshare.GetRootlessUID())
 	if err != nil {

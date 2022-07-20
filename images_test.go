@@ -6,6 +6,9 @@ import (
 	"testing"
 )
 
+// TODO 읽어보자
+// https://medium.com/goingogo/why-use-testmain-for-testing-in-go-dafb52b406bc
+
 func TestNewImages(t *testing.T) {
 
 	ctx, err := NewConnectionLinux(context.Background())
@@ -13,11 +16,6 @@ func TestNewImages(t *testing.T) {
 	if err != nil {
 		fmt.Println(err)
 	}
-
-	/*var (
-		report []*entities.VolumeListReport
-		er     error
-	)*/
 
 	// 이미지 만들기. 통합할 수 있는 함수 또는 메서드 만들자.
 	store, err := NewBuildStore()
@@ -42,5 +40,4 @@ func TestNewImages(t *testing.T) {
 
 	fmt.Println("Image Id is : ", imageId)
 
-	//report, er = volumes.List(*ctx, &volumes.ListOptions{})
 }

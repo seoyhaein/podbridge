@@ -6,7 +6,9 @@ import (
 	"os"
 	"strings"
 
+	"github.com/containers/buildah"
 	"github.com/containers/podman/v4/pkg/bindings"
+	"github.com/containers/storage/pkg/unshare"
 )
 
 func NewConnection(ctx context.Context, ipcName string) (*context.Context, error) {
@@ -29,9 +31,18 @@ func defaultLinuxSockDir() (socket string) {
 	return
 }
 
-func NewConnectionLinux(ctx context.Context) (*context.Context, error) {
+func NewConnectionLinux(ctx context.Context, useBuildAh bool) (*context.Context, error) {
 	socket := defaultLinuxSockDir()
 
 	conText, err := bindings.NewConnection(ctx, socket)
+
+	if useBuildAh {
+
+		if buildah.InitReexec() {
+			return nil, errors.New("InitReexec return false")
+		}
+		unshare.MaybeReexecUsingUserNamespace(false)
+	}
+
 	return &conText, err
 }
