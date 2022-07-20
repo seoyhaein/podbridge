@@ -46,6 +46,7 @@ func TestSetField(t *testing.T) {
 // Test WithValues
 
 func TestWithValues(t *testing.T) {
+	fmt.Println("podman test 시작")
 	ps := new(pair)
 	ps1 := new(pair)
 

@@ -8,11 +8,13 @@ import (
 
 func TestPodWithSpec(t *testing.T) {
 
-	sockDir := defaultLinuxSockDir()
-	ctx, err := NewConnection(context.Background(), sockDir)
+	//sockDir := defaultLinuxSockDir()
+	//ctx, err := NewConnection(context.Background(), sockDir)
+
+	ctx, err := NewConnectionLinux(context.Background())
 
 	if err != nil {
-		fmt.Println("error")
+		fmt.Println("error1")
 	}
 
 	podConf := new(PodConfig)

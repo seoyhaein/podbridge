@@ -2,6 +2,7 @@ package podbridge
 
 import (
 	"context"
+	"errors"
 
 	"github.com/containers/buildah"
 	is "github.com/containers/image/v5/storage"
@@ -12,14 +13,14 @@ import (
 // TODO  다른 함수로 처리, 오류 있음.
 // 함수 및 메서드 정리 필요.
 
-func init() {
-	if buildah.InitReexec() {
-		return
-	}
-	unshare.MaybeReexecUsingUserNamespace(false)
-}
-
 func NewBuildStore() (storage.Store, error) {
+
+	if buildah.InitReexec() {
+		return nil, errors.New("buildah init error")
+	}
+
+	unshare.MaybeReexecUsingUserNamespace(false)
+
 	buildStoreOptions, err := storage.DefaultStoreOptions(unshare.IsRootless(), unshare.GetRootlessUID())
 	if err != nil {
 		return nil, err
