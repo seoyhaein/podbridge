@@ -11,7 +11,7 @@ import (
 
 func TestNewImages(t *testing.T) {
 
-	ctx, err := NewConnectionLinux(context.Background())
+	ctx, err := NewConnectionLinux(context.Background(), false)
 
 	if err != nil {
 		fmt.Println(err)
