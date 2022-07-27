@@ -6,9 +6,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/containers/buildah"
 	"github.com/containers/podman/v4/pkg/bindings"
-	"github.com/containers/storage/pkg/unshare"
 )
 
 func NewConnection(ctx context.Context, ipcName string) (*context.Context, error) {
@@ -22,6 +20,7 @@ func NewConnection(ctx context.Context, ipcName string) (*context.Context, error
 }
 
 func defaultLinuxSockDir() (socket string) {
+
 	sockDir := os.Getenv("XDG_RUNTIME_DIR")
 	if sockDir == "" {
 		sockDir = "/var/run"
@@ -31,7 +30,7 @@ func defaultLinuxSockDir() (socket string) {
 	return
 }
 
-func NewConnectionLinux(ctx context.Context, useBuildAh bool) (*context.Context, error) {
+/*func NewConnectionLinux(ctx context.Context, useBuildAh bool) (*context.Context, error) {
 	socket := defaultLinuxSockDir()
 
 	conText, err := bindings.NewConnection(ctx, socket)
@@ -43,6 +42,14 @@ func NewConnectionLinux(ctx context.Context, useBuildAh bool) (*context.Context,
 		}
 		unshare.MaybeReexecUsingUserNamespace(false)
 	}
+
+	return &conText, err
+}*/
+
+func NewConnectionLinux(ctx context.Context) (*context.Context, error) {
+
+	socket := defaultLinuxSockDir()
+	conText, err := bindings.NewConnection(ctx, socket)
 
 	return &conText, err
 }

@@ -10,12 +10,22 @@ import (
 	"github.com/containers/storage/pkg/unshare"
 )
 
+// TODO 읽어보자
+// https://medium.com/goingogo/why-use-testmain-for-testing-in-go-dafb52b406bc
+
 type PreBuilderOption struct {
 	storage.Store
 	*buildah.BuilderOptions
 	//*buildah.Builder
 
 	ErrorMessage error
+}
+
+func BeforeMainStartup() {
+	if buildah.InitReexec() {
+		return
+	}
+	unshare.MaybeReexecUsingUserNamespace(false)
 }
 
 func NewBuildImage(fromImage string) *PreBuilderOption {
@@ -53,6 +63,7 @@ func NewBuildImage(fromImage string) *PreBuilderOption {
 
 		return preBuilderOption
 	}
+	// TODO 수정해야 함.
 	builderOption := new(buildah.BuilderOptions)
 	builderOption.FromImage = fromImage
 	preBuilderOption.BuilderOptions = builderOption
@@ -161,3 +172,5 @@ func DeleteAndShutdown(store storage.Store, builder *buildah.Builder) error {
 
 	return nil
 }
+
+//TODO Containerfile/Dockerfile 이미지 만드는 함수 제작
