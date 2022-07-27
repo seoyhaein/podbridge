@@ -3,9 +3,9 @@ package podbridge
 import (
 	"context"
 	"errors"
-	is "github.com/containers/image/v5/storage"
 
 	"github.com/containers/buildah"
+	is "github.com/containers/image/v5/storage"
 	"github.com/containers/storage"
 	"github.com/containers/storage/pkg/unshare"
 )
@@ -20,6 +20,8 @@ type PreBuilderOption struct {
 
 	ErrorMessage error
 }
+
+// TODO 향후 다른 방향으로 생각하자 일단 이것은 남겨두되 사용하지 않는다.
 
 func BeforeMainStartup() {
 	if buildah.InitReexec() {
@@ -63,7 +65,7 @@ func NewBuildImage(fromImage string) *PreBuilderOption {
 
 		return preBuilderOption
 	}
-	// TODO 수정해야 함.
+	// TODO 수정해야 함. 다른 옵션들도 담을 수 있는 방향으로 개선해야 함.
 	builderOption := new(buildah.BuilderOptions)
 	builderOption.FromImage = fromImage
 	preBuilderOption.BuilderOptions = builderOption
