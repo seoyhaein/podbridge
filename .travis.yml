@@ -14,6 +14,7 @@ go:
 # not being able to access all the objects in the repository. Removing the depth flag, or running git fetch --unshallow might solve the issue.
 git:
   depth: false
+  submodules: false
 
 
 # Skip the install step. Don't `go get` dependencies. Only build with the code
