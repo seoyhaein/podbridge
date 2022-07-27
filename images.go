@@ -3,9 +3,9 @@ package podbridge
 import (
 	"context"
 	"errors"
+	is "github.com/containers/image/v5/storage"
 
 	"github.com/containers/buildah"
-	is "github.com/containers/image/v5/storage"
 	"github.com/containers/storage"
 	"github.com/containers/storage/pkg/unshare"
 )
@@ -99,40 +99,6 @@ func (pbo *PreBuilderOption) DeleteAndShutdown(builder *buildah.Builder) error {
 	return nil
 }
 
-func NewBuildStore() (storage.Store, error) {
-
-	buildStoreOptions, err := storage.DefaultStoreOptions(unshare.IsRootless(), unshare.GetRootlessUID())
-	if err != nil {
-		return nil, err
-	}
-
-	buildStore, err := storage.GetStore(buildStoreOptions)
-	if err != nil {
-		return nil, err
-	}
-
-	return buildStore, nil
-
-}
-
-func SetFromImage(fromImage string) *buildah.BuilderOptions {
-
-	if IsEmptyString(fromImage) {
-		return nil
-	}
-
-	return &buildah.BuilderOptions{
-		FromImage: fromImage,
-	}
-}
-
-func NewBuilder(ctx context.Context, store storage.Store, options *buildah.BuilderOptions) (*buildah.Builder, error) {
-
-	builder, err := buildah.NewBuilder(ctx, store, *options)
-
-	return builder, err
-}
-
 // 특수한 용도로만 사용된다.
 // repository 는 이미지 이름 ex> docker.io/busybox
 // TODO 시나리오를 생각하자.
@@ -152,25 +118,6 @@ func BuildCustomImage(ctx context.Context, builder *buildah.Builder, store stora
 
 	return &imageId, nil
 
-}
-
-// 마지막에 항상 호출 해줘야 함.
-
-func DeleteAndShutdown(store storage.Store, builder *buildah.Builder) error {
-
-	_, err := store.Shutdown(false)
-
-	if err != nil {
-		return err
-	}
-
-	err = builder.Delete()
-
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 //TODO Containerfile/Dockerfile 이미지 만드는 함수 제작
