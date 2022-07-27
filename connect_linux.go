@@ -1,3 +1,7 @@
+//This file now only builds on Linux.
+//go:build linux
+// +build linux
+
 package podbridge
 
 import (
