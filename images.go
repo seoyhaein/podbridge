@@ -121,5 +121,3 @@ func BuildCustomImage(ctx context.Context, builder *buildah.Builder, store stora
 	return &imageId, nil
 
 }
-
-//TODO Containerfile/Dockerfile 이미지 만드는 함수 제작
