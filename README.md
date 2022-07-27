@@ -1,6 +1,7 @@
 # podbridge
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/seoyhaein/podbridge.svg)](https://pkg.go.dev/github.com/seoyhaein/podbridge)
+[![Build Status](https://app.travis-ci.com/seoyhaein/podbridge.svg?branch=main)](https://app.travis-ci.com/seoyhaein/podbridge)
 
 리눅스에서만 구동 가능.
 podman 설치 되어야 한다.
