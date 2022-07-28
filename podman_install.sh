@@ -4,6 +4,7 @@ set -ex
 
 # install dependency
 # Debian, Ubuntu, and related distributions: -> https://podman.io/getting-started/installation
+sudo apt-get upate
 sudo apt-get install \
   gcc \
   btrfs-progs \
