@@ -20,6 +20,7 @@ go:
 # Only clone the most recent commit.
 git:
   depth: 1
+  submodules: false
 
 before_install:
   - chmod +x podman_install.sh
@@ -29,5 +30,4 @@ before_install:
 # in vendor/
 install: true
 
-script:
-  - go test -v -race ./...  # Run all the tests with the race detector enabled
+script: go test -v ./...
