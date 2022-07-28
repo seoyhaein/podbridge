@@ -26,20 +26,24 @@ sudo apt-get install \
   uidmap
 
 # install runc
-git clone -b v1.1.3 https://github.com/opencontainers/runc.git && cd runc
+git clone -b v1.1.3 https://github.com/opencontainers/runc.git && pushd runc
 make
 sudo cp runc /usr/local/bin
-
+popd
 # install conmon
-git clone -b v2.1.3 https://github.com/containers/conmon.git && cd conmon
+git clone -b v2.1.3 https://github.com/containers/conmon.git && pushd conmon
 make
-cd bin/
+pushd bin/
 sudo cp conmon /usr/local/bin
+popd
+popd
 
 # install podman
-git clone -b v4.1.0 https://github.com/containers/podman.git && cd podman
+git clone -b v4.1.0 https://github.com/containers/podman.git && pushd podman
 make binaries
-cd bin/
+pushd bin/
 sudo cp podman /usr/local/bin
+popd
+popd
 sudo systemctl --user enable --now podman.socket && sudo systemctl start --user podman.socket
 podman system service -t 0 &
