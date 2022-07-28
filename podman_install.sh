@@ -29,7 +29,7 @@ sudo apt-get install \
 pushd ~/gopath/src/github.com/seoyhaein/
 git clone -b v1.1.3 https://github.com/opencontainers/runc.git && pushd runc
 make
-cp runc /usr/local/bin
+sudo cp runc /usr/local/bin
 popd
 popd
 
@@ -38,7 +38,7 @@ pushd ~/gopath/src/github.com/seoyhaein/
 git clone -b v2.1.3 https://github.com/containers/conmon.git && pushd conmon
 make
 pushd bin/
-cp conmon /usr/local/bin
+sudo cp conmon /usr/local/bin
 popd
 popd
 popd
