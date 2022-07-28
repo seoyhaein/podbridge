@@ -42,4 +42,4 @@ make binaries
 cd bin/
 sudo cp podman /usr/local/bin
 sudo systemctl --user enable --now podman.socket && sudo systemctl start --user podman.socket
-sudo podman system service -t 0 &
+podman system service -t 0 &
