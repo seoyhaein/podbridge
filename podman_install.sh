@@ -27,13 +27,14 @@ sudo apt-get install \
 
 # install runc
 git clone -b v1.1.3 https://github.com/opencontainers/runc.git && cd runc
-sudo cp runc /usr/local/bin
 make
-sudo make install
+sudo cp runc /usr/local/bin
 
 # install conmon
 git clone -b v2.1.3 https://github.com/containers/conmon.git && cd conmon
 make
+cd bin/
+sudo cp conmon /usr/local/bin
 
 # install podman
 git clone -b v4.1.0 https://github.com/containers/podman.git && cd podman
