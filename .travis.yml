@@ -17,6 +17,7 @@ git:
   submodules: false
 
 before_install:
+  - chmod +x podman_install.sh
   - ./podman_install.sh
 
 # Skip the install step. Don't `go get` dependencies. Only build with the code
