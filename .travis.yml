@@ -37,6 +37,7 @@ before_install:
 install: true
 
 script:
-  - go mod init & go mod tidy
+  - go mod init
+  - go mod tidy
   - go mod vendor
   - go test -v ./...
