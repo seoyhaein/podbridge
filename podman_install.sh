@@ -54,3 +54,5 @@ popd
 popd
 sudo systemctl --user enable --now podman.socket && sudo systemctl start --user podman.socket
 podman system service -t 0 &
+
+cd ~/gopath/src/github.com/seoyhaein/podbridge
