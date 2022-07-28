@@ -1,4 +1,5 @@
 # https://gist.github.com/ryboe/df2dab474520c4086926f672c52db139
+# https://arslan.io/2018/08/26/using-go-modules-with-vendor-support-on-travis-ci/
 # https://docs.travis-ci.com/user/languages/go/
 # https://dave.cheney.net/2018/07/16/using-go-modules-with-travis-ci
 # use the latest ubuntu environment 22.04 LTS available on travis
@@ -35,4 +36,7 @@ before_install:
 # in vendor/
 install: true
 
-script: go test -v -mod=vendor ./...
+script:
+  - go mod init & go mod tidy
+  - go mod vendor
+  - go test -v ./...
