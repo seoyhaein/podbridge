@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 set -ex
 
@@ -28,13 +28,13 @@ sudo apt-get install \
 # install runc
 git clone -b v1.1.3 https://github.com/opencontainers/runc.git && pushd runc
 make
-sudo cp runc /usr/local/bin
+cp runc /usr/local/bin
 popd
 # install conmon
 git clone -b v2.1.3 https://github.com/containers/conmon.git && pushd conmon
 make
 pushd bin/
-sudo cp conmon /usr/local/bin
+cp conmon /usr/local/bin
 popd
 popd
 
