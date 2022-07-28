@@ -1,5 +1,6 @@
 # https://gist.github.com/ryboe/df2dab474520c4086926f672c52db139
 # https://docs.travis-ci.com/user/languages/go/
+# https://dave.cheney.net/2018/07/16/using-go-modules-with-travis-ci
 # use the latest ubuntu environment 22.04 LTS available on travis
 # check travis-ci manual : https://docs.travis-ci.com/user/customizing-the-build/#build-timeouts
 dist: jammy
@@ -31,4 +32,7 @@ before_install:
 # in vendor/
 install: true
 
-script: go test -v ./...
+script:
+  - env GO111MODULE=on go build
+  - env GO111MODULE=on go test
+  - go test -v ./...
