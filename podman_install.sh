@@ -38,7 +38,7 @@ sudo cp conmon /usr/local/bin
 
 # install podman
 git clone -b v4.1.0 https://github.com/containers/podman.git && cd podman
-sudo make binaries
+make binaries
 cd bin/
 sudo cp podman /usr/local/bin
 sudo systemctl --user enable --now podman.socket && sudo systemctl start --user podman.socket
