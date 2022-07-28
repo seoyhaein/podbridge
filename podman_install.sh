@@ -27,7 +27,7 @@ sudo apt-get install \
 
 # install runc
 git clone -b v1.1.3 https://github.com/opencontainers/runc.git && cd runc
-sudo copy runc /usr/local/bin
+copy runc /usr/local/bin
 make
 sudo make install
 
@@ -39,6 +39,6 @@ make
 git clone -b v4.1.0 https://github.com/containers/podman.git && cd podman
 sudo make binaries
 cd bin/
-sudo copy podman /usr/local/bin
+copy podman /usr/local/bin
 sudo systemctl --user enable --now podman.socket && sudo systemctl start --user podman.socket
 sudo podman system service -t 0 &
