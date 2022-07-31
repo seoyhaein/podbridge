@@ -6,6 +6,7 @@ import (
 
 	"github.com/containers/podman/v4/pkg/domain/entities"
 	"github.com/containers/podman/v4/pkg/specgen"
+	"github.com/seoyhaein/utils"
 )
 
 // 컨테이너에 따라 생성된다.
@@ -23,13 +24,13 @@ type PodConfig struct {
 
 func (conf *ContainerConfig) TrueSetSpec() *bool {
 
-	conf.SetSpec = PTrue
+	conf.SetSpec = utils.PTrue
 	return conf.SetSpec
 }
 
 func (conf *ContainerConfig) FalseSetSpec() {
-	conf.SetSpec = PFalse
-	conf.AutoCreateContainerName = PFalse
+	conf.SetSpec = utils.PFalse
+	conf.AutoCreateContainerName = utils.PFalse
 }
 
 func (conf *ContainerConfig) IsSetSpec() *bool {
@@ -49,13 +50,13 @@ func (conf *ContainerConfig) IsAutoCreateContainerName() *bool {
 func (conf *ContainerConfig) TrueAutoCreateContainerName(spec *specgen.SpecGenerator) *bool {
 
 	// string 이 empty 이면, 즉 세팅이 안되어 있으면
-	if IsEmptyString(spec.Name) {
+	if utils.IsEmptyString(spec.Name) {
 		conf.createSpecContainerName()
-		conf.AutoCreateContainerName = PTrue
+		conf.AutoCreateContainerName = utils.PTrue
 		return conf.AutoCreateContainerName
 	} else { // 만약 Spec.Name 이 세팅되어 있으면 nil 반환.
-		if conf.AutoCreateContainerName == PTrue {
-			conf.AutoCreateContainerName = PFalse
+		if conf.AutoCreateContainerName == utils.PTrue {
+			conf.AutoCreateContainerName = utils.PFalse
 		}
 
 		return nil
@@ -63,7 +64,7 @@ func (conf *ContainerConfig) TrueAutoCreateContainerName(spec *specgen.SpecGener
 }
 
 func (conf *ContainerConfig) FalseAutoCreateContainerName() {
-	conf.AutoCreateContainerName = PFalse
+	conf.AutoCreateContainerName = utils.PFalse
 }
 
 // TODO apis.go 로 이동 및 옵션을 만들어서 이름을 자동으로 만들어 줄지 설정할 수 있도록 한다.
@@ -79,13 +80,13 @@ func (conf *ContainerConfig) createSpecContainerName() {
 
 func (podConf *PodConfig) TrueSetPodSpec() *bool {
 
-	podConf.SetPodSpec = PTrue
+	podConf.SetPodSpec = utils.PTrue
 	return podConf.SetPodSpec
 }
 
 func (podConf *PodConfig) FalseSetPodSpec() {
-	podConf.SetPodSpec = PFalse
-	podConf.AutoCreatePodNameAndHostName = PFalse
+	podConf.SetPodSpec = utils.PFalse
+	podConf.AutoCreatePodNameAndHostName = utils.PFalse
 }
 
 func (podConf *PodConfig) IsSetPodSpec() *bool {
@@ -101,13 +102,13 @@ func (podConf *PodConfig) IsAutoCreatePodNameAndHost() *bool {
 func (podConf *PodConfig) TrueAutoCreatePodNameAndHost(podspec *entities.PodSpec) *bool {
 
 	// string 이 empty 이면, 즉 세팅이 안되어 있으면
-	if IsEmptyString(podspec.PodSpecGen.Name) || IsEmptyString(podspec.PodSpecGen.Hostname) {
+	if utils.IsEmptyString(podspec.PodSpecGen.Name) || utils.IsEmptyString(podspec.PodSpecGen.Hostname) {
 		podConf.createSpecPodNameAndHost()
-		podConf.AutoCreatePodNameAndHostName = PTrue
+		podConf.AutoCreatePodNameAndHostName = utils.PTrue
 		return podConf.AutoCreatePodNameAndHostName
 	} else { // 만약 Spec.Name 이 세팅되어 있으면 nil 반환.
-		if podConf.AutoCreatePodNameAndHostName == PTrue {
-			podConf.AutoCreatePodNameAndHostName = PFalse
+		if podConf.AutoCreatePodNameAndHostName == utils.PTrue {
+			podConf.AutoCreatePodNameAndHostName = utils.PFalse
 		}
 
 		return nil
@@ -115,7 +116,7 @@ func (podConf *PodConfig) TrueAutoCreatePodNameAndHost(podspec *entities.PodSpec
 }
 
 func (podConf *PodConfig) FalseAutoCreatePodNameAndHost() {
-	podConf.AutoCreatePodNameAndHostName = PFalse
+	podConf.AutoCreatePodNameAndHostName = utils.PFalse
 }
 
 // TODO 메서드로 처리하는게 맞는지 생각하기.

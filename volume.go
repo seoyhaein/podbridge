@@ -6,6 +6,7 @@ import (
 	"github.com/containers/podman/v4/pkg/bindings/volumes"
 	"github.com/containers/podman/v4/pkg/domain/entities"
 	"github.com/containers/podman/v4/pkg/specgen"
+	"github.com/seoyhaein/utils"
 )
 
 type VolumeConfig struct {
@@ -50,7 +51,7 @@ func CreateNamedVolume(ctx *context.Context, conf ...*VolumeConfig) ([]*specgen.
 
 func (vo *VolumeConfig) genVolumeCreateOptions(name string, driver string, dest string, a ...any) *VolumeConfig {
 
-	if IsEmptyString(name) || IsEmptyString(driver) || IsEmptyString(dest) {
+	if utils.IsEmptyString(name) || utils.IsEmptyString(driver) || utils.IsEmptyString(dest) {
 		return nil
 	}
 

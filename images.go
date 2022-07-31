@@ -8,6 +8,7 @@ import (
 	is "github.com/containers/image/v5/storage"
 	"github.com/containers/storage"
 	"github.com/containers/storage/pkg/unshare"
+	"github.com/seoyhaein/utils"
 )
 
 // TODO 읽어보자
@@ -58,7 +59,7 @@ func NewBuildImage(fromImage string) *PreBuilderOption {
 
 	preBuilderOption.Store = buildStore
 
-	if IsEmptyString(fromImage) {
+	if utils.IsEmptyString(fromImage) {
 		preBuilderOption.BuilderOptions = nil
 		//newBuildImage.Builder = nil
 		preBuilderOption.ErrorMessage = errors.New("there is no image name")

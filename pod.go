@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/containers/podman/v4/pkg/bindings/pods"
+	"github.com/seoyhaein/utils"
 )
 
 type CreatePodResult struct {
@@ -21,7 +22,7 @@ func PodWithSpec(ctx *context.Context, podConfig *PodConfig) *CreatePodResult {
 
 	result := new(CreatePodResult)
 
-	if podConfig.IsSetPodSpec() == PFalse || podConfig.IsSetPodSpec() == nil {
+	if podConfig.IsSetPodSpec() == utils.PFalse || podConfig.IsSetPodSpec() == nil {
 
 		result.ErrorMessage = errors.New("PodSpec is not set")
 		result.success = false

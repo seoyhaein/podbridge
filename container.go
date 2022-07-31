@@ -7,6 +7,7 @@ import (
 
 	"github.com/containers/podman/v4/pkg/bindings/containers"
 	"github.com/containers/podman/v4/pkg/bindings/images"
+	"github.com/seoyhaein/utils"
 )
 
 type CreateContainerResult struct {
@@ -32,7 +33,7 @@ func ContainerWithSpec(ctx *context.Context, conf *ContainerConfig) *CreateConta
 
 	result = new(CreateContainerResult)
 
-	if conf.IsSetSpec() == PFalse || conf.IsSetSpec() == nil {
+	if conf.IsSetSpec() == utils.PFalse || conf.IsSetSpec() == nil {
 		result.ErrorMessage = errors.New("Spec is not set")
 		result.success = false
 		return result
@@ -46,7 +47,7 @@ func ContainerWithSpec(ctx *context.Context, conf *ContainerConfig) *CreateConta
 		return result
 	}
 
-	containerExistsOptions.External = PFalse
+	containerExistsOptions.External = utils.PFalse
 	containerExists, err := containers.Exists(*ctx, Spec.Name, &containerExistsOptions)
 
 	if err != nil {
@@ -60,7 +61,7 @@ func ContainerWithSpec(ctx *context.Context, conf *ContainerConfig) *CreateConta
 		// 참고, 다만 잘못된 정보일 수 있음.
 		// https://docs.podman.io/en/latest/_static/api.html?version=v4.1#operation/ContainerInitLibpod
 		var containerInspectOptions containers.InspectOptions
-		containerInspectOptions.Size = PFalse
+		containerInspectOptions.Size = utils.PFalse
 		containerData, err := containers.Inspect(*ctx, Spec.Name, &containerInspectOptions)
 		if err != nil {
 			result.ErrorMessage = err

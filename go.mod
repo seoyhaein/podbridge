@@ -8,6 +8,7 @@ require (
 	github.com/containers/podman/v4 v4.1.1
 	github.com/containers/storage v1.41.0
 	github.com/opencontainers/runtime-spec v1.0.3-0.20211214071223-8958f93039ab
+	github.com/seoyhaein/utils v0.0.0-20220731123529-df2b98f833c7
 	github.com/shirou/gopsutil/v3 v3.22.6
 )
 
