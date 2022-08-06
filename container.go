@@ -174,3 +174,6 @@ func (Res *CreateContainerResult) Stop(ctx *context.Context, options ...any) err
 // podbridge 에서 생성된 것만 지워야 한다.
 
 // 명령어에 대한 heartbeat 관련 해서 처리 해야함.
+
+// TODO 컨테이너의 상태를 확인하는 방법은 두가지 접근 방법이 있는데, local에 podman 이 설치 되어 있는 경우와, 원격(접속하는 머신에는 podman  이없음)에서 연결되는 경우
+// 일단 먼저, local 에서 연결 하는 걸 적용한다. 구현하는 건 비교적 간단할 듯하다.

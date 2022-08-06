@@ -6,6 +6,7 @@ import (
 	"github.com/containers/podman/v4/pkg/bindings/containers"
 	deepcopy "github.com/containers/podman/v4/pkg/domain/utils"
 	"github.com/containers/podman/v4/pkg/specgen"
+	"github.com/seoyhaein/podbridge/localmachine"
 	"reflect"
 	"testing"
 )
@@ -87,8 +88,7 @@ func TestDeepCopy(t *testing.T) {
 
 func TestSpecCompare(t *testing.T) {
 
-	sockDir := defaultLinuxSockDir()
-	ctx, err := NewConnection(context.Background(), sockDir)
+	ctx, err := localmachine.NewConnectionLinux(context.Background())
 
 	//centos := "docker.io/centos"
 	busybox := "docker.io/busybox"

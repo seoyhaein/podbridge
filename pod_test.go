@@ -3,6 +3,7 @@ package podbridge
 import (
 	"context"
 	"fmt"
+	"github.com/seoyhaein/podbridge/localmachine"
 	"testing"
 )
 
@@ -36,7 +37,7 @@ func TestPodWithSpec(t *testing.T) {
 	//sockDir := defaultLinuxSockDir()
 	//ctx, err := NewConnection(context.Background(), sockDir)
 
-	NewConnectionLinux(context.Background())
+	localmachine.NewConnectionLinux(context.Background())
 
 	/*if err != nil {
 		fmt.Println("error1")

@@ -2,7 +2,7 @@
 //go:build linux
 // +build linux
 
-package podbridge
+package localmachine
 
 import (
 	"context"
@@ -12,6 +12,8 @@ import (
 
 	"github.com/containers/podman/v4/pkg/bindings"
 )
+
+//TODO local 에 podman 설치가 되어 있는 경우만 구현했다. 추후 원격 연결도 확장해 나간다.
 
 func NewConnection(ctx context.Context, ipcName string) (*context.Context, error) {
 

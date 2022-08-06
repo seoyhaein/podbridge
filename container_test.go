@@ -3,6 +3,7 @@ package podbridge
 import (
 	"context"
 	"fmt"
+	"github.com/seoyhaein/podbridge/localmachine"
 	"testing"
 	"time"
 
@@ -16,8 +17,7 @@ func TestStartContainerWithSpec(t *testing.T) {
 		finally1 Option
 	)
 
-	sockDir := defaultLinuxSockDir()
-	ctx, err := NewConnection(context.Background(), sockDir)
+	ctx, err := localmachine.NewConnectionLinux(context.Background())
 
 	if err != nil {
 		fmt.Println("error")
@@ -84,8 +84,7 @@ func TestSetFieldVolume(t *testing.T) {
 		finally1 Option
 	)
 
-	sockDir := defaultLinuxSockDir()
-	ctx, err := NewConnection(context.Background(), sockDir)
+	ctx, err := localmachine.NewConnectionLinux(context.Background())
 
 	if err != nil {
 		fmt.Println("error")
@@ -196,8 +195,7 @@ func TestPodSet(t *testing.T) {
 		finally1 Option
 	)
 
-	sockDir := defaultLinuxSockDir()
-	ctx, err := NewConnection(context.Background(), sockDir)
+	ctx, err := localmachine.NewConnectionLinux(context.Background())
 
 	if err != nil {
 		fmt.Println("error")
