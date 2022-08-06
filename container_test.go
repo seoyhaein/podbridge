@@ -1,16 +1,15 @@
 package podbridge
 
 import (
+	"context"
 	"fmt"
 	"testing"
+	"time"
+
+	"github.com/seoyhaein/utils"
 )
 
 func TestStartContainerWithSpec(t *testing.T) {
-
-	fmt.Println("hello")
-}
-
-/*func TestStartContainerWithSpec(t *testing.T) {
 
 	var (
 		finally  Option
@@ -42,7 +41,7 @@ func TestStartContainerWithSpec(t *testing.T) {
 
 	conf.TrueAutoCreateContainerName(Spec)
 
-	if conf.AutoCreateContainerName == PFalse || conf.AutoCreateContainerName == nil { // 설정되어 있으면
+	if conf.AutoCreateContainerName == utils.PFalse || conf.AutoCreateContainerName == nil { // 설정되어 있으면
 		name := new(pair)
 		name.p1 = "Name"
 		name.p2 = time.Now().Format("20220702-15h04m05s")
@@ -54,7 +53,7 @@ func TestStartContainerWithSpec(t *testing.T) {
 
 	b := conf.TrueSetSpec()
 
-	if b == PTrue {
+	if b == utils.PTrue {
 
 		fmt.Printf("Creating %s container using %s image...\n", Spec.Name, Spec.Image)
 
@@ -70,15 +69,15 @@ func TestStartContainerWithSpec(t *testing.T) {
 
 		Finally(finally)
 
-		if conf.AutoCreateContainerName == PFalse || conf.AutoCreateContainerName == nil {
+		if conf.AutoCreateContainerName == utils.PFalse || conf.AutoCreateContainerName == nil {
 			Finally(finally1)
 		}
 
 	}
 
-}*/
+}
 
-/*func TestSetFieldVolume(t *testing.T) {
+func TestSetFieldVolume(t *testing.T) {
 
 	var (
 		finally  Option
@@ -121,19 +120,19 @@ func TestStartContainerWithSpec(t *testing.T) {
 
 	conf.TrueAutoCreateContainerName(Spec)
 
-//	if conf.AutoCreateContainerName == PFalse || conf.AutoCreateContainerName == nil { // 설정되어 있으면
-//		name := new(pair)
-//		name.p1 = "Name"
-//		name.p2 = time.Now().Format("20220702-15h04m05s")
-//
-//		opt1 := WithValues(name)
-//		finally1 = opt1(Spec)
-//		opt1(Spec)
-//	}
+	//	if conf.AutoCreateContainerName == PFalse || conf.AutoCreateContainerName == nil { // 설정되어 있으면
+	//		name := new(pair)
+	//		name.p1 = "Name"
+	//		name.p2 = time.Now().Format("20220702-15h04m05s")
+	//
+	//		opt1 := WithValues(name)
+	//		finally1 = opt1(Spec)
+	//		opt1(Spec)
+	//	}
 
 	b := conf.TrueSetSpec()
 
-	if b == PTrue {
+	if b == utils.PTrue {
 
 		fmt.Printf("Creating %s container using %s image...\n", Spec.Name, Spec.Image)
 
@@ -149,13 +148,13 @@ func TestStartContainerWithSpec(t *testing.T) {
 
 		Finally(finally)
 
-		if conf.AutoCreateContainerName == PFalse || conf.AutoCreateContainerName == nil {
+		if conf.AutoCreateContainerName == utils.PFalse || conf.AutoCreateContainerName == nil {
 			Finally(finally1)
 		}
 
 	}
 
-}*/
+}
 
 // TODO 오류 있음.
 /*func TestSetVolume(t *testing.T) {
@@ -191,7 +190,7 @@ func TestStartContainerWithSpec(t *testing.T) {
 // pod
 // TODO 공통적인 코드는 따로 함수로 만들어서 테스트에서 사용하자.
 
-/*func TestPodSet(t *testing.T) {
+func TestPodSet(t *testing.T) {
 	var (
 		finally  Option
 		finally1 Option
@@ -223,7 +222,7 @@ func TestStartContainerWithSpec(t *testing.T) {
 	podConf.TrueAutoCreatePodNameAndHost(PodSpec)
 	b := podConf.TrueSetPodSpec()
 
-	if b == nil || b == PFalse {
+	if b == nil || b == utils.PFalse {
 		fmt.Println("failed")
 		return
 	}
@@ -241,7 +240,7 @@ func TestStartContainerWithSpec(t *testing.T) {
 	finally = opt(Spec)
 	opt(Spec)
 
-	if conf.AutoCreateContainerName == PFalse || conf.AutoCreateContainerName == nil { // 설정되어 있으면
+	if conf.AutoCreateContainerName == utils.PFalse || conf.AutoCreateContainerName == nil { // 설정되어 있으면
 		name := new(pair)
 		name.p1 = "Name"
 		name.p2 = time.Now().Format("20220702-15h04m05s")
@@ -253,7 +252,7 @@ func TestStartContainerWithSpec(t *testing.T) {
 
 	bp := conf.TrueSetSpec()
 
-	if bp == PTrue {
+	if bp == utils.PTrue {
 
 		fmt.Printf("Creating %s container using %s image...\n", Spec.Name, Spec.Image)
 
@@ -269,9 +268,9 @@ func TestStartContainerWithSpec(t *testing.T) {
 
 		Finally(finally)
 
-		if conf.AutoCreateContainerName == PFalse || conf.AutoCreateContainerName == nil {
+		if conf.AutoCreateContainerName == utils.PFalse || conf.AutoCreateContainerName == nil {
 			Finally(finally1)
 		}
 
 	}
-}*/
+}
