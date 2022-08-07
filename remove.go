@@ -7,8 +7,6 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// TODO 파일로도 저장을 해야하고, 다시 읽어들이는 것을 완성해야하.
-
 type ListCreated struct {
 	//TODO *string 으로 할지는 추후 살펴보자.
 	ImageIds     []string `yaml:"Images,flow"`
@@ -25,7 +23,8 @@ var (
 )
 
 func init() {
-	LC = InitLc(podbridgePath)
+	// testing 할때는 주석처리.
+	//LC = InitLc()
 }
 
 // yaml 로 문서로 출력하자.
@@ -35,7 +34,7 @@ func (lc *ListCreated) ToYaml() {
 	if err != nil {
 		return
 	}
-
+	// 기존이 있는 파일을 덥어 쒸운다.
 	f, err := os.Create("podbridge.yaml")
 	defer func() {
 		if err = f.Close(); err != nil {
@@ -51,9 +50,9 @@ func (lc *ListCreated) ToYaml() {
 	f.Sync()
 }
 
-func (lc *ListCreated) ToListCreated(path string) *ListCreated {
+func (lc *ListCreated) ToListCreated() *ListCreated {
 
-	temp, err := toListCreated(path)
+	temp, err := toListCreated()
 	if err != nil {
 		return nil
 	}
@@ -66,24 +65,25 @@ func (lc *ListCreated) ToListCreated(path string) *ListCreated {
 	return r
 }
 
-func toListCreated(path string) (*ListCreated, error) {
+func toListCreated() (*ListCreated, error) {
 	var (
 		err   error
 		bytes []byte
 		b     bool
 		lc    *ListCreated
 	)
+	lc = new(ListCreated)
 	// 파일이 없을때
-	if b, err = utils.FileExists(path); b == false {
+	if b, err = utils.FileExists(podbridgePath); b == false {
 		f := createPodbridgeYaml()
 		if f == nil {
 			return nil, err
 		}
 
-		return new(ListCreated), nil
+		return lc, nil
 	}
 
-	if bytes, err = os.ReadFile(path); err != nil {
+	if bytes, err = os.ReadFile(podbridgePath); err != nil {
 		return nil, err
 	}
 
@@ -152,19 +152,14 @@ func createPodbridgeYaml() *os.File {
 	return f
 }
 
-func InitLc(path string) *ListCreated {
+func InitLc() *ListCreated {
+	temp, err := toListCreated()
 
-	if b := utils.IsEmptyString(path); b {
-		return nil
-	}
-	temp, err := toListCreated(path)
-	lc := &ListCreated{}
 	if err != nil {
 		return nil
 	}
-	nlc := appendListCreated(lc, temp)
 
-	return nlc
+	return temp
 }
 
 func (lc *ListCreated) AddImagesId(imgId string) *ListCreated {
