@@ -25,7 +25,7 @@ func init() {
 	LC = InitLc()
 }
 
-//ToYaml output to yaml file
+//ToYaml output to yaml file TODO 수정하자.
 func (lc *ListCreated) ToYaml() {
 	d, err := yaml.Marshal(lc)
 
