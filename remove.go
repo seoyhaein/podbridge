@@ -23,8 +23,8 @@ var (
 )
 
 func init() {
-	// testing 할때는 주석처리.
-	//LC = InitLc()
+	// TODO 추후 살펴보자
+	LC = InitLc()
 }
 
 // yaml 로 문서로 출력하자.
@@ -50,6 +50,7 @@ func (lc *ListCreated) ToYaml() {
 	f.Sync()
 }
 
+// Deprecated: Not used, but left for now.
 func (lc *ListCreated) ToListCreated() *ListCreated {
 
 	temp, err := toListCreated()
@@ -63,6 +64,46 @@ func (lc *ListCreated) ToListCreated() *ListCreated {
 	}
 
 	return r
+}
+
+func (lc *ListCreated) AddImagesId(imgId string) *ListCreated {
+
+	//TODO temp 적용이 잘됬는지 확인한다.
+	var temp *ListCreated
+	lc.ImageIds = append(lc.ImageIds, imgId)
+
+	temp = lc
+	return temp
+}
+
+func (lc *ListCreated) AddContainerId(containerId string) *ListCreated {
+
+	//TODO temp 적용이 잘됬는지 확인한다.
+	var temp *ListCreated
+	lc.ContainerIds = append(lc.ContainerIds, containerId)
+
+	temp = lc
+	return temp
+}
+
+func (lc *ListCreated) AddPodId(podId string) *ListCreated {
+
+	//TODO temp 적용이 잘됬는지 확인한다.
+	var temp *ListCreated
+	lc.PodIds = append(lc.PodIds, podId)
+
+	temp = lc
+	return temp
+}
+
+func (lc *ListCreated) AddVolumeName(volumeName string) *ListCreated {
+
+	//TODO temp 적용이 잘됬는지 확인한다.
+	var temp *ListCreated
+	lc.VolumeNames = append(lc.VolumeNames, volumeName)
+
+	temp = lc
+	return temp
 }
 
 func toListCreated() (*ListCreated, error) {
@@ -95,6 +136,7 @@ func toListCreated() (*ListCreated, error) {
 
 }
 
+// Deprecated: Not used, but left for now.
 func appendListCreated(src *ListCreated, temp *ListCreated) *ListCreated {
 
 	if src == nil || temp == nil {
@@ -161,106 +203,3 @@ func InitLc() *ListCreated {
 
 	return temp
 }
-
-func (lc *ListCreated) AddImagesId(imgId string) *ListCreated {
-
-	//TODO temp 적용이 잘됬는지 확인한다.
-	var temp *ListCreated
-	lc.ImageIds = append(lc.ImageIds, imgId)
-
-	temp = lc
-	return temp
-}
-
-func (lc *ListCreated) AddContainerId(containerId string) *ListCreated {
-
-	//TODO temp 적용이 잘됬는지 확인한다.
-	var temp *ListCreated
-	lc.ContainerIds = append(lc.ContainerIds, containerId)
-
-	temp = lc
-	return temp
-}
-
-func (lc *ListCreated) AddPodId(podId string) *ListCreated {
-
-	//TODO temp 적용이 잘됬는지 확인한다.
-	var temp *ListCreated
-	lc.PodIds = append(lc.PodIds, podId)
-
-	temp = lc
-	return temp
-}
-
-func (lc *ListCreated) AddVolumeName(volumeName string) *ListCreated {
-
-	//TODO temp 적용이 잘됬는지 확인한다.
-	var temp *ListCreated
-	lc.VolumeNames = append(lc.VolumeNames, volumeName)
-
-	temp = lc
-	return temp
-}
-
-/*
-var (
-		f  *os.File
-		fe error
-		d  []byte
-
-		images     int
-		containers int
-		pods       int
-		vols       int
-
-		timages     int
-		tcontainers int
-		tpods       int
-		tvols       int
-	)
-
-	images = len(lc.ImageIds)
-	containers = len(lc.ContainerIds)
-	pods = len(lc.PodIds)
-	vols = len(lc.VolumeNames)
-
-	defer func() {
-		if fe = f.Close(); fe != nil {
-			panic(fe)
-		}
-	}()
-	// 어떻게 해서든 file 은 생성됨.
-	// podbridge-store.yaml 가 없다면...
-	if _, err := os.Stat("podbridge.yaml"); os.IsNotExist(err) {
-		f, fe = os.Create("podbridge.yaml")
-		if fe != nil {
-			panic(fe)
-		}
-
-	} else {
-		// podbridge-store.yaml 가 있다면...
-		if temp := toListCreated("podbridge-store.yaml"); temp != nil {
-			timages = len(temp.ImageIds)
-			tcontainers = len(temp.ContainerIds)
-			tpods = len(temp.PodIds)
-			tvols = len(temp.VolumeNames)
-		}
-
-	}
-	// 기존 메모리에 데이터가 있으면
-	if images > 0 || containers > 0 || pods > 0 || vols > 0 {
-		d, err := yaml.Marshal(lc)
-
-		if err != nil {
-			return
-		}
-
-		// TODO 에러 반환값으로 수정
-		if _, fe = f.Write(d); fe != nil {
-			return
-		}
-	}
-
-
-
-*/
