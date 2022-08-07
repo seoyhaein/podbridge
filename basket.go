@@ -8,14 +8,11 @@ import (
 )
 
 type ListCreated struct {
-	//TODO *string 으로 할지는 추후 살펴보자.
 	ImageIds     []string `yaml:"Images,flow"`
 	ContainerIds []string `yaml:"Containers,flow"`
 	PodIds       []string `yaml:"Pods,flow"`
 	VolumeNames  []string `yaml:"Volumes,flow"`
 }
-
-// 처음에만 생성한다.
 
 var (
 	LC            *ListCreated
@@ -27,7 +24,7 @@ func init() {
 	LC = InitLc()
 }
 
-// yaml 로 문서로 출력하자.
+//ToYaml output to yaml file
 func (lc *ListCreated) ToYaml() {
 	d, err := yaml.Marshal(lc)
 
@@ -106,6 +103,7 @@ func (lc *ListCreated) AddVolumeName(volumeName string) *ListCreated {
 	return temp
 }
 
+//toListCreated convert the contents of the podbridge.yaml file to ListCreated
 func toListCreated() (*ListCreated, error) {
 	var (
 		err   error
@@ -175,6 +173,7 @@ func appendListCreated(src *ListCreated, temp *ListCreated) *ListCreated {
 	return src
 }
 
+//createPodbridgeYaml create podbridge.yaml
 func createPodbridgeYaml() *os.File {
 	var (
 		f   *os.File
@@ -194,6 +193,7 @@ func createPodbridgeYaml() *os.File {
 	return f
 }
 
+//InitLc used only in the init() function.
 func InitLc() *ListCreated {
 	temp, err := toListCreated()
 
