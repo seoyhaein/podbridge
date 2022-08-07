@@ -3,16 +3,18 @@ package podbridge
 import (
 	"context"
 	"fmt"
-	"github.com/seoyhaein/podbridge/localmachine"
 	"testing"
+
+	lm "github.com/seoyhaein/podbridge/localmachine"
+	"github.com/seoyhaein/utils"
 )
 
-/*func TestPodWithSpec(t *testing.T) {
+func TestPodWithSpec(t *testing.T) {
 
 	//sockDir := defaultLinuxSockDir()
 	//ctx, err := NewConnection(context.Background(), sockDir)
 
-	ctx, err := NewConnectionLinux(context.Background())
+	cTx, err := lm.NewConnectionLinux(context.Background())
 
 	if err != nil {
 		fmt.Println("error1")
@@ -22,24 +24,24 @@ import (
 	podConf.TrueAutoCreatePodNameAndHost(PodSpec)
 	b := podConf.TrueSetPodSpec()
 
-	if b == PTrue {
+	if b == utils.PTrue {
 
-		result := PodWithSpec(ctx, podConf)
+		result := PodWithSpec(cTx, podConf)
 
 		if result.success {
 			fmt.Printf("ID: %s, Name: %s, Hostname: %s \n", result.ID, result.Name, result.Hostname)
 		}
 	}
-}*/
+}
 
-func TestPodWithSpec(t *testing.T) {
+/*func TestPodWithSpec(t *testing.T) {
 
 	//sockDir := defaultLinuxSockDir()
 	//ctx, err := NewConnection(context.Background(), sockDir)
 
-	localmachine.NewConnectionLinux(context.Background())
+	cTx, err := lm.NewConnectionLinux(context.Background())
 
-	/*if err != nil {
+	if err != nil {
 		fmt.Println("error1")
 	}
 
@@ -47,13 +49,13 @@ func TestPodWithSpec(t *testing.T) {
 	podConf.TrueAutoCreatePodNameAndHost(PodSpec)
 	b := podConf.TrueSetPodSpec()
 
-	if b == PTrue {
+	if b == utils.PTrue {
 
-		result := PodWithSpec(ctx, podConf)
+		result := PodWithSpec(cTx, podConf)
 
 		if result.success {
 			fmt.Printf("ID: %s, Name: %s, Hostname: %s \n", result.ID, result.Name, result.Hostname)
 		}
-	}*/
+	}
 	fmt.Println("hello")
-}
+}*/
