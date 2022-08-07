@@ -1,6 +1,7 @@
 package podbridge
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/seoyhaein/utils"
@@ -202,4 +203,26 @@ func InitLc() *ListCreated {
 	}
 
 	return temp
+}
+
+// Reset truncate podbridge.yaml
+// ListCreated 를 리셋하는 것은 생각해볼 것
+func Reset() error {
+	b, err := utils.FileExists(podbridgePath)
+	if err != nil {
+		return err
+	}
+
+	if b {
+		err = utils.Truncate(podbridgePath)
+
+		if err != nil {
+			return err
+		}
+
+	} else {
+		// 파일이 없으면
+		fmt.Errorf("no file")
+	}
+	return nil
 }

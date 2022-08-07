@@ -8,9 +8,8 @@ require (
 	github.com/containers/podman/v4 v4.1.1
 	github.com/containers/storage v1.42.0
 	github.com/opencontainers/runtime-spec v1.0.3-0.20211214071223-8958f93039ab
-	github.com/seoyhaein/utils v0.0.0-20220807055423-8c4e5ee21339
+	github.com/seoyhaein/utils v0.0.0-20220807095938-853dfca7f043
 	github.com/shirou/gopsutil/v3 v3.22.7
-	github.com/stretchr/testify v1.8.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -37,7 +36,6 @@ require (
 	github.com/containers/psgo v1.7.2 // indirect
 	github.com/coreos/go-systemd/v22 v22.3.2 // indirect
 	github.com/cyphar/filepath-securejoin v0.2.3 // indirect
-	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/disiqueira/gotree/v3 v3.0.2 // indirect
 	github.com/docker/distribution v2.8.1+incompatible // indirect
 	github.com/docker/docker v20.10.17+incompatible // indirect
@@ -91,7 +89,6 @@ require (
 	github.com/openshift/imagebuilder v1.2.4-0.20220502172744-009dbc6cb805 // indirect
 	github.com/ostreedev/ostree-go v0.0.0-20210805093236-719684c64e4f // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/power-devops/perfstat v0.0.0-20220216144756-c35f1ee13d7c // indirect
 	github.com/proglottis/gpgme v0.1.3 // indirect
 	github.com/prometheus/client_golang v1.13.0 // indirect
