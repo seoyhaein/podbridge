@@ -12,15 +12,17 @@ import (
 // 컨테이너에 따라 생성된다.
 // 따라서 여러개가 생성된다.
 
-type ContainerConfig struct {
-	SetSpec                 *bool
-	AutoCreateContainerName *bool
-}
+type (
+	ContainerConfig struct {
+		SetSpec                 *bool
+		AutoCreateContainerName *bool
+	}
 
-type PodConfig struct {
-	SetPodSpec                   *bool
-	AutoCreatePodNameAndHostName *bool
-}
+	PodConfig struct {
+		SetPodSpec                   *bool
+		AutoCreatePodNameAndHostName *bool
+	}
+)
 
 func (conf *ContainerConfig) TrueSetSpec() *bool {
 
