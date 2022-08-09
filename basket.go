@@ -33,9 +33,9 @@ var (
 	mutex         = new(sync.Mutex)
 )
 
-func init() {
-	// TODO 추후 살펴보자
-	// LC = InitLc()
+//PodbridgeInit init 에 넣어줘야 하는 function
+func PodbridgeInit() {
+	LC = InitLc()
 }
 
 //ToYaml output to yaml file TODO 수정하자.
