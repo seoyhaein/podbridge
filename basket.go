@@ -8,13 +8,24 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-type ListCreated struct {
-	ImageIds     []string `yaml:"Images,flow"`
-	ContainerIds []string `yaml:"Containers,flow"`
-	PodIds       []string `yaml:"Pods,flow"`
-	VolumeNames  []string `yaml:"Volumes,flow"`
-}
+// Pod 에 넣은 Container 는 Pod 내에 넣는다.
+// key containerid, value pod id
 
+type (
+	PodInfo struct {
+		Id           string   `yaml:"podId"`
+		ContainerIds []string `yaml:"containers,flow"`
+	}
+
+	ListCreated struct {
+		ImageIds     []string   `yaml:"Images,flow"`
+		ContainerIds []string   `yaml:"Containers,flow"`
+		Pods         []*PodInfo `yaml:"Pods,flow"`
+		VolumeNames  []string   `yaml:"Volumes,flow"`
+	}
+)
+
+//TODO 중요 LC 는 공유 struct 이므로 race 문제가 발생할 수 있음. 이걸 보완하자.
 var (
 	LC            *ListCreated
 	podbridgePath = "podbridge.yaml"
@@ -22,7 +33,7 @@ var (
 
 func init() {
 	// TODO 추후 살펴보자
-	LC = InitLc()
+	// LC = InitLc()
 }
 
 //ToYaml output to yaml file TODO 수정하자.
@@ -49,7 +60,7 @@ func (lc *ListCreated) ToYaml() {
 }
 
 // Deprecated: Not used, but left for now.
-func (lc *ListCreated) ToListCreated() *ListCreated {
+/*func (lc *ListCreated) ToListCreated() *ListCreated {
 
 	temp, err := toListCreated()
 	if err != nil {
@@ -62,46 +73,193 @@ func (lc *ListCreated) ToListCreated() *ListCreated {
 	}
 
 	return r
-}
+}*/
+
+// 중복 검사해줘야 한다.
 
 func (lc *ListCreated) AddImagesId(imgId string) *ListCreated {
+	r := findImageId(lc, imgId)
+	if r == nil || r == utils.PTrue {
+		return lc
+	}
 
-	//TODO temp 적용이 잘됬는지 확인한다.
-	var temp *ListCreated
 	lc.ImageIds = append(lc.ImageIds, imgId)
-
-	temp = lc
-	return temp
+	return lc
 }
 
 func (lc *ListCreated) AddContainerId(containerId string) *ListCreated {
+	r := findContainerId(lc, containerId)
+	if r == nil || r == utils.PTrue {
+		return lc
+	}
 
-	//TODO temp 적용이 잘됬는지 확인한다.
-	var temp *ListCreated
 	lc.ContainerIds = append(lc.ContainerIds, containerId)
-
-	temp = lc
-	return temp
+	return lc
 }
 
 func (lc *ListCreated) AddPodId(podId string) *ListCreated {
 
-	//TODO temp 적용이 잘됬는지 확인한다.
-	var temp *ListCreated
-	lc.PodIds = append(lc.PodIds, podId)
+	r, _ := findPodId(lc, podId)
 
-	temp = lc
-	return temp
+	if r == nil || r == utils.PTrue {
+		return lc
+	}
+
+	newPod := &PodInfo{
+		Id: podId,
+	}
+
+	lc.Pods = append(lc.Pods, newPod)
+	return lc
 }
 
 func (lc *ListCreated) AddVolumeName(volumeName string) *ListCreated {
+	r := findVolumeName(lc, volumeName)
+	if r == nil || r == utils.PTrue {
+		return lc
+	}
 
-	//TODO temp 적용이 잘됬는지 확인한다.
-	var temp *ListCreated
 	lc.VolumeNames = append(lc.VolumeNames, volumeName)
+	return lc
+}
 
-	temp = lc
-	return temp
+/*
+func (lc *ListCreated) AddPodIdX(podId string, containerIds ...string) *ListCreated {
+	if utils.IsEmptyString(podId) {
+		return nil
+	}
+
+	if lc.PodsX == nil {
+		lc.PodsX = make(map[string]string)
+	}
+
+	for _, v := range containerIds {
+		lc.PodsX[v] = podId
+	}
+
+	return lc
+}
+*/
+// 찾으면 true, 못찾으면 false, 에러면 nil
+func findImageId(lc *ListCreated, imageId string) *bool {
+	if lc == nil || utils.IsEmptyString(imageId) {
+		return nil
+	}
+
+	for _, id := range lc.ImageIds {
+		if id == imageId {
+			return utils.PTrue
+		}
+	}
+
+	return utils.PFalse
+}
+
+// 찾으면 true, 못찾으면 false, 에러면 nil
+func findContainerId(lc *ListCreated, conId string) *bool {
+	if lc == nil || utils.IsEmptyString(conId) {
+		return nil
+	}
+
+	for _, id := range lc.ContainerIds {
+		if id == conId {
+			return utils.PTrue
+		}
+	}
+
+	return utils.PFalse
+}
+
+// 찾으면 true, 못찾으면 false, 에러면 nil
+func findVolumeName(lc *ListCreated, name string) *bool {
+	if lc == nil || utils.IsEmptyString(name) {
+		return nil
+	}
+
+	for _, n := range lc.VolumeNames {
+		if n == name {
+			return utils.PTrue
+		}
+	}
+
+	return utils.PFalse
+}
+
+// 찾으면 true, 못찾으면 false, 에러면 nil
+func findPodId(lc *ListCreated, podId string) (*bool, *PodInfo) {
+	if lc == nil || utils.IsEmptyString(podId) {
+		return nil, nil
+	}
+
+	for _, p := range lc.Pods {
+		if p.Id == podId {
+			return utils.PTrue, p
+		}
+	}
+
+	return utils.PFalse, nil
+}
+
+func (lc *ListCreated) AddContainerInPod(podId string, containerIds ...string) *ListCreated {
+	var newPod *PodInfo
+
+	r, p := findPodId(lc, podId)
+	if r == nil {
+		return nil
+	}
+	// 동일한 podid 가 없으면
+	if r == utils.PFalse {
+		newPod = &PodInfo{
+			Id: podId,
+		}
+		for _, c := range containerIds {
+			newPod.ContainerIds = append(newPod.ContainerIds, c)
+		}
+		lc.Pods = append(lc.Pods, newPod)
+	}
+	// 동일한 podid 가 있으면, deepcopy 가 아니므로 상관없다.
+	if r == utils.PTrue {
+		newPod = p
+		n := len(newPod.ContainerIds)
+		if n == 0 {
+			for _, c := range containerIds {
+				newPod.ContainerIds = append(newPod.ContainerIds, c)
+			}
+			return lc
+		}
+
+		// TODO  좀똑똑하게 고치자 향후에..
+		var check = true
+		for _, c := range containerIds {
+			for _, oc := range newPod.ContainerIds {
+				if oc == c {
+					check = false
+				}
+			}
+		}
+
+		if check {
+			for _, c := range containerIds {
+				newPod.ContainerIds = append(newPod.ContainerIds, c)
+			}
+		}
+	}
+
+	return lc
+}
+
+// 테스트 해보자.
+func (lc *ListCreated) RemoveContainerId(containerId string) {
+
+	var index = -1
+	for i := 0; i < len(lc.ContainerIds); i++ {
+		if lc.ContainerIds[i] == containerId {
+			index = i
+		}
+	}
+	if index != -1 {
+		lc.ContainerIds = append(lc.ContainerIds[:index], lc.ContainerIds[index+1:]...)
+	}
 }
 
 //toListCreated convert the contents of the podbridge.yaml file to ListCreated
@@ -136,7 +294,7 @@ func toListCreated() (*ListCreated, error) {
 }
 
 // Deprecated: Not used, but left for now.
-func appendListCreated(src *ListCreated, temp *ListCreated) *ListCreated {
+/*func appendListCreated(src *ListCreated, temp *ListCreated) *ListCreated {
 
 	if src == nil || temp == nil {
 		return nil
@@ -172,7 +330,7 @@ func appendListCreated(src *ListCreated, temp *ListCreated) *ListCreated {
 	}
 
 	return src
-}
+}*/
 
 //createPodbridgeYaml create podbridge.yaml
 func createPodbridgeYaml() *os.File {
