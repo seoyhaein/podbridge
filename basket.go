@@ -3,6 +3,7 @@ package podbridge
 import (
 	"fmt"
 	"os"
+	"sync"
 
 	"github.com/seoyhaein/utils"
 	"gopkg.in/yaml.v3"
@@ -29,6 +30,7 @@ type (
 var (
 	LC            *ListCreated
 	podbridgePath = "podbridge.yaml"
+	mutex         = new(sync.Mutex)
 )
 
 func init() {
@@ -82,8 +84,9 @@ func (lc *ListCreated) AddImagesId(imgId string) *ListCreated {
 	if r == nil || r == utils.PTrue {
 		return lc
 	}
-
+	mutex.Lock()
 	lc.ImageIds = append(lc.ImageIds, imgId)
+	mutex.Unlock()
 	return lc
 }
 
@@ -92,8 +95,9 @@ func (lc *ListCreated) AddContainerId(containerId string) *ListCreated {
 	if r == nil || r == utils.PTrue {
 		return lc
 	}
-
+	mutex.Lock()
 	lc.ContainerIds = append(lc.ContainerIds, containerId)
+	mutex.Unlock()
 	return lc
 }
 
@@ -108,8 +112,63 @@ func (lc *ListCreated) AddPodId(podId string) *ListCreated {
 	newPod := &PodInfo{
 		Id: podId,
 	}
-
+	mutex.Lock()
 	lc.Pods = append(lc.Pods, newPod)
+	mutex.Unlock()
+	return lc
+}
+
+func (lc *ListCreated) AddContainerInPod(podId string, containerIds ...string) *ListCreated {
+	var newPod *PodInfo
+
+	r, p := findPodId(lc, podId)
+	if r == nil {
+		return nil
+	}
+	// 동일한 podid 가 없으면
+	if r == utils.PFalse {
+		newPod = &PodInfo{
+			Id: podId,
+		}
+		mutex.Lock()
+		for _, c := range containerIds {
+			newPod.ContainerIds = append(newPod.ContainerIds, c)
+		}
+		lc.Pods = append(lc.Pods, newPod)
+		mutex.Unlock()
+	}
+	// 동일한 podid 가 있으면, deepcopy 가 아니므로 상관없다.
+	if r == utils.PTrue {
+		newPod = p
+		n := len(newPod.ContainerIds)
+		if n == 0 {
+			mutex.Lock()
+			for _, c := range containerIds {
+				newPod.ContainerIds = append(newPod.ContainerIds, c)
+			}
+			mutex.Unlock()
+			return lc
+		}
+
+		// TODO  좀똑똑하게 고치자 향후에..
+		var check = true
+		for _, c := range containerIds {
+			for _, oc := range newPod.ContainerIds {
+				if oc == c {
+					check = false
+				}
+			}
+		}
+
+		if check {
+			mutex.Lock()
+			for _, c := range containerIds {
+				newPod.ContainerIds = append(newPod.ContainerIds, c)
+			}
+			mutex.Unlock()
+		}
+	}
+
 	return lc
 }
 
@@ -118,8 +177,9 @@ func (lc *ListCreated) AddVolumeName(volumeName string) *ListCreated {
 	if r == nil || r == utils.PTrue {
 		return lc
 	}
-
+	mutex.Lock()
 	lc.VolumeNames = append(lc.VolumeNames, volumeName)
+	mutex.Unlock()
 	return lc
 }
 
@@ -200,54 +260,6 @@ func findPodId(lc *ListCreated, podId string) (*bool, *PodInfo) {
 	return utils.PFalse, nil
 }
 
-func (lc *ListCreated) AddContainerInPod(podId string, containerIds ...string) *ListCreated {
-	var newPod *PodInfo
-
-	r, p := findPodId(lc, podId)
-	if r == nil {
-		return nil
-	}
-	// 동일한 podid 가 없으면
-	if r == utils.PFalse {
-		newPod = &PodInfo{
-			Id: podId,
-		}
-		for _, c := range containerIds {
-			newPod.ContainerIds = append(newPod.ContainerIds, c)
-		}
-		lc.Pods = append(lc.Pods, newPod)
-	}
-	// 동일한 podid 가 있으면, deepcopy 가 아니므로 상관없다.
-	if r == utils.PTrue {
-		newPod = p
-		n := len(newPod.ContainerIds)
-		if n == 0 {
-			for _, c := range containerIds {
-				newPod.ContainerIds = append(newPod.ContainerIds, c)
-			}
-			return lc
-		}
-
-		// TODO  좀똑똑하게 고치자 향후에..
-		var check = true
-		for _, c := range containerIds {
-			for _, oc := range newPod.ContainerIds {
-				if oc == c {
-					check = false
-				}
-			}
-		}
-
-		if check {
-			for _, c := range containerIds {
-				newPod.ContainerIds = append(newPod.ContainerIds, c)
-			}
-		}
-	}
-
-	return lc
-}
-
 // 테스트 해보자.
 func (lc *ListCreated) RemoveContainerId(containerId string) {
 
@@ -258,7 +270,9 @@ func (lc *ListCreated) RemoveContainerId(containerId string) {
 		}
 	}
 	if index != -1 {
+		mutex.Lock()
 		lc.ContainerIds = append(lc.ContainerIds[:index], lc.ContainerIds[index+1:]...)
+		mutex.Unlock()
 	}
 }
 

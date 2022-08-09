@@ -17,4 +17,5 @@ func TestRemoveContainerId(t *testing.T) {
 	LC.AddContainerInPod("bbbb", "12121")
 
 	LC.ToYaml()
+	Reset()
 }
