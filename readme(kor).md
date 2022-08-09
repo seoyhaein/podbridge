@@ -9,6 +9,7 @@
 4. 호스트에서 컨테이너로 데이터 전송 podman cp 관련 자료 찾기
 5. https://go.dev/doc/articles/race_detector
 6. https://eng.uber.com/dynamic-data-race-detection-in-go-code/
+7. https://hackernoon.com/how-to-write-benchmarks-in-golang-like-an-expert-0w1834gs
 
 기타 정리 안된 내용
 
