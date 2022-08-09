@@ -27,14 +27,10 @@ var (
 type (
 	Option    func(*specgen.SpecGenerator) Option
 	PodOption func(*entities.PodSpec) PodOption
-
-	pair struct {
-		p1 any
-		p2 any
-	}
 )
 
 // default 값을 세팅할 수 있다.
+// TODO PodbridgeInit -> basket.go 참고 이걸로 통일하는 방향으로 가자.
 func init() {
 	Spec = new(specgen.SpecGenerator)
 	backup = new(specgen.SpecGenerator)

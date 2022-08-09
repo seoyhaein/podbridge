@@ -7,6 +7,8 @@
 2. 각각 container, volume, image 등의 이름 테그 기타 정보들을 자동으로 규칙적으로 만들어주는 방안 생각해야함.
 3. 컨테이너의 healthcheck, healthcheck 에 따라서 반응하는 루틴 필요 - 우선적으로 처리하기 -> dag-go 연결때문에.
 4. 호스트에서 컨테이너로 데이터 전송 podman cp 관련 자료 찾기
+5. https://go.dev/doc/articles/race_detector
+6. https://eng.uber.com/dynamic-data-race-detection-in-go-code/
 
 기타 정리 안된 내용
 
