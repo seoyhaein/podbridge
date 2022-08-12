@@ -45,6 +45,8 @@ func RemovePods() error {
 	return nil
 }
 
+// TODO buildah 로 빌드된것 안지워지는 경우가 있음.
+
 func RemoveImages() error {
 	RemoveContainers()
 
