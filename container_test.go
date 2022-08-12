@@ -273,3 +273,7 @@ func TestPodSet(t *testing.T) {
 
 	}
 }
+
+func TestSampleContainer(t *testing.T) {
+
+}

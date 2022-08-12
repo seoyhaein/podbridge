@@ -7,6 +7,7 @@ import (
 
 	"github.com/containers/podman/v4/pkg/bindings/containers"
 	"github.com/containers/podman/v4/pkg/bindings/images"
+	"github.com/containers/podman/v4/pkg/specgen"
 	"github.com/seoyhaein/utils"
 )
 
@@ -121,6 +122,93 @@ func ContainerWithSpec(ctx *context.Context, conf *ContainerConfig) *CreateConta
 	return result
 }
 
+func CreateContainer(ctx *context.Context, spec *specgen.SpecGenerator) *CreateContainerResult {
+
+	var (
+		result                 *CreateContainerResult
+		containerExistsOptions containers.ExistsOptions
+	)
+
+	err := spec.Validate()
+
+	if err != nil {
+		result.ErrorMessage = err
+		result.success = false
+		return result
+	}
+
+	containerExistsOptions.External = utils.PFalse
+	containerExists, err := containers.Exists(*ctx, Spec.Name, &containerExistsOptions)
+
+	if err != nil {
+		result.ErrorMessage = err
+		result.success = false
+		return result
+	}
+
+	// 컨테이너가 local storage 에 존재하고 있다면
+	if containerExists {
+		var containerInspectOptions containers.InspectOptions
+		containerInspectOptions.Size = utils.PFalse
+		containerData, err := containers.Inspect(*ctx, Spec.Name, &containerInspectOptions)
+		if err != nil {
+			result.ErrorMessage = err
+			result.success = false
+			return result
+		}
+
+		if containerData.State.Running {
+			result.ErrorMessage = errors.New(fmt.Sprintf("%s container already running", Spec.Name))
+			result.ID = containerData.ID
+			result.Name = Spec.Name
+			result.success = false
+			return result
+		} else {
+			result.ErrorMessage = errors.New(fmt.Sprintf("%s container already exists", Spec.Name))
+			result.ID = containerData.ID
+			result.Name = Spec.Name
+			result.success = false
+			return result
+		}
+	} else {
+
+		imageExists, err := images.Exists(*ctx, Spec.Image, nil)
+		if err != nil {
+			result.ErrorMessage = err
+			result.success = false
+			return result
+		}
+
+		// TODO 아래 코드는 필요 없을 듯, 이미지를 일단 만들어서 local 에 저장하는 구조임.
+		if imageExists == false {
+			_, err := images.Pull(*ctx, Spec.Image, &images.PullOptions{})
+			if err != nil {
+				result.ErrorMessage = err
+				result.success = false
+				return result
+			}
+		}
+
+		fmt.Printf("Pulling %s image...\n", Spec.Image)
+
+		createResponse, err := containers.CreateWithSpec(*ctx, Spec, &containers.CreateOptions{})
+		if err != nil {
+			result.ErrorMessage = err
+			result.success = false
+			return result
+		}
+
+		fmt.Printf("Creating %s container using %s image...\n", Spec.Name, Spec.Image)
+
+		result.Name = Spec.Name
+		result.ID = createResponse.ID
+		result.Warnings = createResponse.Warnings
+	}
+
+	result.success = true
+	return result
+}
+
 func (Res *CreateContainerResult) Start(ctx *context.Context) error {
 	// TODO 이 코드는 의미 없을것 같다. 테스트 할때 해보자.
 	if Res == nil {
@@ -162,6 +250,20 @@ func (Res *CreateContainerResult) Stop(ctx *context.Context, options ...any) err
 
 	err := containers.Stop(*ctx, Res.ID, stopOption)
 	return err
+}
+
+func (Res *CreateContainerResult) Kill(ctx *context.Context, options ...any) error {
+
+	return nil
+}
+
+// 중요!! 지속적으로 container 의 status 를 확인해줘야 함으로, goroutine, 루프 구문이 들어가고 context 가 들어가고, channel 이 들어가야 할듯 하다.
+// 퍼포먼스 문제가 있을까?? 일단 고민좀 해보자. 여러 컨테이너를 지속적으로 해야 함으로 이런 방식은 문제가 있을듯 하다. 일단 좀더 고민해 보자.
+
+func (Res *CreateContainerResult) HealthCheck(ctx *context.Context, options ...any) error {
+
+	//containers.RunHealthCheck()
+	return nil
 }
 
 // TODO wait 함수 구체적으로 살펴보기기

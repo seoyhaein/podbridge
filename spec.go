@@ -14,6 +14,27 @@ import (
 	"github.com/containers/podman/v4/pkg/specgen"
 )
 
+// 대문자로 할지 고민해보자.
+type pair struct {
+	p1 any
+	p2 any
+}
+
+func MakePair(a any, b any) *pair {
+	return &pair{
+		p1: a,
+		p2: b,
+	}
+}
+
+// 이렇게 만드는 것 고민해보자. 많이 사용하는 field에 대해서
+func Name(name string) *pair {
+	return &pair{
+		p1: "Name",
+		p2: name,
+	}
+}
+
 var (
 	Spec   *specgen.SpecGenerator
 	backup *specgen.SpecGenerator

@@ -27,6 +27,8 @@ type (
 )
 
 //TODO 중요 LC 는 공유 struct 이므로 race 문제가 발생할 수 있음. 이걸 보완하자.
+// mutex ListCreated 에 넣자.
+// https://cloudolife.com/2020/04/18/Programming-Language/Golang-Go/Synchronization/Use-sync-Mutex-sync-RWMutex-to-lock-share-data-for-race-condition/
 var (
 	LC            *ListCreated
 	podbridgePath = "podbridge.yaml"
