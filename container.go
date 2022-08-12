@@ -25,6 +25,8 @@ type CreateContainerResult struct {
 // TODO 꼼꼼히 테스트 해야함.
 // pull goroutine
 
+// TODO spec, pod 사용하지 않을 예정임. 대폭 수정예상
+
 func ContainerWithSpec(ctx *context.Context, conf *ContainerConfig) *CreateContainerResult {
 
 	var (

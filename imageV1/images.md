@@ -99,3 +99,6 @@ func main() {
 	fmt.Println(*image)
 }
 ```
+
+### TODO
+- types.SystemContext 관련해서 소스 분석해서 자세한 내용 파악.

@@ -18,7 +18,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// TODO 파일 이름 바꾸고, dockerfile  의명령어와 최대한 비슷하게 작성한다.
 // https://acet.pe.kr/935
 
 // image id 확인
@@ -34,7 +33,7 @@ var (
 	digester = digest.Canonical.Digester()
 	log      = logrus.New()
 
-	// 일단 넣어 놓음
+	//TODO 추후 수정 일단 넣어 놓음
 	Verbose = true
 	Debug   = true
 )

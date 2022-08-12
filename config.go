@@ -9,9 +9,9 @@ import (
 	"github.com/seoyhaein/utils"
 )
 
-// 컨테이너에 따라 생성된다.
-// 따라서 여러개가 생성된다.
+// pod, spec 삭제할 예정임.
 // TODO 코드 정리가 필요하다.
+
 type (
 	ContainerConfig struct {
 		SetSpec                 *bool
