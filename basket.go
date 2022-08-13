@@ -31,11 +31,19 @@ type (
 //TODO 중요 LC 는 공유 struct 이므로 race 문제가 발생할 수 있음. 이걸 보완하자.
 // mutex ListCreated 에 넣자.
 // https://cloudolife.com/2020/04/18/Programming-Language/Golang-Go/Synchronization/Use-sync-Mutex-sync-RWMutex-to-lock-share-data-for-race-condition/
+// Basket 은 singleton 이어야함 관련해서 처리해줘야 하고, 지금 은그냥 노출 하는데, api 를 통해서 노출하도록 처리한다.
 var (
-	//Basket        *ListCreated
+	Basket        *ListCreated
 	podbridgePath = "podbridge.yaml"
 	//mutex         = new(sync.Mutex)
 )
+
+//MustFirstCall used only in the init() function.
+func MustFirstCall() error {
+	basket, err := toListCreated()
+	Basket = basket
+	return err
+}
 
 //ToYaml output to yaml file TODO 수정하자.
 func (lc *ListCreated) ToYaml() {
@@ -344,15 +352,6 @@ func createPodbridgeYaml() *os.File {
 		return nil
 	}
 	return f
-}
-
-//MustFirstCall used only in the init() function.
-func MustFirstCall() *ListCreated {
-	temp, err := toListCreated()
-	if err != nil {
-		return nil
-	}
-	return temp
 }
 
 // Reset truncate podbridge.yaml
