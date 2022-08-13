@@ -32,15 +32,10 @@ type (
 // mutex ListCreated 에 넣자.
 // https://cloudolife.com/2020/04/18/Programming-Language/Golang-Go/Synchronization/Use-sync-Mutex-sync-RWMutex-to-lock-share-data-for-race-condition/
 var (
-	Basket        *ListCreated
+	//Basket        *ListCreated
 	podbridgePath = "podbridge.yaml"
 	//mutex         = new(sync.Mutex)
 )
-
-//PodbridgeInit init 에 넣어줘야 하는 function
-func MustFirstCall() {
-	Basket = InitBasket()
-}
 
 //ToYaml output to yaml file TODO 수정하자.
 func (lc *ListCreated) ToYaml() {
@@ -351,14 +346,12 @@ func createPodbridgeYaml() *os.File {
 	return f
 }
 
-//InitLc used only in the init() function.
-func InitBasket() *ListCreated {
+//MustFirstCall used only in the init() function.
+func MustFirstCall() *ListCreated {
 	temp, err := toListCreated()
-
 	if err != nil {
 		return nil
 	}
-
 	return temp
 }
 
