@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/containers/podman/v4/pkg/specgen"
 	"github.com/seoyhaein/utils"
 )
 
@@ -272,6 +273,14 @@ func TestPodSet(t *testing.T) {
 	}
 }
 
-func TestSampleContainer(t *testing.T) {
+// 이런식으로 하면 될듯한데. 테스트 해보자.
+func TestSetOther(t *testing.T) {
+	cspec := NewContainerSpec()
+
+	f := func(spec *specgen.SpecGenerator) *specgen.SpecGenerator {
+		spec.Name = "test"
+		return spec
+	}
+	cspec.SetOther(f)
 
 }

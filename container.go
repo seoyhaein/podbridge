@@ -161,10 +161,26 @@ func (c *ContainerSpec) NewSpecA(imgName string) *ContainerSpec {
 	return c
 }
 
+// Variadic Function 만들어서 해보는 방법을 어떨까??
+// SetOther 에서 입력 f 는 입력 파라미터 없이 넣고,
 func (c *ContainerSpec) SetOther(f func(spec *specgen.SpecGenerator) *specgen.SpecGenerator) *ContainerSpec {
-
+	// 이건 f 를 만드는 문제가 발생하는데..
 	c.conSpec = f(c.conSpec)
 	return c
+}
+
+// c.conSpec 가 파라미터로 들어가서 그 값을 세팅하는 func 를 외부에서 만든다.
+func (c *ContainerSpec) SetOtherA(f func() *specgen.SpecGenerator) *ContainerSpec {
+	// 데이터 병합이 문제다. 이걸 해결하자.
+	// 포인터 문제가 발생한다. 젠장.
+
+	//c.conSpec = f()
+	//return c
+
+	return func() *ContainerSpec {
+
+		return nil
+	}()
 }
 
 // TODO 수정해줘야 함.
