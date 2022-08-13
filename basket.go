@@ -39,7 +39,7 @@ var (
 
 //PodbridgeInit init 에 넣어줘야 하는 function
 func MustFirstCall() {
-	Basket = InitLc()
+	Basket = InitBasket()
 }
 
 //ToYaml output to yaml file TODO 수정하자.
@@ -352,7 +352,7 @@ func createPodbridgeYaml() *os.File {
 }
 
 //InitLc used only in the init() function.
-func InitLc() *ListCreated {
+func InitBasket() *ListCreated {
 	temp, err := toListCreated()
 
 	if err != nil {

@@ -5,7 +5,7 @@ import (
 )
 
 func TestRemoveContainerId(t *testing.T) {
-	Basket = InitLc()
+	Basket = InitBasket()
 
 	Basket.AddImagesId("7445a9646150")
 	Basket.AddImagesId("1b5c7b6fdac0")
