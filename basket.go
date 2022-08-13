@@ -28,10 +28,6 @@ type (
 	}
 )
 
-//TODO 중요 LC 는 공유 struct 이므로 race 문제가 발생할 수 있음. 이걸 보완하자.
-// mutex ListCreated 에 넣자.
-// https://cloudolife.com/2020/04/18/Programming-Language/Golang-Go/Synchronization/Use-sync-Mutex-sync-RWMutex-to-lock-share-data-for-race-condition/
-// Basket 은 singleton 이어야함 관련해서 처리해줘야 하고, 지금 은그냥 노출 하는데, api 를 통해서 노출하도록 처리한다.
 var (
 	Basket        *ListCreated
 	podbridgePath = "podbridge.yaml"
@@ -39,6 +35,10 @@ var (
 )
 
 //MustFirstCall used only in the init() function.
+// mutex ListCreated 에 넣자.
+// https://cloudolife.com/2020/04/18/Programming-Language/Golang-Go/Synchronization/Use-sync-Mutex-sync-RWMutex-to-lock-share-data-for-race-condition/
+// Basket 은 singleton 이어야함 관련해서 처리해줘야 하고, 지금 은그냥 노출 하는데, api 를 통해서 노출하도록 처리한다.
+// https://thebook.io/006806/ch05/03/03/
 func MustFirstCall() (*ListCreated, error) {
 	basket, err := toListCreated()
 	Basket = basket
@@ -274,7 +274,8 @@ func (lc *ListCreated) RemoveContainerId(containerId string) {
 	}
 }
 
-//toListCreated convert the contents of the podbridge.yaml file to ListCreated
+// toListCreated convert the contents of the podbridge.yaml file to ListCreated
+// TODO 이름 바꾸자. MustFirstCall() 수정하면서.
 func toListCreated() (*ListCreated, error) {
 	var (
 		err   error

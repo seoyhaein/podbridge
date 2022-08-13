@@ -11,6 +11,13 @@ import (
 	"github.com/seoyhaein/utils"
 )
 
+// test
+
+type (
+	SetFunc  func(spec *specgen.SpecGenerator) *specgen.SpecGenerator
+	SetFuncA func() *specgen.SpecGenerator
+)
+
 type CreateContainerResult struct {
 	ErrorMessage error
 
@@ -19,6 +26,10 @@ type CreateContainerResult struct {
 	Warnings []string
 
 	success bool
+}
+
+type ContainerSpec struct {
+	conSpec *specgen.SpecGenerator
 }
 
 // TODO 컨테이너를 여러개 만들어야 하는 문제??
@@ -132,6 +143,28 @@ func NewSpec(imgName string) *specgen.SpecGenerator {
 	spec := specgen.NewSpecGenerator(imgName, false)
 
 	return spec
+}
+
+// test
+func NewContainerSpec() *ContainerSpec {
+	return &ContainerSpec{
+		conSpec: new(specgen.SpecGenerator),
+	}
+}
+
+func (c *ContainerSpec) NewSpecA(imgName string) *ContainerSpec {
+	if utils.IsEmptyString(imgName) {
+		return nil
+	}
+	spec := specgen.NewSpecGenerator(imgName, false)
+	c.conSpec = spec
+	return c
+}
+
+func (c *ContainerSpec) SetOther(f func(spec *specgen.SpecGenerator) *specgen.SpecGenerator) *ContainerSpec {
+
+	c.conSpec = f(c.conSpec)
+	return c
 }
 
 // TODO 수정해줘야 함.

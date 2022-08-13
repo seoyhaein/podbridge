@@ -2,7 +2,7 @@
 //go:build linux
 // +build linux
 
-package localmachine
+package podbridge
 
 import (
 	"context"
@@ -35,24 +35,6 @@ func defaultLinuxSockDir() (socket string) {
 
 	return
 }
-
-// buildah 관련해서 일단 주석 처리함. 추후 살펴보자.
-
-/*func NewConnectionLinux(ctx context.Context, useBuildAh bool) (*context.Context, error) {
-	socket := defaultLinuxSockDir()
-
-	conText, err := bindings.NewConnection(ctx, socket)
-
-	if useBuildAh {
-
-		if buildah.InitReexec() {
-			return nil, errors.New("InitReexec return false")
-		}
-		unshare.MaybeReexecUsingUserNamespace(false)
-	}
-
-	return &conText, err
-}*/
 
 func NewConnectionLinux(ctx context.Context) (*context.Context, error) {
 

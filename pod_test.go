@@ -5,13 +5,12 @@ import (
 	"fmt"
 	"testing"
 
-	lm "github.com/seoyhaein/podbridge/localmachine"
 	"github.com/seoyhaein/utils"
 )
 
 func TestPodWithSpec(t *testing.T) {
 
-	cTx, err := lm.NewConnectionLinux(context.Background())
+	cTx, err := NewConnectionLinux(context.Background())
 
 	if err != nil {
 		fmt.Println("error1")

@@ -39,7 +39,7 @@ var (
 	Debug   = true
 )
 
-type Option struct {
+type BuilderOption struct {
 	BuilderOpt *buildah.BuilderOptions
 }
 
@@ -48,14 +48,14 @@ type Builder struct {
 	builder *buildah.Builder
 }
 
-func NewOption() *Option {
+func NewOption() *BuilderOption {
 	opt := new(buildah.BuilderOptions)
-	return &Option{
+	return &BuilderOption{
 		BuilderOpt: opt,
 	}
 }
 
-func (o *Option) Arg(k string, v string) *Option {
+func (o *BuilderOption) Arg(k string, v string) *BuilderOption {
 	// map 중복 체크
 	if _, ok := o.BuilderOpt.Args[k]; ok {
 		return nil
@@ -64,7 +64,7 @@ func (o *Option) Arg(k string, v string) *Option {
 	return o
 }
 
-func (o *Option) FromImage(fromImage string) *Option {
+func (o *BuilderOption) FromImage(fromImage string) *BuilderOption {
 	if utils.IsEmptyString(fromImage) {
 		return nil
 	}
@@ -72,7 +72,7 @@ func (o *Option) FromImage(fromImage string) *Option {
 	return o
 }
 
-func (o *Option) Other() *Option {
+func (o *BuilderOption) Other() *BuilderOption {
 	buildOpts := &buildah.CommonBuildOptions{}
 	builderOption := &buildah.BuilderOptions{
 		Isolation:        define.IsolationChroot,
@@ -88,7 +88,7 @@ func (o *Option) Other() *Option {
 
 //TODO context pointer 쓸지 생각하자.
 
-func NewBuilder(ctx context.Context, o *Option /*opt *buildah.BuilderOptions*/) (context.Context, *Builder, error) {
+func NewBuilder(ctx context.Context, o *BuilderOption /*opt *buildah.BuilderOptions*/) (context.Context, *Builder, error) {
 
 	store, err := NewStore()
 	if err != nil {

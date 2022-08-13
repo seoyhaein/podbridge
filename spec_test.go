@@ -9,7 +9,6 @@ import (
 	"github.com/containers/podman/v4/pkg/bindings/containers"
 	deepcopy "github.com/containers/podman/v4/pkg/domain/utils"
 	"github.com/containers/podman/v4/pkg/specgen"
-	"github.com/seoyhaein/podbridge/localmachine"
 )
 
 // TODO 기타 다른 값들도 테스트 진행해야 함. cf volume
@@ -89,7 +88,7 @@ func TestDeepCopy(t *testing.T) {
 
 func TestSpecCompare(t *testing.T) {
 
-	ctx, err := localmachine.NewConnectionLinux(context.Background())
+	ctx, err := NewConnectionLinux(context.Background())
 
 	//centos := "docker.io/centos"
 	busybox := "docker.io/busybox"
