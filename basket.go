@@ -23,6 +23,8 @@ type (
 		ContainerIds []string   `yaml:"Containers,flow"`
 		Pods         []*PodInfo `yaml:"Pods,flow"`
 		VolumeNames  []string   `yaml:"Volumes,flow"`
+
+		mutex *sync.Mutex
 	}
 )
 
@@ -32,7 +34,7 @@ type (
 var (
 	LC            *ListCreated
 	podbridgePath = "podbridge.yaml"
-	mutex         = new(sync.Mutex)
+	//mutex         = new(sync.Mutex)
 )
 
 //PodbridgeInit init 에 넣어줘야 하는 function
@@ -86,9 +88,9 @@ func (lc *ListCreated) AddImagesId(imgId string) *ListCreated {
 	if r == nil || r == utils.PTrue {
 		return lc
 	}
-	mutex.Lock()
+	lc.mutex.Lock()
 	lc.ImageIds = append(lc.ImageIds, imgId)
-	mutex.Unlock()
+	lc.mutex.Unlock()
 	return lc
 }
 
@@ -97,9 +99,9 @@ func (lc *ListCreated) AddContainerId(containerId string) *ListCreated {
 	if r == nil || r == utils.PTrue {
 		return lc
 	}
-	mutex.Lock()
+	lc.mutex.Lock()
 	lc.ContainerIds = append(lc.ContainerIds, containerId)
-	mutex.Unlock()
+	lc.mutex.Unlock()
 	return lc
 }
 
@@ -114,9 +116,9 @@ func (lc *ListCreated) AddPodId(podId string) *ListCreated {
 	newPod := &PodInfo{
 		Id: podId,
 	}
-	mutex.Lock()
+	lc.mutex.Lock()
 	lc.Pods = append(lc.Pods, newPod)
-	mutex.Unlock()
+	lc.mutex.Unlock()
 	return lc
 }
 
@@ -127,28 +129,26 @@ func (lc *ListCreated) AddContainerInPod(podId string, containerIds ...string) *
 	if r == nil {
 		return nil
 	}
+	lc.mutex.Lock()
+	defer lc.mutex.Unlock()
 	// 동일한 podid 가 없으면
 	if r == utils.PFalse {
 		newPod = &PodInfo{
 			Id: podId,
 		}
-		mutex.Lock()
 		for _, c := range containerIds {
 			newPod.ContainerIds = append(newPod.ContainerIds, c)
 		}
 		lc.Pods = append(lc.Pods, newPod)
-		mutex.Unlock()
 	}
 	// 동일한 podid 가 있으면, deepcopy 가 아니므로 상관없다.
 	if r == utils.PTrue {
 		newPod = p
 		n := len(newPod.ContainerIds)
 		if n == 0 {
-			mutex.Lock()
 			for _, c := range containerIds {
 				newPod.ContainerIds = append(newPod.ContainerIds, c)
 			}
-			mutex.Unlock()
 			return lc
 		}
 
@@ -161,16 +161,12 @@ func (lc *ListCreated) AddContainerInPod(podId string, containerIds ...string) *
 				}
 			}
 		}
-
 		if check {
-			mutex.Lock()
 			for _, c := range containerIds {
 				newPod.ContainerIds = append(newPod.ContainerIds, c)
 			}
-			mutex.Unlock()
 		}
 	}
-
 	return lc
 }
 
@@ -179,9 +175,9 @@ func (lc *ListCreated) AddVolumeName(volumeName string) *ListCreated {
 	if r == nil || r == utils.PTrue {
 		return lc
 	}
-	mutex.Lock()
+	lc.mutex.Lock()
 	lc.VolumeNames = append(lc.VolumeNames, volumeName)
-	mutex.Unlock()
+	lc.mutex.Unlock()
 	return lc
 }
 
@@ -207,13 +203,11 @@ func findImageId(lc *ListCreated, imageId string) *bool {
 	if lc == nil || utils.IsEmptyString(imageId) {
 		return nil
 	}
-
 	for _, id := range lc.ImageIds {
 		if id == imageId {
 			return utils.PTrue
 		}
 	}
-
 	return utils.PFalse
 }
 
@@ -222,13 +216,11 @@ func findContainerId(lc *ListCreated, conId string) *bool {
 	if lc == nil || utils.IsEmptyString(conId) {
 		return nil
 	}
-
 	for _, id := range lc.ContainerIds {
 		if id == conId {
 			return utils.PTrue
 		}
 	}
-
 	return utils.PFalse
 }
 
@@ -237,13 +229,11 @@ func findVolumeName(lc *ListCreated, name string) *bool {
 	if lc == nil || utils.IsEmptyString(name) {
 		return nil
 	}
-
 	for _, n := range lc.VolumeNames {
 		if n == name {
 			return utils.PTrue
 		}
 	}
-
 	return utils.PFalse
 }
 
@@ -252,19 +242,16 @@ func findPodId(lc *ListCreated, podId string) (*bool, *PodInfo) {
 	if lc == nil || utils.IsEmptyString(podId) {
 		return nil, nil
 	}
-
 	for _, p := range lc.Pods {
 		if p.Id == podId {
 			return utils.PTrue, p
 		}
 	}
-
 	return utils.PFalse, nil
 }
 
 // 테스트 해보자.
 func (lc *ListCreated) RemoveContainerId(containerId string) {
-
 	var index = -1
 	for i := 0; i < len(lc.ContainerIds); i++ {
 		if lc.ContainerIds[i] == containerId {
@@ -272,9 +259,9 @@ func (lc *ListCreated) RemoveContainerId(containerId string) {
 		}
 	}
 	if index != -1 {
-		mutex.Lock()
+		lc.mutex.Lock()
 		lc.ContainerIds = append(lc.ContainerIds[:index], lc.ContainerIds[index+1:]...)
-		mutex.Unlock()
+		lc.mutex.Unlock()
 	}
 }
 
@@ -287,26 +274,22 @@ func toListCreated() (*ListCreated, error) {
 		lc    *ListCreated
 	)
 	lc = new(ListCreated)
+	lc.mutex = new(sync.Mutex)
 	// 파일이 없을때
 	if b, err = utils.FileExists(podbridgePath); b == false {
 		f := createPodbridgeYaml()
 		if f == nil {
 			return nil, err
 		}
-
 		return lc, nil
 	}
-
 	if bytes, err = os.ReadFile(podbridgePath); err != nil {
 		return nil, err
 	}
-
 	if err = yaml.Unmarshal(bytes, lc); err != nil {
 		return nil, err
 	}
-
 	return lc, nil
-
 }
 
 // Deprecated: Not used, but left for now.

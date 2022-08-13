@@ -131,29 +131,6 @@ func (b *Builder) Add(from, to string) error {
 	return nil
 }
 
-/*func (b *Builder) RunCommandsA(commands ...BuildCommand) error {
-	logger := GetLoggerWriter()
-	runOptions := buildah.RunOptions{
-		Stdout:    logger,
-		Stderr:    logger,
-		Isolation: define.IsolationChroot,
-	}
-	for _, cmd := range commands {
-		log.Infof("Running command %s in directory %s", cmd.Command, cmd.Wd)
-
-		command := strings.Split(cmd.Command, " ")
-
-		if cmd.Wd != "" {
-			runOptions.WorkingDir = cmd.Wd
-		}
-
-		if err := b.builder.Run(command, runOptions); err != nil {
-			return fmt.Errorf("error while runnning command: %v", err)
-		}
-	}
-	return nil
-}*/
-
 // TODO > or >> 등 파이프 관련해서 작동하지 않음.
 
 func (b *Builder) Run(s string) error {
