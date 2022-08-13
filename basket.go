@@ -39,13 +39,13 @@ var (
 )
 
 //MustFirstCall used only in the init() function.
-func MustFirstCall() error {
+func MustFirstCall() (*ListCreated, error) {
 	basket, err := toListCreated()
 	Basket = basket
-	return err
+	return Basket, err
 }
 
-// ToYaml output to yaml file TODO 수정하자.
+// Save
 // 호출 없이 사용할 수 있도록 추후 수정하자.
 // 종료시 호출하도록 하면 될듯하다. 결국 안지구오 app 을 닫는 경우 데이터를 보호할 목적임으로
 func (lc *ListCreated) Save() {
@@ -85,8 +85,6 @@ func (lc *ListCreated) Save() {
 
 	return r
 }*/
-
-// 중복 검사해줘야 한다.
 
 func (lc *ListCreated) AddImagesId(imgId string) *ListCreated {
 	r := findImageId(lc, imgId)
@@ -203,6 +201,8 @@ func (lc *ListCreated) AddPodIdX(podId string, containerIds ...string) *ListCrea
 	return lc
 }
 */
+
+// findImageId
 // 찾으면 true, 못찾으면 false, 에러면 nil
 func findImageId(lc *ListCreated, imageId string) *bool {
 	if lc == nil || utils.IsEmptyString(imageId) {
@@ -216,6 +216,7 @@ func findImageId(lc *ListCreated, imageId string) *bool {
 	return utils.PFalse
 }
 
+// findContainerId
 // 찾으면 true, 못찾으면 false, 에러면 nil
 func findContainerId(lc *ListCreated, conId string) *bool {
 	if lc == nil || utils.IsEmptyString(conId) {
@@ -229,6 +230,7 @@ func findContainerId(lc *ListCreated, conId string) *bool {
 	return utils.PFalse
 }
 
+// findVolumeName
 // 찾으면 true, 못찾으면 false, 에러면 nil
 func findVolumeName(lc *ListCreated, name string) *bool {
 	if lc == nil || utils.IsEmptyString(name) {
@@ -242,6 +244,7 @@ func findVolumeName(lc *ListCreated, name string) *bool {
 	return utils.PFalse
 }
 
+// findPodId
 // 찾으면 true, 못찾으면 false, 에러면 nil
 func findPodId(lc *ListCreated, podId string) (*bool, *PodInfo) {
 	if lc == nil || utils.IsEmptyString(podId) {
@@ -255,6 +258,7 @@ func findPodId(lc *ListCreated, podId string) (*bool, *PodInfo) {
 	return utils.PFalse, nil
 }
 
+// RemoveContainerId
 // 테스트 해보자.
 func (lc *ListCreated) RemoveContainerId(containerId string) {
 	var index = -1
