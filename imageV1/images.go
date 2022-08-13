@@ -264,6 +264,24 @@ func (b *Builder) CommitImage(ctx context.Context, preferredManifestType string,
 	return &imageId, err
 }
 
+func (b *Builder) Delete() error {
+	err := b.builder.Delete()
+
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (b *Builder) Shutdown() error {
+	_, err := b.store.Shutdown(false)
+
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func GetLoggerWriter() io.Writer {
 	if Verbose || Debug {
 		return os.Stdout
