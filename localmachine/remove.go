@@ -13,7 +13,7 @@ import (
 func RemoveContainers() error {
 	AllStopContainers()
 	// 일단 무식하게 이렇게 한다. 되는지 확인하기.
-	for _, id2 := range pbr.LC.ContainerIds {
+	for _, id2 := range pbr.Basket.ContainerIds {
 		cmd := exec.Command("podman", "rm", "-f", id2)
 		out, err := cmd.CombinedOutput()
 		if err != nil {
@@ -28,7 +28,7 @@ func RemoveContainers() error {
 
 func AllStopContainers() error {
 	// 모든 컨테이너 중지
-	for _, id := range pbr.LC.ContainerIds {
+	for _, id := range pbr.Basket.ContainerIds {
 		cmd := exec.Command("podman", "stop", id)
 		out, err := cmd.CombinedOutput()
 		if err != nil {
@@ -50,7 +50,7 @@ func RemovePods() error {
 func RemoveImages() error {
 	RemoveContainers()
 
-	for _, id := range pbr.LC.ImageIds {
+	for _, id := range pbr.Basket.ImageIds {
 		cmd := exec.Command("podman", "rmi", id)
 		out, err := cmd.CombinedOutput()
 		if err != nil {

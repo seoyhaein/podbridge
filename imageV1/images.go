@@ -14,6 +14,7 @@ import (
 	"github.com/containers/storage"
 	"github.com/containers/storage/pkg/unshare"
 	"github.com/opencontainers/go-digest"
+	pbr "github.com/seoyhaein/podbridge"
 	"github.com/seoyhaein/utils"
 	"github.com/sirupsen/logrus"
 )
@@ -237,7 +238,9 @@ func (b *Builder) CommitImage(ctx context.Context, preferredManifestType string,
 		PreferredManifestType: preferredManifestType,
 		SystemContext:         sysCtx,
 	})
-
+	if pbr.Basket != nil {
+		pbr.Basket.AddImagesId(imageId)
+	}
 	return &imageId, err
 }
 

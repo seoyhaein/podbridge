@@ -136,31 +136,25 @@ func NewSpec(imgName string) *specgen.SpecGenerator {
 
 // TODO 수정해줘야 함.
 func CreateContainer(ctx *context.Context, spec *specgen.SpecGenerator) *CreateContainerResult {
-
 	var (
 		result                 *CreateContainerResult
 		containerExistsOptions containers.ExistsOptions
 	)
 	result = new(CreateContainerResult)
 	err := spec.Validate()
-
 	// TODO name, image 확인해야 할듯, 일 단 체크 해보자.
-
 	if err != nil {
 		result.ErrorMessage = err
 		result.success = false
 		return result
 	}
-
 	containerExistsOptions.External = utils.PFalse
 	containerExists, err := containers.Exists(*ctx, spec.Name, &containerExistsOptions)
-
 	if err != nil {
 		result.ErrorMessage = err
 		result.success = false
 		return result
 	}
-
 	// 컨테이너가 local storage 에 존재하고 있다면
 	if containerExists {
 		var containerInspectOptions containers.InspectOptions
@@ -171,7 +165,6 @@ func CreateContainer(ctx *context.Context, spec *specgen.SpecGenerator) *CreateC
 			result.success = false
 			return result
 		}
-
 		if containerData.State.Running {
 			result.ErrorMessage = errors.New(fmt.Sprintf("%s container already running", spec.Name))
 			result.ID = containerData.ID
@@ -186,14 +179,12 @@ func CreateContainer(ctx *context.Context, spec *specgen.SpecGenerator) *CreateC
 			return result
 		}
 	} else {
-
 		imageExists, err := images.Exists(*ctx, spec.Image, nil)
 		if err != nil {
 			result.ErrorMessage = err
 			result.success = false
 			return result
 		}
-
 		// TODO 아래 코드는 필요 없을 듯, 이미지를 일단 만들어서 local 에 저장하는 구조임.
 		if imageExists == false {
 			_, err := images.Pull(*ctx, spec.Image, &images.PullOptions{})
@@ -203,24 +194,22 @@ func CreateContainer(ctx *context.Context, spec *specgen.SpecGenerator) *CreateC
 				return result
 			}
 		}
-
 		fmt.Printf("Pulling %s image...\n", Spec.Image)
-
 		createResponse, err := containers.CreateWithSpec(*ctx, spec, &containers.CreateOptions{})
 		if err != nil {
 			result.ErrorMessage = err
 			result.success = false
 			return result
 		}
-
 		fmt.Printf("Creating %s container using %s image...\n", spec.Name, spec.Image)
-
 		result.Name = spec.Name
 		result.ID = createResponse.ID
 		result.Warnings = createResponse.Warnings
 	}
-
 	result.success = true
+	if Basket != nil {
+		Basket.AddContainerId(result.ID)
+	}
 	return result
 }
 
