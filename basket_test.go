@@ -17,6 +17,6 @@ func TestRemoveContainerId(t *testing.T) {
 	Basket.AddContainerInPod("bbbb", "12121")
 
 	// 여러번 호출해도 문제없는지 테스트 해야한다. 즉, podbridge.yaml 이 지속적으로 업데이트 되는지.
-	Basket.ToYaml()
+	Basket.Save()
 	Reset()
 }
