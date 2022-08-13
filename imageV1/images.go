@@ -189,7 +189,7 @@ func (b *Builder) Run(s string) error {
 	return nil
 }
 
-func (b *Builder) RunA(s string) error {
+/*func (b *Builder) RunA(s string) error {
 
 	logger := GetLoggerWriter()
 	runOptions := buildah.RunOptions{
@@ -205,7 +205,7 @@ func (b *Builder) RunA(s string) error {
 		return fmt.Errorf("error while runnning command: %v", err)
 	}
 	return nil
-}
+}*/
 
 func (b *Builder) WorkDir(path string) error {
 	if utils.IsEmptyString(path) {

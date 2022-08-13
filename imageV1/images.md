@@ -14,8 +14,6 @@ import (
 	v1 "github.com/seoyhaein/podbridge/imageV1"
 )
 
-// // https://docs.docker.com/get-started/02_our_app/ 똑같이 구현함.
-
 // Error: could not find slirp4netns, the network namespace can't be configured: exec: "slirp4netns": executable file not found in $PATH
 // https://github.com/rootless-containers/slirp4netns
 
