@@ -276,15 +276,13 @@ func CreateContainer(ctx *context.Context, conSpec *ContainerSpec) *CreateContai
 	return result
 }
 
-func (Res *CreateContainerResult) Start(ctx *context.Context) error {
-	// TODO 이 코드는 의미 없을것 같다. 테스트 할때 해보자.
-	if Res == nil {
-		return nil
-	}
+// Start
+// startOptions 는 default 값을 사용한다.
+// https://docs.podman.io/en/latest/_static/api.html?version=v4.1#operation/ContainerStartLibpod
 
+func (Res *CreateContainerResult) Start(ctx *context.Context) error {
 	if utils.IsEmptyString(Res.ID) == false && Res.ContainerStatus == "Created" {
-		// startOptions 는 default 값을 사용한다.
-		// https://docs.podman.io/en/latest/_static/api.html?version=v4.1#operation/ContainerStartLibpod
+
 		err := containers.Start(*ctx, Res.ID, &containers.StartOptions{})
 		return err
 	} else {
@@ -292,17 +290,13 @@ func (Res *CreateContainerResult) Start(ctx *context.Context) error {
 	}
 }
 
+// Stop
 // TODO 추후 수정하자.
+// https://docs.podman.io/en/latest/_static/api.html?version=v4.1#operation/ContainerStopLibpod
+// default 값은 timeout 은  10 으로 세팅되어 있고, ignore 는 false 이다.
+// ignore 는 만약 stop 된 컨테이너를 stop 되어 있을 때 stop 하는 경우 true 하면 에러 무시, false 로 하면 에러 리턴
+// timeout 은 몇 후에 컨테어너를 kill 할지 정한다.
 func (Res *CreateContainerResult) Stop(ctx *context.Context, options ...any) error {
-
-	// https://docs.podman.io/en/latest/_static/api.html?version=v4.1#operation/ContainerStopLibpod
-	// default 값은 timeout 은  10 으로 세팅되어 있고, ignore 는 false 이다.
-	// ignore 는 만약 stop 된 컨테이너를 stop 되어 있을 때 stop 하는 경우 true 하면 에러 무시, false 로 하면 에러 리턴
-	// timeout 은 몇 후에 컨테어너를 kill 할지 정한다.
-
-	if Res == nil {
-		return nil
-	}
 	stopOption := new(containers.StopOptions)
 	for _, op := range options {
 		v, b := op.(*bool)
