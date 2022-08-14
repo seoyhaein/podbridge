@@ -12,13 +12,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// test
-
-/*type (
-	SetFunc  func(spec *specgen.SpecGenerator) *specgen.SpecGenerator
-	SetFuncA func() *specgen.SpecGenerator
-)*/
-
 var Log = logrus.New()
 
 type SpecGen *specgen.SpecGenerator
@@ -143,23 +136,14 @@ func ContainerWithSpec(ctx *context.Context, conf *ContainerConfig) *CreateConta
 	return result
 }
 
-/*func NewSpec(imgName string) *specgen.SpecGenerator {
-	if utils.IsEmptyString(imgName) {
-		return nil
-	}
-
-	spec := specgen.NewSpecGenerator(imgName, false)
-
-	return spec
-}*/
-
-//
+// NewSpec
 func NewSpec() *ContainerSpec {
 	return &ContainerSpec{
 		Spec: new(specgen.SpecGenerator),
 	}
 }
 
+// SetImage
 func (c *ContainerSpec) SetImage(imgName string) *ContainerSpec {
 	if utils.IsEmptyString(imgName) {
 		return nil
@@ -169,25 +153,13 @@ func (c *ContainerSpec) SetImage(imgName string) *ContainerSpec {
 	return c
 }
 
+// SetOther
 func (c *ContainerSpec) SetOther(f func(spec SpecGen) SpecGen) *ContainerSpec {
 	c.Spec = f(c.Spec)
 	return c
 }
 
-// c.conSpec 가 파라미터로 들어가서 그 값을 세팅하는 func 를 외부에서 만든다.
-/*func (c *ContainerSpec) SetOtherA(f func() *specgen.SpecGenerator) *ContainerSpec {
-	// 데이터 병합이 문제다. 이걸 해결하자.
-	// 포인터 문제가 발생한다. 젠장.
-
-	//c.conSpec = f()
-	//return c
-
-	return func() *ContainerSpec {
-
-		return nil
-	}()
-}*/
-
+// CreateContainer
 // TODO 수정해줘야 함.
 func CreateContainer(ctx *context.Context, conSpec *ContainerSpec) *CreateContainerResult {
 	var (
@@ -314,14 +286,15 @@ func (Res *CreateContainerResult) Stop(ctx *context.Context, options ...any) err
 	return err
 }
 
+// Kill
 func (Res *CreateContainerResult) Kill(ctx *context.Context, options ...any) error {
 
 	return nil
 }
 
+// HealthCheck
 // 중요!! 지속적으로 container 의 status 를 확인해줘야 함으로, goroutine, 루프 구문이 들어가고 context 가 들어가고, channel 이 들어가야 할듯 하다.
 // 퍼포먼스 문제가 있을까?? 일단 고민좀 해보자. 여러 컨테이너를 지속적으로 해야 함으로 이런 방식은 문제가 있을듯 하다. 일단 좀더 고민해 보자.
-
 func (Res *CreateContainerResult) HealthCheck(ctx *context.Context, options ...any) error {
 
 	//containers.RunHealthCheck()
@@ -329,17 +302,11 @@ func (Res *CreateContainerResult) HealthCheck(ctx *context.Context, options ...a
 }
 
 // 이미지 가존재하는지 확인하는 메서드 빼놓자.
-
 // TODO wait 함수 구체적으로 살펴보기기
 // 나머지들은 조금씩 구현해 나간다.
 // containers.go
-
 // TODO 중요 resource 관련
 // https://github.com/containers/podman/issues/13145
-
-// podbridge 에서 생성된 것만 지워야 한다.
-
 // 명령어에 대한 heartbeat 관련 해서 처리 해야함.
-
 // TODO 컨테이너의 상태를 확인하는 방법은 두가지 접근 방법이 있는데, local에 podman 이 설치 되어 있는 경우와, 원격(접속하는 머신에는 podman  이없음)에서 연결되는 경우
 // 일단 먼저, local 에서 연결 하는 걸 적용한다. 구현하는 건 비교적 간단할 듯하다.
