@@ -275,9 +275,9 @@ func (Res *CreateContainerResult) Stop(ctx *context.Context, options ...any) err
 		if b {
 			stopOption.Ignore = v
 		} else {
-			v1, b1 := op.(*uint)
+			v1, b1 := op.(uint)
 			if b1 {
-				stopOption.Timeout = v1
+				stopOption.Timeout = &v1
 			}
 		}
 	}
