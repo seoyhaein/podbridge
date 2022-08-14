@@ -318,6 +318,8 @@ func (Res *CreateContainerResult) HealthCheck(ctx *context.Context, options ...a
 	return nil
 }
 
+// 이미지 가존재하는지 확인하는 메서드 빼놓자.
+
 // TODO wait 함수 구체적으로 살펴보기기
 // 나머지들은 조금씩 구현해 나간다.
 // containers.go
