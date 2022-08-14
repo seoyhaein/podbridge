@@ -9,6 +9,7 @@ import (
 	"github.com/containers/podman/v4/pkg/bindings/images"
 	"github.com/containers/podman/v4/pkg/specgen"
 	"github.com/seoyhaein/utils"
+	"github.com/sirupsen/logrus"
 )
 
 // test
@@ -18,6 +19,8 @@ import (
 	SetFuncA func() *specgen.SpecGenerator
 )*/
 
+var Log = logrus.New()
+
 type SpecGen *specgen.SpecGenerator
 
 type CreateContainerResult struct {
@@ -26,6 +29,9 @@ type CreateContainerResult struct {
 	Name     string
 	ID       string
 	Warnings []string
+
+	// TODO 향후 int 로 바꿈.
+	ContainerStatus string
 
 	success bool
 }
@@ -192,16 +198,18 @@ func CreateContainer(ctx *context.Context, conSpec *ContainerSpec) *CreateContai
 	err := conSpec.Spec.Validate()
 	// TODO name, image 확인해야 할듯, 일 단 체크 해보자.
 	if err != nil {
-		result.ErrorMessage = err
-		result.success = false
-		return result
+		//result.ErrorMessage = err
+		//result.success = false
+		panic(err)
+		//return result
 	}
 	containerExistsOptions.External = utils.PFalse
 	containerExists, err := containers.Exists(*ctx, conSpec.Spec.Name, &containerExistsOptions)
 	if err != nil {
-		result.ErrorMessage = err
-		result.success = false
-		return result
+		//result.ErrorMessage = err
+		//result.success = false
+		//return result
+		panic(err)
 	}
 	// 컨테이너가 local storage 에 존재하고 있다면
 	if containerExists {
@@ -209,47 +217,54 @@ func CreateContainer(ctx *context.Context, conSpec *ContainerSpec) *CreateContai
 		containerInspectOptions.Size = utils.PFalse
 		containerData, err := containers.Inspect(*ctx, conSpec.Spec.Name, &containerInspectOptions)
 		if err != nil {
-			result.ErrorMessage = err
-			result.success = false
-			return result
+			//result.ErrorMessage = err
+			//result.success = false
+			//return result
+			panic(err)
 		}
 		if containerData.State.Running {
 			result.ErrorMessage = errors.New(fmt.Sprintf("%s container already running", conSpec.Spec.Name))
 			result.ID = containerData.ID
 			result.Name = conSpec.Spec.Name
 			result.success = false
+			result.ContainerStatus = "Running"
 			return result
 		} else {
 			result.ErrorMessage = errors.New(fmt.Sprintf("%s container already exists", conSpec.Spec.Name))
 			result.ID = containerData.ID
 			result.Name = conSpec.Spec.Name
 			result.success = false
+			result.ContainerStatus = "Created"
 			return result
 		}
 	} else {
 		imageExists, err := images.Exists(*ctx, conSpec.Spec.Image, nil)
 		if err != nil {
-			result.ErrorMessage = err
-			result.success = false
-			return result
+			panic(err)
+			//result.ErrorMessage = err
+			//result.success = false
+			//return result
 		}
 		// TODO 아래 코드는 필요 없을 듯, 이미지를 일단 만들어서 local 에 저장하는 구조임.
+		// basket 에 넣을지 고민하자.
 		if imageExists == false {
 			_, err := images.Pull(*ctx, conSpec.Spec.Image, &images.PullOptions{})
 			if err != nil {
-				result.ErrorMessage = err
-				result.success = false
-				return result
+				panic(err)
+				//result.ErrorMessage = err
+				//result.success = false
+				//return result
 			}
 		}
-		fmt.Printf("Pulling %s image...\n", Spec.Image)
+		Log.Infof("Pulling %s image...\n", conSpec.Spec.Image)
 		createResponse, err := containers.CreateWithSpec(*ctx, conSpec.Spec, &containers.CreateOptions{})
 		if err != nil {
-			result.ErrorMessage = err
-			result.success = false
-			return result
+			panic(err)
+			//result.ErrorMessage = err
+			//result.success = false
+			//return result
 		}
-		fmt.Printf("Creating %s container using %s image...\n", conSpec.Spec.Name, conSpec.Spec.Image)
+		Log.Infof("Creating %s container using %s image...\n", conSpec.Spec.Name, conSpec.Spec.Image)
 		result.Name = conSpec.Spec.Name
 		result.ID = createResponse.ID
 		result.Warnings = createResponse.Warnings
@@ -267,16 +282,17 @@ func (Res *CreateContainerResult) Start(ctx *context.Context) error {
 		return nil
 	}
 
-	if Res.success {
+	if utils.IsEmptyString(Res.ID) == false && Res.ContainerStatus == "Created" {
 		// startOptions 는 default 값을 사용한다.
 		// https://docs.podman.io/en/latest/_static/api.html?version=v4.1#operation/ContainerStartLibpod
 		err := containers.Start(*ctx, Res.ID, &containers.StartOptions{})
 		return err
 	} else {
-		return Res.ErrorMessage
+		return fmt.Errorf("cannot start container")
 	}
 }
 
+// TODO 추후 수정하자.
 func (Res *CreateContainerResult) Stop(ctx *context.Context, options ...any) error {
 
 	// https://docs.podman.io/en/latest/_static/api.html?version=v4.1#operation/ContainerStopLibpod

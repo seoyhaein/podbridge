@@ -16,7 +16,6 @@ import (
 	"github.com/opencontainers/go-digest"
 	pbr "github.com/seoyhaein/podbridge"
 	"github.com/seoyhaein/utils"
-	"github.com/sirupsen/logrus"
 )
 
 // https://acet.pe.kr/935
@@ -32,7 +31,7 @@ import (
 
 var (
 	digester = digest.Canonical.Digester()
-	log      = logrus.New()
+	log      = pbr.Log
 
 	//TODO 추후 수정 일단 넣어 놓음
 	Verbose = true
