@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-
 	"github.com/containers/podman/v4/pkg/bindings/containers"
 	"github.com/containers/podman/v4/pkg/bindings/images"
 	"github.com/containers/podman/v4/pkg/specgen"
@@ -297,9 +296,26 @@ func (Res *CreateContainerResult) Kill(ctx *context.Context, options ...any) err
 // HealthCheck
 // 중요!! 지속적으로 container 의 status 를 확인해줘야 함으로, goroutine, 루프 구문이 들어가고 context 가 들어가고, channel 이 들어가야 할듯 하다.
 // 퍼포먼스 문제가 있을까?? 일단 고민좀 해보자. 여러 컨테이너를 지속적으로 해야 함으로 이런 방식은 문제가 있을듯 하다. 일단 좀더 고민해 보자.
-func (Res *CreateContainerResult) HealthCheck(ctx *context.Context, options ...any) error {
 
-	//containers.RunHealthCheck()
+// https://github.com/containers/podman/issues/12226
+// https://developers.redhat.com/blog/2019/04/18/monitoring-container-vitality-and-availability-with-podman#interacting_with_the_results_of_healthchecks
+func (Res *CreateContainerResult) HealthCheck(ctx *context.Context) error {
+
+	healthCheck, err := containers.RunHealthCheck(*ctx, Res.ID, &containers.HealthCheckOptions{})
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("Status:", healthCheck.Status)
+	fmt.Println("FailingStreak:", healthCheck.FailingStreak)
+
+	for _, l := range healthCheck.Log {
+		fmt.Println("Start time:", l.Start)
+		fmt.Println("End time:", l.End)
+		fmt.Println("ExitCode:", l.ExitCode)
+		fmt.Println("Output:", l.Output)
+	}
+
 	return nil
 }
 
