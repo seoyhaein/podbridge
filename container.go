@@ -14,24 +14,26 @@ import (
 
 var Log = logrus.New()
 
-type SpecGen *specgen.SpecGenerator
+type (
+	SpecGen *specgen.SpecGenerator
 
-type CreateContainerResult struct {
-	ErrorMessage error
+	CreateContainerResult struct {
+		ErrorMessage error
 
-	Name     string
-	ID       string
-	Warnings []string
+		Name     string
+		ID       string
+		Warnings []string
 
-	// TODO 향후 int 로 바꿈.
-	ContainerStatus string
+		// TODO 향후 int 로 바꿈.
+		ContainerStatus string
 
-	success bool
-}
+		success bool
+	}
 
-type ContainerSpec struct {
-	Spec *specgen.SpecGenerator
-}
+	ContainerSpec struct {
+		Spec *specgen.SpecGenerator
+	}
+)
 
 // TODO 컨테이너를 여러개 만들어야 하는 문제??
 // TODO 꼼꼼히 테스트 해야함.
@@ -39,7 +41,7 @@ type ContainerSpec struct {
 
 // TODO spec, pod 사용하지 않을 예정임. 대폭 수정예상
 
-func ContainerWithSpec(ctx *context.Context, conf *ContainerConfig) *CreateContainerResult {
+/*func ContainerWithSpec(ctx *context.Context, conf *ContainerConfig) *CreateContainerResult {
 
 	var (
 		result                 *CreateContainerResult
@@ -134,7 +136,7 @@ func ContainerWithSpec(ctx *context.Context, conf *ContainerConfig) *CreateConta
 
 	result.success = true
 	return result
-}
+}*/
 
 // NewSpec
 func NewSpec() *ContainerSpec {
