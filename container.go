@@ -34,109 +34,6 @@ type (
 	}
 )
 
-// TODO 컨테이너를 여러개 만들어야 하는 문제??
-// TODO 꼼꼼히 테스트 해야함.
-// pull goroutine
-
-// TODO spec, pod 사용하지 않을 예정임. 대폭 수정예상
-
-/*func ContainerWithSpec(ctx *context.Context, conf *ContainerConfig) *CreateContainerResult {
-
-	var (
-		result                 *CreateContainerResult
-		containerExistsOptions containers.ExistsOptions
-	)
-
-	result = new(CreateContainerResult)
-
-	if conf.IsSetSpec() == utils.PFalse || conf.IsSetSpec() == nil {
-		result.ErrorMessage = errors.New("Spec is not set")
-		result.success = false
-		return result
-	}
-	// 추가
-	err := Spec.Validate()
-
-	if err != nil {
-		result.ErrorMessage = err
-		result.success = false
-		return result
-	}
-
-	containerExistsOptions.External = utils.PFalse
-	containerExists, err := containers.Exists(*ctx, Spec.Name, &containerExistsOptions)
-
-	if err != nil {
-		result.ErrorMessage = err
-		result.success = false
-		return result
-	}
-
-	// 컨테이너가 local storage 에 존재하고 있다면
-	if containerExists {
-		// 참고, 다만 잘못된 정보일 수 있음.
-		// https://docs.podman.io/en/latest/_static/api.html?version=v4.1#operation/ContainerInitLibpod
-		var containerInspectOptions containers.InspectOptions
-		containerInspectOptions.Size = utils.PFalse
-		containerData, err := containers.Inspect(*ctx, Spec.Name, &containerInspectOptions)
-		if err != nil {
-			result.ErrorMessage = err
-			result.success = false
-			return result
-		}
-
-		if containerData.State.Running {
-			result.ErrorMessage = errors.New(fmt.Sprintf("%s container already running", Spec.Name))
-			result.ID = containerData.ID
-			result.Name = Spec.Name
-			result.success = false
-			return result
-		} else {
-			result.ErrorMessage = errors.New(fmt.Sprintf("%s container already exists", Spec.Name))
-			result.ID = containerData.ID
-			result.Name = Spec.Name
-			result.success = false
-			return result
-		}
-	} else {
-
-		imageExists, err := images.Exists(*ctx, Spec.Image, nil)
-		if err != nil {
-			result.ErrorMessage = err
-			result.success = false
-			return result
-		}
-
-		// TODO 아래 코드는 필요 없을 듯, 이미지를 일단 만들어서 local 에 저장하는 구조임.
-		if imageExists == false {
-			_, err := images.Pull(*ctx, Spec.Image, &images.PullOptions{})
-			if err != nil {
-				result.ErrorMessage = err
-				result.success = false
-				return result
-			}
-		}
-
-		fmt.Printf("Pulling %s image...\n", Spec.Image)
-
-		createResponse, err := containers.CreateWithSpec(*ctx, Spec, &containers.CreateOptions{})
-		if err != nil {
-			result.ErrorMessage = err
-			result.success = false
-			return result
-		}
-
-		fmt.Printf("Creating %s container using %s image...\n", Spec.Name, Spec.Image)
-
-		result.Name = Spec.Name
-		result.ID = createResponse.ID
-		result.Warnings = createResponse.Warnings
-	}
-
-	result.success = true
-	return result
-}*/
-
 // NewSpec
 func NewSpec() *ContainerSpec {
 	return &ContainerSpec{
@@ -301,6 +198,11 @@ func (Res *CreateContainerResult) Kill(ctx *context.Context, options ...any) err
 // https://developers.redhat.com/blog/2019/04/18/monitoring-container-vitality-and-availability-with-podman#interacting_with_the_results_of_healthchecks
 // https://devops.stackexchange.com/questions/11501/healthcheck-cmd-vs-cmd-shell
 // https://nomad-programmer.tistory.com/309
+// https://www.codegrepper.com/code-examples/shell/how+to+check+if+a+process+is+running+in+linux+using+shell+script
+// https://www.redhat.com/sysadmin/error-handling-bash-scripting
+// https://twpower.github.io/134-how-to-return-shell-scipt-value
+
+// healthchecker shell 의 경우는 환경변수를 만들고, 여기에, shell script 진행 상황에 따라 환경변수를 집어넣는 방식으로 진행한다.
 func (Res *CreateContainerResult) HealthCheck(ctx *context.Context) error {
 
 	healthCheck, err := containers.RunHealthCheck(*ctx, Res.ID, &containers.HealthCheckOptions{})
