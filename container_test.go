@@ -276,7 +276,7 @@ func TestPodSet(t *testing.T) {
 func TestSetOther(t *testing.T) {
 	cspec := NewSpec()
 
-	f := func(spec Specgen) Specgen {
+	f := func(spec SpecGen) SpecGen {
 		spec.Name = "test"
 		return spec
 	}
@@ -284,5 +284,5 @@ func TestSetOther(t *testing.T) {
 	cspec.SetImage("busybox")
 	cspec.SetOther(f)
 
-	fmt.Println(cspec.spec.Image, cspec.spec.Name)
+	fmt.Println(cspec.Spec.Image, cspec.Spec.Name)
 }

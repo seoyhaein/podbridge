@@ -18,7 +18,7 @@ import (
 	SetFuncA func() *specgen.SpecGenerator
 )*/
 
-type Specgen *specgen.SpecGenerator
+type SpecGen *specgen.SpecGenerator
 
 type CreateContainerResult struct {
 	ErrorMessage error
@@ -31,7 +31,7 @@ type CreateContainerResult struct {
 }
 
 type ContainerSpec struct {
-	spec *specgen.SpecGenerator
+	Spec *specgen.SpecGenerator
 }
 
 // TODO 컨테이너를 여러개 만들어야 하는 문제??
@@ -150,7 +150,7 @@ func ContainerWithSpec(ctx *context.Context, conf *ContainerConfig) *CreateConta
 //
 func NewSpec() *ContainerSpec {
 	return &ContainerSpec{
-		spec: new(specgen.SpecGenerator),
+		Spec: new(specgen.SpecGenerator),
 	}
 }
 
@@ -159,12 +159,12 @@ func (c *ContainerSpec) SetImage(imgName string) *ContainerSpec {
 		return nil
 	}
 	spec := specgen.NewSpecGenerator(imgName, false)
-	c.spec = spec
+	c.Spec = spec
 	return c
 }
 
-func (c *ContainerSpec) SetOther(f func(spec Specgen) Specgen) *ContainerSpec {
-	c.spec = f(c.spec)
+func (c *ContainerSpec) SetOther(f func(spec SpecGen) SpecGen) *ContainerSpec {
+	c.Spec = f(c.Spec)
 	return c
 }
 
@@ -183,13 +183,13 @@ func (c *ContainerSpec) SetOther(f func(spec Specgen) Specgen) *ContainerSpec {
 }*/
 
 // TODO 수정해줘야 함.
-func CreateContainer(ctx *context.Context, spec *specgen.SpecGenerator) *CreateContainerResult {
+func CreateContainer(ctx *context.Context, conSpec *ContainerSpec) *CreateContainerResult {
 	var (
 		result                 *CreateContainerResult
 		containerExistsOptions containers.ExistsOptions
 	)
 	result = new(CreateContainerResult)
-	err := spec.Validate()
+	err := conSpec.Spec.Validate()
 	// TODO name, image 확인해야 할듯, 일 단 체크 해보자.
 	if err != nil {
 		result.ErrorMessage = err
@@ -197,7 +197,7 @@ func CreateContainer(ctx *context.Context, spec *specgen.SpecGenerator) *CreateC
 		return result
 	}
 	containerExistsOptions.External = utils.PFalse
-	containerExists, err := containers.Exists(*ctx, spec.Name, &containerExistsOptions)
+	containerExists, err := containers.Exists(*ctx, conSpec.Spec.Name, &containerExistsOptions)
 	if err != nil {
 		result.ErrorMessage = err
 		result.success = false
@@ -207,27 +207,27 @@ func CreateContainer(ctx *context.Context, spec *specgen.SpecGenerator) *CreateC
 	if containerExists {
 		var containerInspectOptions containers.InspectOptions
 		containerInspectOptions.Size = utils.PFalse
-		containerData, err := containers.Inspect(*ctx, spec.Name, &containerInspectOptions)
+		containerData, err := containers.Inspect(*ctx, conSpec.Spec.Name, &containerInspectOptions)
 		if err != nil {
 			result.ErrorMessage = err
 			result.success = false
 			return result
 		}
 		if containerData.State.Running {
-			result.ErrorMessage = errors.New(fmt.Sprintf("%s container already running", spec.Name))
+			result.ErrorMessage = errors.New(fmt.Sprintf("%s container already running", conSpec.Spec.Name))
 			result.ID = containerData.ID
-			result.Name = spec.Name
+			result.Name = conSpec.Spec.Name
 			result.success = false
 			return result
 		} else {
-			result.ErrorMessage = errors.New(fmt.Sprintf("%s container already exists", spec.Name))
+			result.ErrorMessage = errors.New(fmt.Sprintf("%s container already exists", conSpec.Spec.Name))
 			result.ID = containerData.ID
-			result.Name = spec.Name
+			result.Name = conSpec.Spec.Name
 			result.success = false
 			return result
 		}
 	} else {
-		imageExists, err := images.Exists(*ctx, spec.Image, nil)
+		imageExists, err := images.Exists(*ctx, conSpec.Spec.Image, nil)
 		if err != nil {
 			result.ErrorMessage = err
 			result.success = false
@@ -235,7 +235,7 @@ func CreateContainer(ctx *context.Context, spec *specgen.SpecGenerator) *CreateC
 		}
 		// TODO 아래 코드는 필요 없을 듯, 이미지를 일단 만들어서 local 에 저장하는 구조임.
 		if imageExists == false {
-			_, err := images.Pull(*ctx, spec.Image, &images.PullOptions{})
+			_, err := images.Pull(*ctx, conSpec.Spec.Image, &images.PullOptions{})
 			if err != nil {
 				result.ErrorMessage = err
 				result.success = false
@@ -243,14 +243,14 @@ func CreateContainer(ctx *context.Context, spec *specgen.SpecGenerator) *CreateC
 			}
 		}
 		fmt.Printf("Pulling %s image...\n", Spec.Image)
-		createResponse, err := containers.CreateWithSpec(*ctx, spec, &containers.CreateOptions{})
+		createResponse, err := containers.CreateWithSpec(*ctx, conSpec.Spec, &containers.CreateOptions{})
 		if err != nil {
 			result.ErrorMessage = err
 			result.success = false
 			return result
 		}
-		fmt.Printf("Creating %s container using %s image...\n", spec.Name, spec.Image)
-		result.Name = spec.Name
+		fmt.Printf("Creating %s container using %s image...\n", conSpec.Spec.Name, conSpec.Spec.Image)
+		result.Name = conSpec.Spec.Name
 		result.ID = createResponse.ID
 		result.Warnings = createResponse.Warnings
 	}
