@@ -13,10 +13,12 @@ import (
 
 // test
 
-type (
+/*type (
 	SetFunc  func(spec *specgen.SpecGenerator) *specgen.SpecGenerator
 	SetFuncA func() *specgen.SpecGenerator
-)
+)*/
+
+type Specgen *specgen.SpecGenerator
 
 type CreateContainerResult struct {
 	ErrorMessage error
@@ -29,7 +31,7 @@ type CreateContainerResult struct {
 }
 
 type ContainerSpec struct {
-	conSpec *specgen.SpecGenerator
+	spec *specgen.SpecGenerator
 }
 
 // TODO 컨테이너를 여러개 만들어야 하는 문제??
@@ -135,7 +137,7 @@ func ContainerWithSpec(ctx *context.Context, conf *ContainerConfig) *CreateConta
 	return result
 }
 
-func NewSpec(imgName string) *specgen.SpecGenerator {
+/*func NewSpec(imgName string) *specgen.SpecGenerator {
 	if utils.IsEmptyString(imgName) {
 		return nil
 	}
@@ -143,34 +145,31 @@ func NewSpec(imgName string) *specgen.SpecGenerator {
 	spec := specgen.NewSpecGenerator(imgName, false)
 
 	return spec
-}
+}*/
 
-// test
-func NewContainerSpec() *ContainerSpec {
+//
+func NewSpec() *ContainerSpec {
 	return &ContainerSpec{
-		conSpec: new(specgen.SpecGenerator),
+		spec: new(specgen.SpecGenerator),
 	}
 }
 
-func (c *ContainerSpec) NewSpecA(imgName string) *ContainerSpec {
+func (c *ContainerSpec) SetImage(imgName string) *ContainerSpec {
 	if utils.IsEmptyString(imgName) {
 		return nil
 	}
 	spec := specgen.NewSpecGenerator(imgName, false)
-	c.conSpec = spec
+	c.spec = spec
 	return c
 }
 
-// Variadic Function 만들어서 해보는 방법을 어떨까??
-// SetOther 에서 입력 f 는 입력 파라미터 없이 넣고,
-func (c *ContainerSpec) SetOther(f func(spec *specgen.SpecGenerator) *specgen.SpecGenerator) *ContainerSpec {
-	// 이건 f 를 만드는 문제가 발생하는데..
-	c.conSpec = f(c.conSpec)
+func (c *ContainerSpec) SetOther(f func(spec Specgen) Specgen) *ContainerSpec {
+	c.spec = f(c.spec)
 	return c
 }
 
 // c.conSpec 가 파라미터로 들어가서 그 값을 세팅하는 func 를 외부에서 만든다.
-func (c *ContainerSpec) SetOtherA(f func() *specgen.SpecGenerator) *ContainerSpec {
+/*func (c *ContainerSpec) SetOtherA(f func() *specgen.SpecGenerator) *ContainerSpec {
 	// 데이터 병합이 문제다. 이걸 해결하자.
 	// 포인터 문제가 발생한다. 젠장.
 
@@ -181,7 +180,7 @@ func (c *ContainerSpec) SetOtherA(f func() *specgen.SpecGenerator) *ContainerSpe
 
 		return nil
 	}()
-}
+}*/
 
 // TODO 수정해줘야 함.
 func CreateContainer(ctx *context.Context, spec *specgen.SpecGenerator) *CreateContainerResult {
