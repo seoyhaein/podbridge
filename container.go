@@ -299,6 +299,8 @@ func (Res *CreateContainerResult) Kill(ctx *context.Context, options ...any) err
 
 // https://github.com/containers/podman/issues/12226
 // https://developers.redhat.com/blog/2019/04/18/monitoring-container-vitality-and-availability-with-podman#interacting_with_the_results_of_healthchecks
+// https://devops.stackexchange.com/questions/11501/healthcheck-cmd-vs-cmd-shell
+// https://nomad-programmer.tistory.com/309
 func (Res *CreateContainerResult) HealthCheck(ctx *context.Context) error {
 
 	healthCheck, err := containers.RunHealthCheck(*ctx, Res.ID, &containers.HealthCheckOptions{})
