@@ -139,6 +139,8 @@ func CreateContainer(ctx *context.Context, conSpec *ContainerSpec) *CreateContai
 		result.ID = createResponse.ID
 		result.Warnings = createResponse.Warnings
 	}
+	// TODO 코드 정리좀 하자.
+	result.ContainerStatus = "Created"
 	result.success = true
 	if Basket != nil {
 		Basket.AddContainerId(result.ID)
