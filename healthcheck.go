@@ -11,15 +11,15 @@ import (
 	"github.com/pkg/errors"
 )
 
-func SetHealthChecker(s SpecGen, inCmd, interval string, retries uint, timeout, startPeriod string) (SpecGen, error) {
-	s, err := setHealthChecker(s, inCmd, interval, retries, timeout, startPeriod)
+func SetHealthChecker(s SpecGen, inCmd, interval string, retries uint, timeout, startPeriod string) (*manifest.Schema2HealthConfig, error) {
+	healthConfig, err := setHealthChecker(s, inCmd, interval, retries, timeout, startPeriod)
 	if err != nil {
 		return nil, err
 	}
-	return s, nil
+	return healthConfig, nil
 }
 
-func setHealthChecker(s *specgen.SpecGenerator, inCmd, interval string, retries uint, timeout, startPeriod string) (*specgen.SpecGenerator, error) {
+func setHealthChecker(s *specgen.SpecGenerator, inCmd, interval string, retries uint, timeout, startPeriod string) (*manifest.Schema2HealthConfig, error) {
 
 	if s == nil {
 		return nil, fmt.Errorf("specgen.SpecGenerator is nil")
@@ -28,8 +28,7 @@ func setHealthChecker(s *specgen.SpecGenerator, inCmd, interval string, retries 
 	if err != nil {
 		return nil, err
 	}
-	s.HealthConfig = healthConfig
-	return s, nil
+	return healthConfig, nil
 }
 
 func makeHealthCheckFromCli(inCmd, interval string, retries uint, timeout, startPeriod string) (*manifest.Schema2HealthConfig, error) {
