@@ -127,3 +127,11 @@ func (podConf *PodConfig) createSpecPodNameAndHost() {
 	PodSpec.PodSpecGen.Name = fmt.Sprintf("pod-%s", time.Now().Format("20220702-15h04m05s"))
 	PodSpec.PodSpecGen.Hostname = "IchthysGenomics"
 }
+
+type ContainerStatus int
+
+const (
+	Created ContainerStatus = iota
+	Running
+	Exited
+)

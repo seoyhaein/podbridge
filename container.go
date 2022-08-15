@@ -25,7 +25,7 @@ type (
 		Warnings []string
 
 		// TODO 향후 int 로 바꿈.
-		ContainerStatus string
+		Status ContainerStatus
 
 		success bool
 	}
@@ -98,14 +98,14 @@ func CreateContainer(ctx *context.Context, conSpec *ContainerSpec) *CreateContai
 			result.ID = containerData.ID
 			result.Name = conSpec.Spec.Name
 			result.success = false
-			result.ContainerStatus = "Running"
+			result.Status = Running
 			return result
 		} else {
 			result.ErrorMessage = errors.New(fmt.Sprintf("%s container already exists", conSpec.Spec.Name))
 			result.ID = containerData.ID
 			result.Name = conSpec.Spec.Name
 			result.success = false
-			result.ContainerStatus = "Created"
+			result.Status = Created
 			return result
 		}
 	} else {
@@ -141,7 +141,7 @@ func CreateContainer(ctx *context.Context, conSpec *ContainerSpec) *CreateContai
 		result.Warnings = createResponse.Warnings
 	}
 	// TODO 코드 정리좀 하자.
-	result.ContainerStatus = "Created"
+	result.Status = Created
 	result.success = true
 	if Basket != nil {
 		Basket.AddContainerId(result.ID)
@@ -154,7 +154,7 @@ func CreateContainer(ctx *context.Context, conSpec *ContainerSpec) *CreateContai
 // https://docs.podman.io/en/latest/_static/api.html?version=v4.1#operation/ContainerStartLibpod
 
 func (Res *CreateContainerResult) Start(ctx *context.Context) error {
-	if utils.IsEmptyString(Res.ID) == false && Res.ContainerStatus == "Created" {
+	if utils.IsEmptyString(Res.ID) == false && Res.Status == Created {
 
 		err := containers.Start(*ctx, Res.ID, &containers.StartOptions{})
 		return err

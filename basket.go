@@ -34,17 +34,6 @@ var (
 	//mutex         = new(sync.Mutex)
 )
 
-//MustFirstCall used only in the init() function.
-// mutex ListCreated 에 넣자.
-// https://cloudolife.com/2020/04/18/Programming-Language/Golang-Go/Synchronization/Use-sync-Mutex-sync-RWMutex-to-lock-share-data-for-race-condition/
-// Basket 은 singleton 이어야함 관련해서 처리해줘야 하고, 지금 은그냥 노출 하는데, api 를 통해서 노출하도록 처리한다.
-// https://thebook.io/006806/ch05/03/03/
-func MustFirstCall() (*ListCreated, error) {
-	basket, err := toListCreated()
-	Basket = basket
-	return Basket, err
-}
-
 // Save
 // 호출 없이 사용할 수 있도록 추후 수정하자.
 // 종료시 호출하도록 하면 될듯하다. 결국 안지구오 app 을 닫는 경우 데이터를 보호할 목적임으로
@@ -69,30 +58,6 @@ func (lc *ListCreated) Save() {
 	f.Write(d)
 	f.Sync()
 }
-
-func Save() error {
-	if Basket == nil {
-		fmt.Errorf("call MustFirstCall() first")
-	}
-	Basket.Save()
-	return nil
-}
-
-// Deprecated: Not used, but left for now.
-/*func (lc *ListCreated) ToListCreated() *ListCreated {
-
-	temp, err := toListCreated()
-	if err != nil {
-		return nil
-	}
-
-	r := appendListCreated(lc, temp)
-	if r == nil {
-		return nil
-	}
-
-	return r
-}*/
 
 func (lc *ListCreated) AddImagesId(imgId string) *ListCreated {
 	r := findImageId(lc, imgId)
