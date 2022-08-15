@@ -70,6 +70,13 @@ func (lc *ListCreated) Save() {
 	f.Sync()
 }
 
+func Save() {
+	if Basket == nil {
+		return
+	}
+	Basket.Save()
+}
+
 // Deprecated: Not used, but left for now.
 /*func (lc *ListCreated) ToListCreated() *ListCreated {
 
