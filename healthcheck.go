@@ -11,7 +11,15 @@ import (
 	"github.com/pkg/errors"
 )
 
-func SetHealthChecker(s *specgen.SpecGenerator, inCmd, interval string, retries uint, timeout, startPeriod string) (*specgen.SpecGenerator, error) {
+func SetHealthChecker(s SpecGen, inCmd, interval string, retries uint, timeout, startPeriod string) (SpecGen, error) {
+	s, err := setHealthChecker(s, inCmd, interval, retries, timeout, startPeriod)
+	if err != nil {
+		return nil, err
+	}
+	return s, nil
+}
+
+func setHealthChecker(s *specgen.SpecGenerator, inCmd, interval string, retries uint, timeout, startPeriod string) (*specgen.SpecGenerator, error) {
 
 	if s == nil {
 		return nil, fmt.Errorf("specgen.SpecGenerator is nil")
