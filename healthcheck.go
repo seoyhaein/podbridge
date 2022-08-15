@@ -31,6 +31,7 @@ func setHealthChecker(s *specgen.SpecGenerator, inCmd, interval string, retries 
 	return healthConfig, nil
 }
 
+// TODO 수정하자.
 func makeHealthCheckFromCli(inCmd, interval string, retries uint, timeout, startPeriod string) (*manifest.Schema2HealthConfig, error) {
 	cmdArr := []string{}
 	isArr := true

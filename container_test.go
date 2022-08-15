@@ -29,6 +29,9 @@ func TestSetOther(t *testing.T) {
 // 직접하면 되는데..흠..
 
 // https://knowledge.broadcom.com/external/article/237006/how-to-custom-health-check-settings-for.html
+// https://developers.redhat.com/blog/2019/04/18/monitoring-container-vitality-and-availability-with-podman#what_are_healthchecks_
+// https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/building_running_and_managing_containers/assembly_monitoring-containers_building-running-and-managing-containers
+// https://devops.stackexchange.com/questions/11501/healthcheck-cmd-vs-cmd-shell
 // 안정화 시켜야 한다.
 func TestContainer01(t *testing.T) {
 
@@ -41,12 +44,12 @@ func TestContainer01(t *testing.T) {
 	conSpec.SetImage("docker.io/library/test05")
 
 	f := func(spec SpecGen) SpecGen {
-		spec.Name = "contest15"
+		spec.Name = "contest16"
 		spec.Terminal = true
 		return spec
 	}
 	conSpec.SetOther(f)
-
+	// 해당 이미지에 해당 shell script 가 있다.
 	f1 := func(spec SpecGen) SpecGen {
 		healthConfig, _ := SetHealthChecker(spec, "CMD-SHELL /app/HealthCheckTest.sh", "2s", 3, "30s", "1s")
 		spec.HealthConfig = healthConfig

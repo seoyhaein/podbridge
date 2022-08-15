@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+
 	"github.com/containers/podman/v4/pkg/bindings/containers"
 	"github.com/containers/podman/v4/pkg/bindings/images"
 	"github.com/containers/podman/v4/pkg/specgen"
@@ -205,6 +206,7 @@ func (Res *CreateContainerResult) Kill(ctx *context.Context, options ...any) err
 // https://twpower.github.io/134-how-to-return-shell-scipt-value
 
 // healthchecker shell 의 경우는 환경변수를 만들고, 여기에, shell script 진행 상황에 따라 환경변수를 집어넣는 방식으로 진행한다.
+// TODO 테스트는 성공했는데, 보강해야할 것들이 많다. healthy 및 기타 status 에 따라 종료 되는 것과, 컨테이너 자체의 종료를 알아야 한다.
 func (Res *CreateContainerResult) HealthCheck(ctx *context.Context) error {
 
 	healthCheck, err := containers.RunHealthCheck(*ctx, Res.ID, &containers.HealthCheckOptions{})
