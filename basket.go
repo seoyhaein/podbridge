@@ -70,11 +70,12 @@ func (lc *ListCreated) Save() {
 	f.Sync()
 }
 
-func Save() {
+func Save() error {
 	if Basket == nil {
-		return
+		fmt.Errorf("call MustFirstCall() first")
 	}
 	Basket.Save()
+	return nil
 }
 
 // Deprecated: Not used, but left for now.
