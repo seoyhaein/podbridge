@@ -34,6 +34,20 @@ var (
 	//mutex         = new(sync.Mutex)
 )
 
+func MustFirstCall() (*ListCreated, error) {
+	basket, err := toListCreated()
+	Basket = basket
+	return Basket, err
+}
+
+func Save() error {
+	if Basket == nil {
+		fmt.Errorf("call MustFirstCall() first")
+	}
+	Basket.Save()
+	return nil
+}
+
 // Save
 // 호출 없이 사용할 수 있도록 추후 수정하자.
 // 종료시 호출하도록 하면 될듯하다. 결국 안지구오 app 을 닫는 경우 데이터를 보호할 목적임으로
