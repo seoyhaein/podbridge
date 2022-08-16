@@ -134,4 +134,6 @@ const (
 	Created ContainerStatus = iota
 	Running
 	Exited
+	Healthy
+	Unhealthy
 )

@@ -2,16 +2,40 @@ package podbridge
 
 import (
 	"encoding/json"
-	"fmt"
 	"strings"
 	"time"
 
 	"github.com/containers/image/v5/manifest"
-	"github.com/containers/podman/v4/pkg/specgen"
 	"github.com/pkg/errors"
 )
 
-func SetHealthChecker(s SpecGen, inCmd, interval string, retries uint, timeout, startPeriod string) (*manifest.Schema2HealthConfig, error) {
+/*
+The core of the healthcheck is the command.
+Podman will execute the command inside the target container and wait for either a "0" or "failure  exit" code. For example, if you have a container that runs an Nginx server, your healthcheck command could be something as simple as a curl command successfully connecting to the web port to make sure Nginx is responsive.
+
+The other four components are related to the scheduling of the healthcheck itself.
+They are optional and have defaults should you choose to not specify values for each one.
+Retries defines the number of consecutive failed healthchecks that need to occur before the container is marked as “unhealthy.” A successful healthcheck resets the retry counter.
+
+The interval metric describes the time between running the healthcheck command.
+Determining the interval value is a bit of an art.
+Make it too small and your system will spend a lot of time running healthchecks; make the interval too large and you struggle with catching time outs.
+The value is a time duration like “30s” or “1h2m.”
+
+Note: A duration string is a possibly signed sequence of decimal numbers, each with optional fraction and a unit suffix, such as "300ms," "-1.5h," or "2h45m." Valid time units are "ns," "us," (or "µs"), "ms," "s," "m," and "h."
+
+The fourth component is the start-period.
+This describes the time between when the container starts and when you want to ignore healthcheck failures.
+Put more simply, if a healthcheck fails during this time, it will not count as a failure.
+During this time, the container’s healthcheck status will be starting.
+If a healthcheck returns successfully, the container’s healthcheck status will change from starting to healthy.
+
+The last component is the timeout definition.
+Like the interval value, it is a time duration.
+It describes the period of time the healthcheck itself must complete before being considered unsuccessful.
+*/
+
+/*func SetHealthChecker(s SpecGen, inCmd, interval string, retries uint, timeout, startPeriod string) (*manifest.Schema2HealthConfig, error) {
 	healthConfig, err := setHealthChecker(s, inCmd, interval, retries, timeout, startPeriod)
 	if err != nil {
 		return nil, err
@@ -24,6 +48,14 @@ func setHealthChecker(s *specgen.SpecGenerator, inCmd, interval string, retries 
 	if s == nil {
 		return nil, fmt.Errorf("specgen.SpecGenerator is nil")
 	}
+	healthConfig, err := makeHealthCheckFromCli(inCmd, interval, retries, timeout, startPeriod)
+	if err != nil {
+		return nil, err
+	}
+	return healthConfig, nil
+}*/
+
+func SetHealthChecker(inCmd, interval string, retries uint, timeout, startPeriod string) (*manifest.Schema2HealthConfig, error) {
 	healthConfig, err := makeHealthCheckFromCli(inCmd, interval, retries, timeout, startPeriod)
 	if err != nil {
 		return nil, err
