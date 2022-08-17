@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"testing"
+	"time"
 )
 
 // 이런식으로 하면 될듯한데. 테스트 해보자.
@@ -64,5 +65,38 @@ func TestContainer01(t *testing.T) {
 	fmt.Println("container Id is :", r.ID)
 	err = r.Start(cTx)
 	r.HealthCheck(cTx, "1s")
+
+}
+
+func TestContainer02(t *testing.T) {
+
+	ctx, err := NewConnectionLinux(context.Background())
+	if err != nil {
+		t.Fail()
+	}
+	// spec 만들기
+	conSpec := NewSpec()
+	conSpec.SetImage("docker.io/library/test06")
+
+	f := func(spec SpecGen) SpecGen {
+		spec.Name = "contest19"
+		spec.Terminal = true
+		return spec
+	}
+	conSpec.SetOther(f)
+	// 해당 이미지에 해당 shell script 가 있다.
+	conSpec.SetHealthChecker("CMD-SHELL /app/healthcheck.sh", "2s", 3, "30s", "1s")
+
+	// container 만들기
+	r := CreateContainer(ctx, conSpec)
+	fmt.Println("container Id is :", r.ID)
+	err = r.Start(ctx)
+	ctx1, cancel := context.WithCancel(ctx)
+	go func(ctx context.Context, cancelFunc context.CancelFunc) {
+		time.Sleep(time.Second * 20)
+		cancelFunc()
+	}(ctx, cancel)
+	r.HealthCheck(ctx1, "1s")
+	r.Run(ctx1)
 
 }

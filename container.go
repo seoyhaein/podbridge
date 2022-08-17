@@ -200,11 +200,15 @@ func (Res *CreateContainerResult) Kill(ctx context.Context, options ...any) erro
 func (Res *CreateContainerResult) HealthCheck(ctx context.Context, interval string) error {
 	// TODO 잘 살펴보자
 	// sender, close ???, cancel 테스트 하자.
+	if Res.ch == nil {
+		// TODO 일단 buffer 를 100 으로 주었다.
+		Res.ch = make(chan ContainerStatus, 100)
+	}
+
 	go func(ctx context.Context, res *CreateContainerResult) {
-		if res.ch == nil {
-			// TODO 일단 buffer 를 100 으로 주었다.
-			res.ch = make(chan ContainerStatus, 100)
-		}
+		var containerInspectOptions containers.InspectOptions
+		containerInspectOptions.Size = utils.PFalse
+
 		intervalDuration, err := time.ParseDuration(interval)
 		if err != nil {
 			intervalDuration = time.Second
@@ -213,7 +217,10 @@ func (Res *CreateContainerResult) HealthCheck(ctx context.Context, interval stri
 		for {
 			select {
 			case <-ticker:
+				// 두가지를 비교해 보자.
 				healthCheck, err := containers.RunHealthCheck(ctx, res.ID, &containers.HealthCheckOptions{})
+
+				containerData, err := containers.Inspect(ctx, res.ID, &containerInspectOptions)
 				if err != nil {
 					break
 				}
@@ -221,11 +228,24 @@ func (Res *CreateContainerResult) HealthCheck(ctx context.Context, interval stri
 					res.ch <- Healthy
 				}
 
+				if containerData.State.Running {
+					res.ch <- Running
+				}
+
+				if containerData.State.Dead {
+					res.ch <- Dead
+				}
+
+				if containerData.State.Paused {
+					res.ch <- Paused
+				}
+
 				if healthCheck.Status == "unhealthy" {
 					res.ch <- Unhealthy
 				}
 			case <-ctx.Done():
 				close(res.ch)
+				fmt.Println("cancel:sender")
 				break
 			}
 		}
@@ -247,21 +267,20 @@ func (Res *CreateContainerResult) Run(ctx context.Context) (*CreateContainerResu
 		return nil, fmt.Errorf("channel not created")
 	}
 
+	// TestContainer02 한후 range 로 테스트 해보자.
 	for {
 		select {
 		case status, ok := <-Res.ch:
 			if ok {
 				if status == Unhealthy {
 					fmt.Println("unhealthy")
-					return nil, nil
 				}
-
 				if status == Healthy {
 					fmt.Println("healthy")
-					return nil, nil
 				}
 			}
 		case <-ctx.Done():
+			fmt.Println("cancel:receiver")
 			return nil, ctx.Err()
 		}
 	}

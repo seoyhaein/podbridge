@@ -114,7 +114,7 @@ func TestSpecCompare(t *testing.T) {
 		fmt.Println("same")
 	}
 
-	_, err = containers.CreateWithSpec(*ctx, Spec, &containers.CreateOptions{})
+	_, err = containers.CreateWithSpec(ctx, Spec, &containers.CreateOptions{})
 
 	if err != nil {
 		fmt.Println(err.Error())
