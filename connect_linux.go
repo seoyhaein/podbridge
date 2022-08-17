@@ -15,14 +15,14 @@ import (
 
 //TODO local 에 podman 설치가 되어 있는 경우만 구현했다. 추후 원격 연결도 확장해 나간다.
 
-func NewConnection(ctx context.Context, ipcName string) (*context.Context, error) {
+func NewConnection(ctx context.Context, ipcName string) (context.Context, error) {
 
 	if utils.IsEmptyString(ipcName) {
 		return nil, errors.New("ipcName cannot be an empty string")
 	}
-	conText, err := bindings.NewConnection(ctx, ipcName)
+	cTx, err := bindings.NewConnection(ctx, ipcName)
 
-	return &conText, err
+	return cTx, err
 }
 
 func defaultLinuxSockDir() (socket string) {
@@ -36,10 +36,10 @@ func defaultLinuxSockDir() (socket string) {
 	return
 }
 
-func NewConnectionLinux(ctx context.Context) (*context.Context, error) {
+func NewConnectionLinux(ctx context.Context) (context.Context, error) {
 
 	socket := defaultLinuxSockDir()
-	conText, err := bindings.NewConnection(ctx, socket)
+	cTx, err := bindings.NewConnection(ctx, socket)
 
-	return &conText, err
+	return cTx, err
 }

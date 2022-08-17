@@ -12,8 +12,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// TODO *context.Context -> context.Context 로 변경한다.
-
 var Log = logrus.New()
 
 type (
@@ -68,7 +66,7 @@ func (c *ContainerSpec) SetHealthChecker(inCmd, interval string, retries uint, t
 
 // CreateContainer
 // TODO 수정해줘야 함. name, image 확인해야 할듯, 일단 체크 해보자.
-func CreateContainer(ctx *context.Context, conSpec *ContainerSpec) *CreateContainerResult {
+func CreateContainer(ctx context.Context, conSpec *ContainerSpec) *CreateContainerResult {
 	var (
 		result                 *CreateContainerResult
 		containerExistsOptions containers.ExistsOptions
@@ -79,7 +77,7 @@ func CreateContainer(ctx *context.Context, conSpec *ContainerSpec) *CreateContai
 		panic(err)
 	}
 	containerExistsOptions.External = utils.PFalse
-	containerExists, err := containers.Exists(*ctx, conSpec.Spec.Name, &containerExistsOptions)
+	containerExists, err := containers.Exists(ctx, conSpec.Spec.Name, &containerExistsOptions)
 	if err != nil {
 		panic(err)
 	}
@@ -87,7 +85,7 @@ func CreateContainer(ctx *context.Context, conSpec *ContainerSpec) *CreateContai
 	if containerExists {
 		var containerInspectOptions containers.InspectOptions
 		containerInspectOptions.Size = utils.PFalse
-		containerData, err := containers.Inspect(*ctx, conSpec.Spec.Name, &containerInspectOptions)
+		containerData, err := containers.Inspect(ctx, conSpec.Spec.Name, &containerInspectOptions)
 		if err != nil {
 			panic(err)
 		}
@@ -105,19 +103,19 @@ func CreateContainer(ctx *context.Context, conSpec *ContainerSpec) *CreateContai
 			return result
 		}
 	} else {
-		imageExists, err := images.Exists(*ctx, conSpec.Spec.Image, nil)
+		imageExists, err := images.Exists(ctx, conSpec.Spec.Image, nil)
 		if err != nil {
 			panic(err)
 		}
 		// TODO basket 에 넣을지 고민하자.
 		if imageExists == false {
-			_, err := images.Pull(*ctx, conSpec.Spec.Image, &images.PullOptions{})
+			_, err := images.Pull(ctx, conSpec.Spec.Image, &images.PullOptions{})
 			if err != nil {
 				panic(err)
 			}
 		}
 		Log.Infof("Pulling %s image...\n", conSpec.Spec.Image)
-		createResponse, err := containers.CreateWithSpec(*ctx, conSpec.Spec, &containers.CreateOptions{})
+		createResponse, err := containers.CreateWithSpec(ctx, conSpec.Spec, &containers.CreateOptions{})
 		if err != nil {
 			panic(err)
 		}
@@ -136,9 +134,9 @@ func CreateContainer(ctx *context.Context, conSpec *ContainerSpec) *CreateContai
 // Start
 // startOptions 는 default 값을 사용한다.
 // https://docs.podman.io/en/latest/_static/api.html?version=v4.1#operation/ContainerStartLibpod
-func (Res *CreateContainerResult) Start(ctx *context.Context) error {
+func (Res *CreateContainerResult) Start(ctx context.Context) error {
 	if utils.IsEmptyString(Res.ID) == false && Res.Status == Created {
-		err := containers.Start(*ctx, Res.ID, &containers.StartOptions{})
+		err := containers.Start(ctx, Res.ID, &containers.StartOptions{})
 		return err
 	} else {
 		return fmt.Errorf("cannot start container")
@@ -146,9 +144,9 @@ func (Res *CreateContainerResult) Start(ctx *context.Context) error {
 }
 
 // ReStart 중복되는 것 같긴하다. 수정해줘야 한다. ReStart
-func (Res *CreateContainerResult) ReStart(ctx *context.Context) error {
+func (Res *CreateContainerResult) ReStart(ctx context.Context) error {
 	if utils.IsEmptyString(Res.ID) == false && Res.Status != Running {
-		err := containers.Start(*ctx, Res.ID, &containers.StartOptions{})
+		err := containers.Start(ctx, Res.ID, &containers.StartOptions{})
 		return err
 	} else {
 		return fmt.Errorf("cannot re-start container")
@@ -161,7 +159,7 @@ func (Res *CreateContainerResult) ReStart(ctx *context.Context) error {
 // default 값은 timeout 은  10 으로 세팅되어 있고, ignore 는 false 이다.
 // ignore 는 만약 stop 된 컨테이너를 stop 되어 있을 때 stop 하는 경우 true 하면 에러 무시, false 로 하면 에러 리턴
 // timeout 은 몇 후에 컨테어너를 kill 할지 정한다.
-func (Res *CreateContainerResult) Stop(ctx *context.Context, options ...any) error {
+func (Res *CreateContainerResult) Stop(ctx context.Context, options ...any) error {
 	stopOption := new(containers.StopOptions)
 	for _, op := range options {
 		v, b := op.(*bool)
@@ -175,12 +173,12 @@ func (Res *CreateContainerResult) Stop(ctx *context.Context, options ...any) err
 		}
 	}
 
-	err := containers.Stop(*ctx, Res.ID, stopOption)
+	err := containers.Stop(ctx, Res.ID, stopOption)
 	return err
 }
 
 // Kill
-func (Res *CreateContainerResult) Kill(ctx *context.Context, options ...any) error {
+func (Res *CreateContainerResult) Kill(ctx context.Context, options ...any) error {
 
 	return nil
 }
@@ -199,7 +197,7 @@ func (Res *CreateContainerResult) Kill(ctx *context.Context, options ...any) err
 
 // healthchecker shell 의 경우는 환경변수를 만들고, 여기에, shell script 진행 상황에 따라 환경변수를 집어넣는 방식으로 진행한다.
 // TODO 테스트는 성공했는데, 보강해야할 것들이 많다. healthy 및 기타 status 에 따라 종료 되는 것과, 컨테이너 자체의 종료를 알아야 한다.
-func (Res *CreateContainerResult) HealthCheck(ctx *context.Context, interval string) error {
+func (Res *CreateContainerResult) HealthCheck(ctx context.Context, interval string) error {
 	// TODO 잘 살펴보자
 	// sender, close ???, cancel 테스트 하자.
 	go func(ctx context.Context, res *CreateContainerResult) {
@@ -231,7 +229,7 @@ func (Res *CreateContainerResult) HealthCheck(ctx *context.Context, interval str
 				break
 			}
 		}
-	}(*ctx, Res)
+	}(ctx, Res)
 
 	// sender, receiver 를 여기서 구현...
 	// sender 의 경우는 goroutine 으로
@@ -254,6 +252,12 @@ func (Res *CreateContainerResult) Run(ctx context.Context) (*CreateContainerResu
 		case status, ok := <-Res.ch:
 			if ok {
 				if status == Unhealthy {
+					fmt.Println("unhealthy")
+					return nil, nil
+				}
+
+				if status == Healthy {
+					fmt.Println("healthy")
 					return nil, nil
 				}
 			}

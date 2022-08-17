@@ -24,11 +24,11 @@ type VolumeConfig struct {
 // 하나라도 에러나면 에러 리턴 하고 끝남.
 // volume 을 만들어 주고, NamedVolume 으로 다시 만들어 준다.
 
-func CreateNamedVolume(ctx *context.Context, conf ...*VolumeConfig) ([]*specgen.NamedVolume, error) {
+func CreateNamedVolume(ctx context.Context, conf ...*VolumeConfig) ([]*specgen.NamedVolume, error) {
 	var results []*specgen.NamedVolume
 
 	for _, v := range conf {
-		volumeConfigResponse, err := volumes.Create(*ctx, v.VolumeCreateOptions, &volumes.CreateOptions{})
+		volumeConfigResponse, err := volumes.Create(ctx, v.VolumeCreateOptions, &volumes.CreateOptions{})
 
 		if err == nil {
 			return nil, err

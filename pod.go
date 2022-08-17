@@ -18,7 +18,7 @@ type CreatePodResult struct {
 	success bool
 }
 
-func PodWithSpec(ctx *context.Context, podConfig *PodConfig) *CreatePodResult {
+func PodWithSpec(ctx context.Context, podConfig *PodConfig) *CreatePodResult {
 
 	result := new(CreatePodResult)
 
@@ -38,7 +38,7 @@ func PodWithSpec(ctx *context.Context, podConfig *PodConfig) *CreatePodResult {
 		return result
 	}
 
-	podExists, err := pods.Exists(*ctx, PodSpec.PodSpecGen.Name, &pods.ExistsOptions{})
+	podExists, err := pods.Exists(ctx, PodSpec.PodSpecGen.Name, &pods.ExistsOptions{})
 
 	if err != nil {
 		result.ErrorMessage = err
@@ -53,7 +53,7 @@ func PodWithSpec(ctx *context.Context, podConfig *PodConfig) *CreatePodResult {
 		return result
 	}
 
-	podReport, err := pods.CreatePodFromSpec(*ctx, PodSpec)
+	podReport, err := pods.CreatePodFromSpec(ctx, PodSpec)
 
 	if err != nil {
 		result.ErrorMessage = err

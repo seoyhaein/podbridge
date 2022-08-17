@@ -63,11 +63,6 @@ func TestContainer01(t *testing.T) {
 	r := CreateContainer(cTx, conSpec)
 	fmt.Println("container Id is :", r.ID)
 	err = r.Start(cTx)
-	r.HealthCheck(cTx, "10s")
-	/*for i := 0; i < 100; i++ {
-		time.Sleep(time.Second * 2)
-		r.HealthCheck(cTx, "1s")
-		fmt.Println(i)
-	}*/
+	r.HealthCheck(cTx, "1s")
 
 }
