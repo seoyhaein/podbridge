@@ -35,26 +35,6 @@ Like the interval value, it is a time duration.
 It describes the period of time the healthcheck itself must complete before being considered unsuccessful.
 */
 
-/*func SetHealthChecker(s SpecGen, inCmd, interval string, retries uint, timeout, startPeriod string) (*manifest.Schema2HealthConfig, error) {
-	healthConfig, err := setHealthChecker(s, inCmd, interval, retries, timeout, startPeriod)
-	if err != nil {
-		return nil, err
-	}
-	return healthConfig, nil
-}
-
-func setHealthChecker(s *specgen.SpecGenerator, inCmd, interval string, retries uint, timeout, startPeriod string) (*manifest.Schema2HealthConfig, error) {
-
-	if s == nil {
-		return nil, fmt.Errorf("specgen.SpecGenerator is nil")
-	}
-	healthConfig, err := makeHealthCheckFromCli(inCmd, interval, retries, timeout, startPeriod)
-	if err != nil {
-		return nil, err
-	}
-	return healthConfig, nil
-}*/
-
 func SetHealthChecker(inCmd, interval string, retries uint, timeout, startPeriod string) (*manifest.Schema2HealthConfig, error) {
 	healthConfig, err := makeHealthCheckFromCli(inCmd, interval, retries, timeout, startPeriod)
 	if err != nil {
