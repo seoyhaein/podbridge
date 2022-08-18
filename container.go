@@ -186,8 +186,7 @@ func (Res *CreateContainerResult) Kill(ctx context.Context, options ...any) erro
 // HealthCheck 테스트 필요
 func (Res *CreateContainerResult) HealthCheck(ctx context.Context, interval string) {
 	if Res.ch == nil {
-		// TODO 일단 buffer 를 100 으로 주었다.
-		Res.ch = make(chan ContainerStatus, 100)
+		Res.ch = make(chan ContainerStatus, Max)
 	}
 
 	go func(ctx context.Context, res *CreateContainerResult) {
@@ -199,13 +198,11 @@ func (Res *CreateContainerResult) HealthCheck(ctx context.Context, interval stri
 			close(res.ch)
 			return
 		}
-
 		if containerData.State.Dead {
 			res.ch <- Dead
 			close(res.ch)
 			return
 		}
-
 		if containerData.State.Paused {
 			res.ch <- Paused
 			close(res.ch)
@@ -220,10 +217,7 @@ func (Res *CreateContainerResult) HealthCheck(ctx context.Context, interval stri
 		for {
 			select {
 			case <-ticker:
-				// 두가지를 비교해 보자.
-				// ctx cancel 되면 err 발생
 				healthCheck, err := containers.RunHealthCheck(ctx, res.ID, &containers.HealthCheckOptions{})
-
 				if err != nil {
 					containerData, err = containers.Inspect(ctx, res.ID, &containerInspectOptions)
 					if err != nil {
@@ -255,7 +249,7 @@ func (Res *CreateContainerResult) HealthCheck(ctx context.Context, interval stri
 				}
 			case <-ctx.Done():
 				close(res.ch)
-				fmt.Println("cancel:sender")
+				Log.Printf("cancel:sender")
 				return
 			}
 		}
@@ -265,7 +259,7 @@ func (Res *CreateContainerResult) HealthCheck(ctx context.Context, interval stri
 
 // Run 테스트 필요
 func (Res *CreateContainerResult) Run(ctx context.Context, interval string) <-chan ContainerStatus {
-	out := make(chan ContainerStatus, 100)
+	out := make(chan ContainerStatus, Max)
 	err := Res.Start(ctx)
 	if err != nil {
 		panic(err)

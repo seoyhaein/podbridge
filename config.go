@@ -141,3 +141,6 @@ const (
 	unKnown
 	none
 )
+
+// channel buffer size
+const Max int = 100
