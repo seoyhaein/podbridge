@@ -9,10 +9,7 @@ import (
 	"github.com/containers/podman/v4/pkg/bindings/images"
 	"github.com/containers/podman/v4/pkg/specgen"
 	"github.com/seoyhaein/utils"
-	"github.com/sirupsen/logrus"
 )
-
-var Log = logrus.New()
 
 type (
 	SpecGen *specgen.SpecGenerator

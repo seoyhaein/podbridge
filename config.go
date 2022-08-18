@@ -7,11 +7,13 @@ import (
 	"github.com/containers/podman/v4/pkg/domain/entities"
 	"github.com/containers/podman/v4/pkg/specgen"
 	"github.com/seoyhaein/utils"
+	"github.com/sirupsen/logrus"
 )
+
+var Log = logrus.New()
 
 // pod, spec 삭제할 예정임.
 // TODO 코드 정리가 필요하다.
-
 type (
 	ContainerConfig struct {
 		SetSpec                 *bool
