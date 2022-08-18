@@ -183,23 +183,8 @@ func (Res *CreateContainerResult) Kill(ctx context.Context, options ...any) erro
 	return nil
 }
 
-// HealthCheck
-// 중요!! 지속적으로 container 의 status 를 확인해줘야 함으로, goroutine, 루프 구문이 들어가고 context 가 들어가고, channel 이 들어가야 할듯 하다.
-// 퍼포먼스 문제가 있을까?? 일단 고민좀 해보자. 여러 컨테이너를 지속적으로 해야 함으로 이런 방식은 문제가 있을듯 하다. 일단 좀더 고민해 보자.
-
-// https://github.com/containers/podman/issues/12226
-// https://developers.redhat.com/blog/2019/04/18/monitoring-container-vitality-and-availability-with-podman#interacting_with_the_results_of_healthchecks
-// https://devops.stackexchange.com/questions/11501/healthcheck-cmd-vs-cmd-shell
-// https://nomad-programmer.tistory.com/309
-// https://www.codegrepper.com/code-examples/shell/how+to+check+if+a+process+is+running+in+linux+using+shell+script
-// https://www.redhat.com/sysadmin/error-handling-bash-scripting
-// https://twpower.github.io/134-how-to-return-shell-scipt-value
-
-// healthchecker shell 의 경우는 환경변수를 만들고, 여기에, shell script 진행 상황에 따라 환경변수를 집어넣는 방식으로 진행한다.
-// TODO 테스트는 성공했는데, 보강해야할 것들이 많다. healthy 및 기타 status 에 따라 종료 되는 것과, 컨테이너 자체의 종료를 알아야 한다.
-func (Res *CreateContainerResult) HealthCheck(ctx context.Context, interval string) error {
-	// TODO 잘 살펴보자
-	// sender, close ???, cancel 테스트 하자.
+// HealthCheck 테스트 필요
+func (Res *CreateContainerResult) HealthCheck(ctx context.Context, interval string) {
 	if Res.ch == nil {
 		// TODO 일단 buffer 를 100 으로 주었다.
 		Res.ch = make(chan ContainerStatus, 100)
@@ -208,6 +193,24 @@ func (Res *CreateContainerResult) HealthCheck(ctx context.Context, interval stri
 	go func(ctx context.Context, res *CreateContainerResult) {
 		var containerInspectOptions containers.InspectOptions
 		containerInspectOptions.Size = utils.PFalse
+
+		containerData, err := containers.Inspect(ctx, res.ID, &containerInspectOptions)
+		if err != nil {
+			close(res.ch)
+			return
+		}
+
+		if containerData.State.Dead {
+			res.ch <- Dead
+			close(res.ch)
+			return
+		}
+
+		if containerData.State.Paused {
+			res.ch <- Paused
+			close(res.ch)
+			return
+		}
 
 		intervalDuration, err := time.ParseDuration(interval)
 		if err != nil {
@@ -218,72 +221,83 @@ func (Res *CreateContainerResult) HealthCheck(ctx context.Context, interval stri
 			select {
 			case <-ticker:
 				// 두가지를 비교해 보자.
+				// ctx cancel 되면 err 발생
 				healthCheck, err := containers.RunHealthCheck(ctx, res.ID, &containers.HealthCheckOptions{})
 
-				containerData, err := containers.Inspect(ctx, res.ID, &containerInspectOptions)
 				if err != nil {
-					break
-				}
-				if healthCheck.Status == "healthy" {
-					res.ch <- Healthy
-				}
-
-				if containerData.State.Running {
-					res.ch <- Running
-				}
-
-				if containerData.State.Dead {
-					res.ch <- Dead
-				}
-
-				if containerData.State.Paused {
-					res.ch <- Paused
-				}
-
-				if healthCheck.Status == "unhealthy" {
-					res.ch <- Unhealthy
+					containerData, err = containers.Inspect(ctx, res.ID, &containerInspectOptions)
+					if err != nil {
+						fmt.Println(err.Error())
+						res.ch <- unKnown
+						close(res.ch)
+						return
+					}
+					if containerData.State.Dead {
+						res.ch <- Dead
+						close(res.ch)
+						return
+					}
+					if containerData.State.Paused {
+						res.ch <- Paused
+						close(res.ch)
+						return
+					}
+					res.ch <- Exited
+					close(res.ch)
+					return
+				} else { // running 상태
+					if healthCheck.Status == "healthy" {
+						res.ch <- Healthy
+					}
+					if healthCheck.Status == "unhealthy" {
+						res.ch <- Unhealthy
+					}
 				}
 			case <-ctx.Done():
 				close(res.ch)
 				fmt.Println("cancel:sender")
-				break
+				return
 			}
 		}
 	}(ctx, Res)
 
-	// sender, receiver 를 여기서 구현...
-	// sender 의 경우는 goroutine 으로
-	// receiver 의 경우는 그냥, context 처리, 여기서 기다려준다.
-
-	return nil
 }
 
-// Run CreateContainer, Start or Restart, HealthCheck 들어가고 Receiver 들어가는 메서드
-// unhealthy 이거나 container 가 중단(정상종료, 비정상 종료)될 경우 멈춤.
-// ctx.Err()
-// Exit 코드도 잡아야 함. 그럼 inspect 로 처리하는게 나을듯.
-func (Res *CreateContainerResult) Run(ctx context.Context) (*CreateContainerResult, error) {
-	if Res.ch == nil {
-		return nil, fmt.Errorf("channel not created")
+// Run 테스트 필요
+func (Res *CreateContainerResult) Run(ctx context.Context, interval string) <-chan ContainerStatus {
+	out := make(chan ContainerStatus, 100)
+	err := Res.Start(ctx)
+	if err != nil {
+		panic(err)
 	}
+	Res.HealthCheck(ctx, interval)
 
-	// TestContainer02 한후 range 로 테스트 해보자.
-	for {
-		select {
-		case status, ok := <-Res.ch:
-			if ok {
-				if status == Unhealthy {
-					fmt.Println("unhealthy")
-				}
-				if status == Healthy {
-					fmt.Println("healthy")
-				}
+	go func(in chan ContainerStatus, out chan ContainerStatus) {
+		defer close(out)
+		for c := range in {
+			if c == Unhealthy {
+				out <- Unhealthy
 			}
-		case <-ctx.Done():
-			fmt.Println("cancel:receiver")
-			return nil, ctx.Err()
+			if c == Healthy {
+				out <- Healthy
+			}
+			if c == unKnown {
+				out <- unKnown
+			}
+			if c == Exited {
+				out <- Exited
+			}
+			if c == Dead {
+				out <- Dead
+			}
+			if c == Paused {
+				out <- Paused
+			}
+			out <- none
 		}
-	}
+	}(Res.ch, out)
+
+	return out
 }
 
 // 이미지 가존재하는지 확인하는 메서드 빼놓자.

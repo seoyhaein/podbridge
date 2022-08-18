@@ -3,9 +3,25 @@ package podbridge
 import (
 	"context"
 	"fmt"
+	"math/rand"
 	"testing"
 	"time"
 )
+
+// https://stackoverflow.com/questions/22892120/how-to-generate-a-random-string-of-a-fixed-length-in-go
+func init() {
+	rand.Seed(time.Now().UnixNano())
+}
+
+var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+
+func RandStringRunes(n int) string {
+	b := make([]rune, n)
+	for i := range b {
+		b[i] = letterRunes[rand.Intn(len(letterRunes))]
+	}
+	return string(b)
+}
 
 // 이런식으로 하면 될듯한데. 테스트 해보자.
 func TestSetOther(t *testing.T) {
@@ -68,8 +84,7 @@ func TestContainer01(t *testing.T) {
 
 }
 
-func TestContainer02(t *testing.T) {
-
+func TestContainer03(t *testing.T) {
 	ctx, err := NewConnectionLinux(context.Background())
 	if err != nil {
 		t.Fail()
@@ -79,7 +94,7 @@ func TestContainer02(t *testing.T) {
 	conSpec.SetImage("docker.io/library/test06")
 
 	f := func(spec SpecGen) SpecGen {
-		spec.Name = "contest19"
+		spec.Name = RandStringRunes(5)
 		spec.Terminal = true
 		return spec
 	}
@@ -90,13 +105,16 @@ func TestContainer02(t *testing.T) {
 	// container 만들기
 	r := CreateContainer(ctx, conSpec)
 	fmt.Println("container Id is :", r.ID)
-	err = r.Start(ctx)
 	ctx1, cancel := context.WithCancel(ctx)
 	go func(ctx context.Context, cancelFunc context.CancelFunc) {
-		time.Sleep(time.Second * 20)
+		time.Sleep(time.Second * 200)
 		cancelFunc()
 	}(ctx, cancel)
-	r.HealthCheck(ctx1, "1s")
-	r.Run(ctx1)
+	r.Run(ctx1, "1s")
+}
+
+// 여러 상태의 container 를 테스트 하자.
+// start 하고 하는 걸로 제한됨. 생각해보자. 다른 상태를 발견하는게 의미가 있는지...
+func TestContainer04(t *testing.T) {
 
 }

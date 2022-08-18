@@ -138,4 +138,6 @@ const (
 	Unhealthy
 	Dead
 	Paused
+	unKnown
+	none
 )
