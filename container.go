@@ -254,7 +254,6 @@ func (Res *CreateContainerResult) HealthCheck(ctx context.Context, interval stri
 			}
 		}
 	}(ctx, Res)
-
 }
 
 // Run 테스트 필요
