@@ -290,6 +290,40 @@ func (Res *CreateContainerResult) Run(ctx context.Context, interval string) <-ch
 	return out
 }
 
+func (Res *CreateContainerResult) RunT(ctx context.Context, interval string) ContainerStatus {
+	if Res.ch == nil {
+		return none
+	}
+
+	err := Res.Start(ctx)
+	if err != nil {
+		panic(err)
+	}
+	Res.HealthCheck(ctx, interval)
+
+	for c := range Res.ch {
+		if c == Unhealthy {
+			return Unhealthy
+		}
+		if c == Healthy {
+			return Healthy
+		}
+		if c == unKnown {
+			return unKnown
+		}
+		if c == Exited {
+			return Exited
+		}
+		if c == Dead {
+			return Dead
+		}
+		if c == Paused {
+			return Paused
+		}
+	}
+	return none
+}
+
 // 이미지 가존재하는지 확인하는 메서드 빼놓자.
 // TODO wait 함수 구체적으로 살펴보기기
 // 나머지들은 조금씩 구현해 나간다.
