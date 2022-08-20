@@ -11,20 +11,9 @@ import (
 	"github.com/containers/buildah"
 	"github.com/containers/image/v5/types"
 	"github.com/containers/storage/pkg/unshare"
+	pbr "github.com/seoyhaein/podbridge"
 	v1 "github.com/seoyhaein/podbridge/imageV1"
 )
-
-// Error: could not find slirp4netns, the network namespace can't be configured: exec: "slirp4netns": executable file not found in $PATH
-// https://github.com/rootless-containers/slirp4netns
-
-// 컨테이너 에러 발생시 에러 확인
-// podman logs (컨테이너 아이디)
-
-// https://stackoverflow.com/questions/49225976/use-sudo-inside-dockerfile-alpine
-
-// alpine
-// fallocate -l 10G test.txt
-// ls -alh filename
 
 func main() {
 	if buildah.InitReexec() {
@@ -32,9 +21,16 @@ func main() {
 	}
 	unshare.MaybeReexecUsingUserNamespace(false)
 
-	// 여기서 테스트 진행하자.
+	// basket
+	pbr.MustFirstCall()
+
 	opt := v1.NewOption().Other().FromImage("alpine:latest")
 	ctx, builder, err := v1.NewBuilder(context.Background(), opt)
+
+	defer func() {
+		builder.Shutdown()
+		builder.Delete()
+	}()
 
 	if err != nil {
 		fmt.Println("NewBuilder")
@@ -53,14 +49,26 @@ func main() {
 		os.Exit(1)
 	}
 
-	err = builder.User("root")
+	builder.Run("mkdir -p /app/healthcheck")
 	if err != nil {
-		fmt.Println("User")
+		fmt.Println("Run1")
 		os.Exit(1)
 	}
 
+	/*	err = builder.User("root")
+		if err != nil {
+			fmt.Println("User")
+			os.Exit(1)
+		}*/
+
 	// ADD/Copy 동일함.
-	err = builder.Add("./dumpfiles/test.txt", "/app")
+	err = builder.Add("./healthcheck/executor.sh", "/app/healthcheck")
+	if err != nil {
+		fmt.Println("Add")
+		os.Exit(1)
+	}
+
+	err = builder.Add("./healthcheck/healthcheck.sh", "/app/healthcheck")
 	if err != nil {
 		fmt.Println("Add")
 		os.Exit(1)
@@ -78,16 +86,16 @@ func main() {
 		os.Exit(1)
 	}*/
 
-	/*err = builder.Cmd("node", "src/index.js")
+	err = builder.Cmd("/app/healthcheck/executor.sh")
 
-	err = builder.Expose("3000")
+	/*err = builder.Expose("3000")
 	if err != nil {
 		fmt.Println("Expose")
 		os.Exit(1)
 	}*/
 
 	sysCtx := &types.SystemContext{}
-	image, err := builder.CommitImage(ctx, buildah.Dockerv2ImageManifest, sysCtx, "test01")
+	image, err := builder.CommitImage(ctx, buildah.Dockerv2ImageManifest, sysCtx, "test07")
 
 	if err != nil {
 		fmt.Println("CommitImage")
@@ -95,7 +103,9 @@ func main() {
 	}
 
 	fmt.Println(*image)
+
 }
+
 ```
 
 ### TODO
