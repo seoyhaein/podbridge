@@ -113,8 +113,40 @@ func TestContainer03(t *testing.T) {
 	r.Run(ctx1, "1s")
 }
 
+func TestContainer04(t *testing.T) {
+	ctx, err := NewConnectionLinux(context.Background())
+	if err != nil {
+		t.Fail()
+	}
+	// spec 만들기
+	conSpec := NewSpec()
+	conSpec.SetImage("docker.io/library/test07")
+
+	f := func(spec SpecGen) SpecGen {
+		spec.Name = RandStringRunes(5)
+		spec.Terminal = true
+		return spec
+	}
+	conSpec.SetOther(f)
+	// 해당 이미지에 해당 shell script 가 있다.
+	conSpec.SetHealthChecker("CMD-SHELL /app/healthcheck/healthcheck.sh", "2s", 1, "30s", "1s")
+
+	// container 만들기
+	r := CreateContainer(ctx, conSpec)
+	fmt.Println("container Id is :", r.ID)
+	/*ctx1, cancel := context.WithCancel(ctx)
+	go func(ctx context.Context, cancelFunc context.CancelFunc) {
+		time.Sleep(time.Second * 200)
+		cancelFunc()
+	}(ctx, cancel)*/
+	result := r.RunT(ctx, "1s")
+
+	v := int(result)
+	fmt.Println(v)
+}
+
 // 여러 상태의 container 를 테스트 하자.
 // start 하고 하는 걸로 제한됨. 생각해보자. 다른 상태를 발견하는게 의미가 있는지...
-func TestContainer04(t *testing.T) {
+func TestContainer05(t *testing.T) {
 
 }

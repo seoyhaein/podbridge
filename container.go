@@ -291,23 +291,19 @@ func (Res *CreateContainerResult) Run(ctx context.Context, interval string) <-ch
 }
 
 func (Res *CreateContainerResult) RunT(ctx context.Context, interval string) ContainerStatus {
-	if Res.ch == nil {
-		return none
-	}
-
 	err := Res.Start(ctx)
 	if err != nil {
 		panic(err)
 	}
 	Res.HealthCheck(ctx, interval)
-
+	// 종료 상황일때만 리턴을 해줌.
 	for c := range Res.ch {
 		if c == Unhealthy {
 			return Unhealthy
 		}
-		if c == Healthy {
+		/*if c == Healthy {
 			return Healthy
-		}
+		}*/
 		if c == unKnown {
 			return unKnown
 		}
@@ -317,9 +313,9 @@ func (Res *CreateContainerResult) RunT(ctx context.Context, interval string) Con
 		if c == Dead {
 			return Dead
 		}
-		if c == Paused {
+		/*if c == Paused {
 			return Paused
-		}
+		}*/
 	}
 	return none
 }
