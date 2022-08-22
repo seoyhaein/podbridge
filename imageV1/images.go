@@ -3,6 +3,7 @@ package imageV1
 import (
 	"context"
 	"fmt"
+	pbr "github.com/seoyhaein/podbridge"
 	"io"
 	"os"
 	"strings"
@@ -14,8 +15,8 @@ import (
 	"github.com/containers/storage"
 	"github.com/containers/storage/pkg/unshare"
 	"github.com/opencontainers/go-digest"
-	pbr "github.com/seoyhaein/podbridge"
 	"github.com/seoyhaein/utils"
+	"github.com/sirupsen/logrus"
 )
 
 // https://acet.pe.kr/935
@@ -29,10 +30,9 @@ import (
 // 모두 지우기
 // podman rmi --force -a
 
-// TODO import cycle 해결해야함. pbr 빼버리자. 밖으로...
 var (
 	digester = digest.Canonical.Digester()
-	log      = pbr.Log
+	log      = logrus.New()
 
 	//TODO 추후 수정 일단 넣어 놓음
 	Verbose = true
@@ -48,6 +48,7 @@ type Builder struct {
 	builder *buildah.Builder
 }
 
+// NewOption commit by seoy
 func NewOption() *BuilderOption {
 	opt := new(buildah.BuilderOptions)
 	return &BuilderOption{
@@ -55,6 +56,7 @@ func NewOption() *BuilderOption {
 	}
 }
 
+// Arg commit by seoy
 func (o *BuilderOption) Arg(k string, v string) *BuilderOption {
 	// map 중복 체크
 	if _, ok := o.BuilderOpt.Args[k]; ok {
@@ -64,6 +66,7 @@ func (o *BuilderOption) Arg(k string, v string) *BuilderOption {
 	return o
 }
 
+// FromImage commit by seoy
 func (o *BuilderOption) FromImage(fromImage string) *BuilderOption {
 	if utils.IsEmptyString(fromImage) {
 		return nil
@@ -72,6 +75,7 @@ func (o *BuilderOption) FromImage(fromImage string) *BuilderOption {
 	return o
 }
 
+// Other builderOption 세팅
 func (o *BuilderOption) Other() *BuilderOption {
 	buildOpts := &buildah.CommonBuildOptions{}
 	builderOption := &buildah.BuilderOptions{
@@ -86,8 +90,7 @@ func (o *BuilderOption) Other() *BuilderOption {
 	return o
 }
 
-//TODO context pointer 쓸지 생각하자.
-
+// NewBuilder commit by seoy
 func NewBuilder(ctx context.Context, o *BuilderOption /*opt *buildah.BuilderOptions*/) (context.Context, *Builder, error) {
 
 	store, err := NewStore()
@@ -132,8 +135,7 @@ func (b *Builder) Add(from, to string) error {
 	return nil
 }
 
-// TODO > or >> 등 파이프 관련해서 작동하지 않음.
-
+// Run TODO > or >> 등 파이프 관련해서 작동하지 않음. 지원해줄지 생각하자.
 func (b *Builder) Run(s string) error {
 
 	logger := GetLoggerWriter()
@@ -166,24 +168,6 @@ func (b *Builder) Run(s string) error {
 	}
 	return nil
 }
-
-/*func (b *Builder) RunA(s string) error {
-
-	logger := GetLoggerWriter()
-	runOptions := buildah.RunOptions{
-		Stdout:    logger,
-		Stderr:    logger,
-		Isolation: define.IsolationChroot,
-	}
-
-	command := strings.Split(s, " ")
-
-	err := b.builder.Run(command, runOptions)
-	if err != nil {
-		return fmt.Errorf("error while runnning command: %v", err)
-	}
-	return nil
-}*/
 
 func (b *Builder) WorkDir(path string) error {
 	if utils.IsEmptyString(path) {
