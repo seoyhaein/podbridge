@@ -21,6 +21,7 @@ import (
 // 2. /app 폴더를 WorkDir 로 만들어줌.
 // 3. /app/healthcheck 폴더를 만들어줌.
 // 4. /app/healthcheck 여기에 executor.sh 를 집어 넣어줌.
+// TODO 데이터 넣는 것도 구현되어야 함.
 func CreateCustomImage(exePath, healthCheckerPath, imageName, cmd string) *string {
 	if utils.IsEmptyString(exePath) || utils.IsEmptyString(healthCheckerPath) || utils.IsEmptyString(imageName) {
 		return nil
