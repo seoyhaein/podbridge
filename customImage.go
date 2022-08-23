@@ -21,7 +21,7 @@ import (
 // 2. /app 폴더를 WorkDir 로 만들어줌.
 // 3. /app/healthcheck 폴더를 만들어줌.
 // 4. /app/healthcheck 여기에 executor.sh 를 집어 넣어줌.
-// TODO 데이터 넣는 것도 구현되어야 함.
+// TODO 데이터 넣는 것도 구현되어야 함. BaseImage 를 만들자.
 func CreateCustomImage(exePath, healthCheckerPath, imageName, cmd string) *string {
 	if utils.IsEmptyString(exePath) || utils.IsEmptyString(healthCheckerPath) || utils.IsEmptyString(imageName) {
 		return nil
@@ -91,6 +91,63 @@ func CreateCustomImage(exePath, healthCheckerPath, imageName, cmd string) *strin
 	return image
 }
 
+func CreateCustomImageT(imageName, cmd string) *string {
+	if utils.IsEmptyString(imageName) {
+		return nil
+	}
+	MustFirstCall()
+
+	baseImage := CreateBaseImage()
+	if baseImage == nil {
+		panic("baseImage is nil")
+	}
+
+	opt := v1.NewOption().Other().FromImage(*baseImage)
+	ctx, builder, err := v1.NewBuilder(context.Background(), opt)
+
+	defer func() {
+		builder.Shutdown()
+		builder.Delete()
+	}()
+
+	if err != nil {
+		Log.Printf("NewBuilder error")
+		panic(err)
+	}
+
+	err = builder.WorkDir("/app")
+	if err != nil {
+		Log.Println("WorkDir")
+		panic(err)
+	}
+
+	// ADD/Copy 동일함.
+	// executor.sh 추가 해줌.
+	_, executorPath, _ := genExecutorSh(".", "executor.sh", cmd)
+	err = builder.Add(*executorPath, "/app/healthcheck")
+	if err != nil {
+		Log.Println("Add error")
+		panic(err)
+	}
+
+	err = builder.Cmd("/app/healthcheck/executor.sh")
+	if err != nil {
+		Log.Println("cmd error")
+		panic(err)
+	}
+
+	// TODO 이부분 향후 이 임포트 숨기는 방향으로 간다.
+	sysCtx := &types.SystemContext{}
+	image, err := builder.CommitImage(ctx, buildah.Dockerv2ImageManifest, sysCtx, imageName)
+
+	if err != nil {
+		Log.Println("CommitImage error")
+		panic(err)
+	}
+
+	return image
+}
+
 // genExecutorSh 동일한 위치에 파일이 있으면 실패한다.
 // TODO performance test 하자.
 func genExecutorSh(path, fileName, cmd string) (*os.File, *string, error) {
@@ -137,4 +194,71 @@ echo "exit:"$? | tee ./log
 		return f, &executorPath, nil
 	}
 	return nil, nil, fmt.Errorf("cannot create file")
+}
+
+// CreateBaseImage healthchecker 를 넣는다.
+func CreateBaseImage() *string {
+	MustFirstCall()
+	opt := v1.NewOption().Other().FromImage("alpine:latest")
+	ctx, builder, err := v1.NewBuilder(context.Background(), opt)
+
+	defer func() {
+		builder.Shutdown()
+		builder.Delete()
+	}()
+
+	if err != nil {
+		Log.Printf("NewBuilder error")
+		panic(err)
+	}
+
+	err = builder.Run("apk update")
+	builder.Run("apk add --no-cache bash nano")
+	if err != nil {
+		Log.Printf("Run error")
+		panic(err)
+	}
+
+	err = builder.WorkDir("/app")
+	if err != nil {
+		Log.Println("WorkDir")
+		panic(err)
+	}
+
+	builder.Run("mkdir -p /app/healthcheck")
+	if err != nil {
+		Log.Println("Run error")
+		panic(err)
+	}
+	// ADD/Copy 동일함.
+	// executor.sh 추가 해줌.
+	//_, executorPath, _ := genExecutorSh(`.`, "executor.sh", cmd)
+	//executorPath := fmt.Sprintf("%s/executor.sh", exePath)
+	/*	err = builder.Add(*executorPath, "/app/healthcheck")
+		if err != nil {
+			Log.Println("Add error")
+			panic(err)
+		}*/
+	// add healthchecker.sh 추가해줌.
+	err = builder.Add(`.`, "/app/healthcheck")
+	if err != nil {
+		Log.Println("Add error")
+		panic(err)
+	}
+	/*err = builder.Cmd("/app/healthcheck/executor.sh")
+	if err != nil {
+		Log.Println("cmd error")
+		panic(err)
+	}*/
+
+	// TODO 이부분 향후 이 임포트 숨기는 방향으로 간다.
+	sysCtx := &types.SystemContext{}
+	image, err := builder.CommitImage(ctx, buildah.Dockerv2ImageManifest, sysCtx, "CustomBaseImage")
+
+	if err != nil {
+		Log.Println("CommitImage error")
+		panic(err)
+	}
+
+	return image
 }
