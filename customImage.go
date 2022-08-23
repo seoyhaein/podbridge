@@ -254,7 +254,7 @@ func CreateBaseImage(healthCheckerPath string) *string {
 
 	// TODO 이부분 향후 이 임포트 숨기는 방향으로 간다.
 	sysCtx := &types.SystemContext{}
-	image, err := builder.CommitImage(ctx, buildah.Dockerv2ImageManifest, sysCtx, "CustomBaseImage")
+	image, err := builder.CommitImage(ctx, buildah.Dockerv2ImageManifest, sysCtx, "custombaseimage")
 
 	if err != nil {
 		Log.Println("CommitImage error")
