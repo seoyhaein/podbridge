@@ -3,7 +3,6 @@ package imageV1
 import (
 	"context"
 	"fmt"
-	pbr "github.com/seoyhaein/podbridge"
 	"io"
 	"os"
 	"strings"
@@ -113,6 +112,7 @@ func NewBuilder(ctx context.Context, o *BuilderOption /*opt *buildah.BuilderOpti
 	return ctx, b, nil
 }
 
+// NewStore commit by seoy
 func NewStore() (storage.Store, error) {
 	buildStoreOptions, err := storage.DefaultStoreOptions(unshare.IsRootless(), unshare.GetRootlessUID())
 	if err != nil {
@@ -127,6 +127,7 @@ func NewStore() (storage.Store, error) {
 	return buildStore, nil
 }
 
+// Add commit by seoy
 func (b *Builder) Add(from, to string) error {
 	err := b.builder.Add(to, false, buildah.AddAndCopyOptions{Hasher: digester.Hash()}, from)
 	if err != nil {
@@ -169,6 +170,7 @@ func (b *Builder) Run(s string) error {
 	return nil
 }
 
+//WorkDir commit by seoy
 func (b *Builder) WorkDir(path string) error {
 	if utils.IsEmptyString(path) {
 		return fmt.Errorf("path is empty")
@@ -177,6 +179,7 @@ func (b *Builder) WorkDir(path string) error {
 	return nil
 }
 
+// Env commit by seoy
 func (b *Builder) Env(k, v string) error {
 	if utils.IsEmptyString(k) || utils.IsEmptyString(v) {
 		return fmt.Errorf("key or valeu is empty")
@@ -186,6 +189,7 @@ func (b *Builder) Env(k, v string) error {
 	return nil
 }
 
+// User commit by seoy
 func (b *Builder) User(u string) error {
 	if utils.IsEmptyString(u) {
 		return fmt.Errorf("user is empty")
@@ -195,6 +199,7 @@ func (b *Builder) User(u string) error {
 	return nil
 }
 
+// Expose commit by seoy
 func (b *Builder) Expose(port string) error {
 	if utils.IsEmptyString(port) {
 		return fmt.Errorf("port is empty")
@@ -203,6 +208,7 @@ func (b *Builder) Expose(port string) error {
 	return nil
 }
 
+// Cmd commit by seoy
 func (b *Builder) Cmd(cmd ...string) error {
 	if len(cmd) == 0 {
 		return fmt.Errorf("command is empty")
@@ -211,6 +217,7 @@ func (b *Builder) Cmd(cmd ...string) error {
 	return nil
 }
 
+// CommitImage commit by seoy
 func (b *Builder) CommitImage(ctx context.Context, preferredManifestType string, sysCtx *types.SystemContext, repository string) (*string, error) {
 
 	imageRef, err := is.Transport.ParseStoreReference(b.store, repository)
@@ -222,12 +229,15 @@ func (b *Builder) CommitImage(ctx context.Context, preferredManifestType string,
 		PreferredManifestType: preferredManifestType,
 		SystemContext:         sysCtx,
 	})
-	if pbr.Basket != nil {
+
+	// import cycle 때문에 삭제함.
+	/*if pbr.Basket != nil {
 		pbr.Basket.AddImagesId(imageId)
-	}
+	}*/
 	return &imageId, err
 }
 
+// Delete commit by seoy
 func (b *Builder) Delete() error {
 	err := b.builder.Delete()
 
@@ -237,6 +247,7 @@ func (b *Builder) Delete() error {
 	return nil
 }
 
+// Shutdown commit by seoy
 func (b *Builder) Shutdown() error {
 	_, err := b.store.Shutdown(false)
 
@@ -246,6 +257,7 @@ func (b *Builder) Shutdown() error {
 	return nil
 }
 
+// GetLoggerWriter TODO Verbose Debug 관련 업데이트 하자.
 func GetLoggerWriter() io.Writer {
 	if Verbose || Debug {
 		return os.Stdout
@@ -259,8 +271,3 @@ type NopLogger struct{}
 func (n NopLogger) Write(p []byte) (int, error) {
 	return len(p), nil
 }
-
-// TODO buildah/config.go 참고
-// 만들어진 이미지 검사
-// https://stackoverflow.com/questions/19104847/how-to-generate-a-dockerfile-from-an-image
-// https://github.com/containers/buildah/blob/main/troubleshooting.md verify
