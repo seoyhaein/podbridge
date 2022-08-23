@@ -91,13 +91,13 @@ func CreateCustomImage(exePath, healthCheckerPath, imageName, cmd string) *strin
 	return image
 }
 
-func CreateCustomImageT(imageName, cmd string) *string {
+func CreateCustomImageT(imageName, healthCheckerPath, cmd string) *string {
 	if utils.IsEmptyString(imageName) {
 		return nil
 	}
 	MustFirstCall()
 
-	baseImage := CreateBaseImage()
+	baseImage := CreateBaseImage(healthCheckerPath)
 	if baseImage == nil {
 		panic("baseImage is nil")
 	}
@@ -197,7 +197,8 @@ echo "exit:"$? | tee ./log
 }
 
 // CreateBaseImage healthchecker 를 넣는다.
-func CreateBaseImage() *string {
+func CreateBaseImage(healthCheckerPath string) *string {
+
 	MustFirstCall()
 	opt := v1.NewOption().Other().FromImage("alpine:latest")
 	ctx, builder, err := v1.NewBuilder(context.Background(), opt)
@@ -240,7 +241,7 @@ func CreateBaseImage() *string {
 			panic(err)
 		}*/
 	// add healthchecker.sh 추가해줌.
-	err = builder.Add(`.`, "/app/healthcheck")
+	err = builder.Add(healthCheckerPath, "/app/healthcheck")
 	if err != nil {
 		Log.Println("Add error")
 		panic(err)
