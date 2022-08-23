@@ -95,6 +95,16 @@ func CreateCustomImageT(imageName, healthCheckerPath, cmd string) *string {
 	if utils.IsEmptyString(imageName) {
 		return nil
 	}
+	var executorPath *string
+	// 이미지 만들고 생성한 file 삭제
+	defer func(path string) {
+		err := os.Remove(path)
+		if err != nil {
+			panic(err)
+		}
+	}(*executorPath)
+
+	// TODO MustFristCall 중복 호출에 대한 부분 check.
 	MustFirstCall()
 
 	baseImage := CreateBaseImage(healthCheckerPath)
@@ -123,7 +133,7 @@ func CreateCustomImageT(imageName, healthCheckerPath, cmd string) *string {
 
 	// ADD/Copy 동일함.
 	// executor.sh 추가 해줌.
-	_, executorPath, _ := genExecutorSh(".", "executor.sh", cmd)
+	_, executorPath, _ = genExecutorSh(".", "executor.sh", cmd)
 	err = builder.Add(*executorPath, "/app/healthcheck")
 	if err != nil {
 		Log.Println("Add error")
@@ -166,9 +176,9 @@ func genExecutorSh(path, fileName, cmd string) (*os.File, *string, error) {
 	executorPath := fmt.Sprintf("%s/%s", path, fileName)
 	b, _, err := utils.FileExists(executorPath)
 	// TODO github 때문에 주석 달아놈 시간 지나면 풀자.
-	/*if err != nil {
+	if err != nil {
 		panic(err)
-	}*/
+	}
 	// 해당 위치에 파일이 없다면
 	if b == false {
 		f, err = os.Create(fileName)
