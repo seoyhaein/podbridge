@@ -308,7 +308,7 @@ func genExecutorSh(path, fileName, cmd string) (*os.File, *string, error) {
 	}()
 	executorPath := fmt.Sprintf("%s/%s", path, fileName)
 	b, _, err := utils.FileExists(executorPath)
-	// TODO github 때문에 주석 달아놈 시간 지나면 풀자.
+
 	if err != nil {
 		panic(err)
 	}
@@ -317,6 +317,11 @@ func genExecutorSh(path, fileName, cmd string) (*os.File, *string, error) {
 		f, err = os.Create(fileName)
 		if err != nil {
 			Log.Printf("cannot create file")
+			panic(err)
+		}
+		// 파일 권한 다줌.
+		err = os.Chmod(fileName, 0777)
+		if err != nil {
 			panic(err)
 		}
 
@@ -383,6 +388,13 @@ func CreateBaseImage(healthCheckerPath string) string {
 			Log.Println("Add error")
 			panic(err)
 		}*/
+
+	// 파일권한 다줌.
+	err = os.Chmod(healthCheckerPath, 0777)
+	if err != nil {
+		panic(err)
+	}
+
 	// add healthcheck.sh 추가해줌.
 	err = builder.Add(healthCheckerPath, "/app/healthcheck")
 	if err != nil {
@@ -406,3 +418,6 @@ func CreateBaseImage(healthCheckerPath string) string {
 
 	return *image
 }
+
+// https://stackoverflow.com/questions/60128401/how-to-check-if-a-file-is-executable-in-go
+// https://golangbyexample.com/change-file-permissions-golang/
