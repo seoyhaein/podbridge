@@ -164,13 +164,6 @@ func CreateCustomImageB(imageName, baseImage, cmd string) *string {
 	}
 	var executorPath *string
 	// 이미지 만들고 생성한 file 삭제
-	defer func(path string) {
-		err := os.Remove(path)
-		if err != nil {
-			panic(err)
-		}
-	}(*executorPath)
-
 	// TODO MustFristCall 중복 호출에 대한 부분 check.
 	MustFirstCall()
 
@@ -200,6 +193,13 @@ func CreateCustomImageB(imageName, baseImage, cmd string) *string {
 	// ADD/Copy 동일함.
 	// executor.sh 추가 해줌.
 	_, executorPath, _ = genExecutorSh(".", "executor.sh", cmd)
+	defer func(path string) {
+		err := os.Remove(path)
+		if err != nil {
+			panic(err)
+		}
+	}(*executorPath)
+
 	err = builder.Add(*executorPath, "/app/healthcheck")
 	if err != nil {
 		Log.Println("Add error")
