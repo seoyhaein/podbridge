@@ -123,7 +123,7 @@ func TestContainer04(t *testing.T) {
 	conSpec.SetImage("docker.io/library/test07")
 
 	f := func(spec SpecGen) SpecGen {
-		spec.Name = RandStringRunes(5)
+		spec.Name = "contest07"
 		spec.Terminal = true
 		return spec
 	}
