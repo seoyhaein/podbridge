@@ -146,4 +146,7 @@ const (
 )
 
 // channel buffer size
-const Max int = 100
+const (
+	Min int = 1
+	Max int = 100
+)
