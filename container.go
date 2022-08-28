@@ -27,14 +27,14 @@ type (
 	}
 )
 
-// NewSpec
+// NewSpec ContainerSpec 을 생성한다.
 func NewSpec() *ContainerSpec {
 	return &ContainerSpec{
 		Spec: new(specgen.SpecGenerator),
 	}
 }
 
-// SetImage
+// SetImage 해당 이미지를 spec 에 등록한다.
 func (c *ContainerSpec) SetImage(imgName string) *ContainerSpec {
 	if utils.IsEmptyString(imgName) {
 		return nil
@@ -44,13 +44,13 @@ func (c *ContainerSpec) SetImage(imgName string) *ContainerSpec {
 	return c
 }
 
-// SetOther
+// SetOther Spec 옵션을 적용하도록 돕는다.
 func (c *ContainerSpec) SetOther(f func(spec SpecGen) SpecGen) *ContainerSpec {
 	c.Spec = f(c.Spec)
 	return c
 }
 
-// SetHealthChecker
+// SetHealthChecker HealthChecker 를 등록한다.
 func (c *ContainerSpec) SetHealthChecker(inCmd, interval string, retries uint, timeout, startPeriod string) *ContainerSpec {
 	// cf. SetHealthChecker("CMD-SHELL /app/healthcheck.sh", "2s", 3, "30s", "1s")
 	healthConfig, err := SetHealthChecker(inCmd, interval, retries, timeout, startPeriod)
@@ -104,7 +104,6 @@ func CreateContainer(ctx context.Context, conSpec *ContainerSpec) *CreateContain
 		if err != nil {
 			panic(err)
 		}
-		// TODO basket 에 넣을지 고민하자.
 		if imageExists == false {
 			_, err := images.Pull(ctx, conSpec.Spec.Image, &images.PullOptions{})
 			if err != nil {
@@ -262,44 +261,8 @@ func (Res *CreateContainerResult) HealthCheck(ctx context.Context, interval stri
 	}(ctx, Res)
 }
 
-// Run 테스트 필요
-func (Res *CreateContainerResult) Run(ctx context.Context, interval string) <-chan ContainerStatus {
-	out := make(chan ContainerStatus, Max)
-	err := Res.Start(ctx)
-	if err != nil {
-		panic(err)
-	}
-	Res.HealthCheck(ctx, interval)
-
-	go func(in chan ContainerStatus, out chan ContainerStatus) {
-		defer close(out)
-		for c := range in {
-			if c == Unhealthy {
-				out <- Unhealthy
-			}
-			if c == Healthy {
-				out <- Healthy
-			}
-			if c == UnKnown {
-				out <- UnKnown
-			}
-			if c == Exited {
-				out <- Exited
-			}
-			if c == Dead {
-				out <- Dead
-			}
-			if c == Paused {
-				out <- Paused
-			}
-			out <- None
-		}
-	}(Res.ch, out)
-
-	return out
-}
-
-func (Res *CreateContainerResult) RunT(ctx context.Context, interval string) ContainerStatus {
+// Run container 의 Start 와 함께 HealthCheck 도 함께 하도록 한다.
+func (Res *CreateContainerResult) Run(ctx context.Context, interval string) ContainerStatus {
 	err := Res.Start(ctx)
 	if err != nil {
 		panic(err)
@@ -326,9 +289,9 @@ func (Res *CreateContainerResult) RunT(ctx context.Context, interval string) Con
 		if c == Dead {
 			return Dead
 		}
-		/*if c == Paused {
+		if c == Paused {
 			return Paused
-		}*/
+		}
 	}
 	return None
 }
