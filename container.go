@@ -139,7 +139,7 @@ func (Res *CreateContainerResult) Start(ctx context.Context) error {
 	}
 }
 
-// ReStart 중복되는 것 같긴하다. 수정해줘야 한다. ReStart
+// ReStart 중복되는 것 같긴하다. TODO 수정해줘야 한다. ReStart
 func (Res *CreateContainerResult) ReStart(ctx context.Context) error {
 	if utils.IsEmptyString(Res.ID) == false && Res.Status != Running {
 		err := containers.Start(ctx, Res.ID, &containers.StartOptions{})
@@ -168,7 +168,6 @@ func (Res *CreateContainerResult) Stop(ctx context.Context, options ...any) erro
 			}
 		}
 	}
-
 	err := containers.Stop(ctx, Res.ID, stopOption)
 	return err
 }
