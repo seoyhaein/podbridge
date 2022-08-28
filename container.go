@@ -11,6 +11,9 @@ import (
 	"github.com/seoyhaein/utils"
 )
 
+// TODO Habor 랑 연동하는 문제 생각해보자
+// https://github.com/containers/podman/issues/13145
+
 type (
 	SpecGen *specgen.SpecGenerator
 
@@ -298,12 +301,3 @@ func (Res *CreateContainerResult) Run(ctx context.Context, interval string) Cont
 	}
 	return None
 }
-
-// 이미지 가존재하는지 확인하는 메서드 빼놓자.
-// TODO wait 함수 구체적으로 살펴보기기
-// 나머지들은 조금씩 구현해 나간다.
-// containers.go
-// TODO 중요 resource 관련
-// https://github.com/containers/podman/issues/13145
-// TODO 컨테이너의 상태를 확인하는 방법은 두가지 접근 방법이 있는데, local에 podman 이 설치 되어 있는 경우와, 원격(접속하는 머신에는 podman  이없음)에서 연결되는 경우
-// 일단 먼저, local 에서 연결 하는 걸 적용한다. 구현하는 건 비교적 간단할 듯하다.
