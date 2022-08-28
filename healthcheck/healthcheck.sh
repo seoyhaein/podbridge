@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 
 # alphine 에서는 bash 가 없으므로 설치해줘야 한다.
-# 특정 shell script의 pid 를 확인하여, 진행사항을 파악하고 이 내용들을 환경 변수에 등록한다.
-
 # https://codechacha.com/ko/shell-script-read-file/
 # https://codechacha.com/ko/shell-script-substring/
 # https://codechacha.com/ko/shell-script-compare-string/
