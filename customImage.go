@@ -52,6 +52,8 @@ func CreateCustomImage(imageName, baseImage, cmd string) *string {
 
 	// ADD/Copy 동일함.
 	// executor.sh 추가 해줌.
+	// TODO 여기서 고정으로 filename 고정시켜줘서 문제가 발생함.
+	// 컨테이너 안에서 바꿔주자.
 	_, executorPath, _ = genExecutorSh(".", "executor.sh", cmd)
 	defer func(path string) {
 		err := os.Remove(path)
@@ -86,6 +88,8 @@ func CreateCustomImage(imageName, baseImage, cmd string) *string {
 
 // genExecutorSh 동일한 위치에 파일이 있으면 실패한다.
 // TODO performance test 하자.
+// 기존에 파일이 있으면 에러난다. 이문제는 goroutine 에서도 문제될듯하다. 그래서 계속 실패한듯.
+// 파일이름을 unique 하게 바꿔줘야 겠다.
 func genExecutorSh(path, fileName, cmd string) (*os.File, *string, error) {
 	if utils.IsEmptyString(path) || utils.IsEmptyString(fileName) {
 		return nil, nil, fmt.Errorf("path or file name is empty")
@@ -95,6 +99,9 @@ func genExecutorSh(path, fileName, cmd string) (*os.File, *string, error) {
 		err error
 	)
 	defer func() {
+		if f == nil {
+			return
+		}
 		if err = f.Close(); err != nil {
 			panic(err)
 		}
