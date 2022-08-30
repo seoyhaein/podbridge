@@ -136,7 +136,7 @@ func CreateCustomImageT(imageName, baseImage, filename, cmd string) *string {
 		panic(err)
 	}
 
-	subCmd := fmt.Sprintf("mv /app/healthcheck/%s executor.sh", filename)
+	subCmd := fmt.Sprintf("mv /app/healthcheck/%s /app/healthcheck/executor.sh", filename)
 	err = builder.Run(subCmd)
 	if err != nil {
 		Log.Println("Run error")
