@@ -17,7 +17,7 @@ func RemoveContainers() error {
 		cmd := exec.Command("podman", "rm", "-f", id2)
 		out, err := cmd.CombinedOutput()
 		if err != nil {
-			fmt.Errorf("cannot find process")
+			return fmt.Errorf("cannot find process")
 
 		}
 		fmt.Printf("Status is: %s", string(out))
@@ -32,7 +32,7 @@ func AllStopContainers() error {
 		cmd := exec.Command("podman", "stop", id)
 		out, err := cmd.CombinedOutput()
 		if err != nil {
-			fmt.Errorf("cannot find process")
+			return fmt.Errorf("cannot find process")
 
 		}
 		fmt.Printf("Status is: %s", string(out))
@@ -54,7 +54,7 @@ func RemoveImages() error {
 		cmd := exec.Command("podman", "rmi", id)
 		out, err := cmd.CombinedOutput()
 		if err != nil {
-			fmt.Errorf("cannot find process")
+			return fmt.Errorf("cannot find process")
 
 		}
 		fmt.Printf("Status is: %s", string(out))

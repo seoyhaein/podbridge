@@ -21,7 +21,7 @@ func ContainerExists(id string) error {
 
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		fmt.Errorf("Cannot find process")
+		return fmt.Errorf("Cannot find process")
 
 	}
 	fmt.Printf("Status is: %s", string(out))
