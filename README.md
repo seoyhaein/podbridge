@@ -42,3 +42,9 @@ func main() {
 }
 
 ```
+
+Don't forget !
+podman system service -t 0 &
+
+-설치 스크립트 수정 필요. 최신 버전 Makefile 및 메뉴얼 확인 필요. (처리 후 삭제)
+

@@ -1,6 +1,6 @@
 module github.com/seoyhaein/podbridge
 
-go 1.18
+go 1.22
 
 require (
 	github.com/containers/buildah v1.27.1

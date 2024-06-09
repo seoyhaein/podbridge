@@ -49,7 +49,6 @@ func TestSetOther(t *testing.T) {
 // https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/building_running_and_managing_containers/assembly_monitoring-containers_building-running-and-managing-containers
 // https://devops.stackexchange.com/questions/11501/healthcheck-cmd-vs-cmd-shell
 // 안정화 시켜야 한다.
-//
 func TestContainer01(t *testing.T) {
 
 	cTx, err := NewConnectionLinux(context.Background())
@@ -139,7 +138,7 @@ func TestContainer04(t *testing.T) {
 		time.Sleep(time.Second * 200)
 		cancelFunc()
 	}(ctx, cancel)*/
-	result := r.RunT(ctx, "1s")
+	result := r.Run(ctx, "1s")
 
 	v := int(result)
 	fmt.Println(v)
