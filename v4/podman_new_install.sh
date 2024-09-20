@@ -27,6 +27,18 @@ if command -v podman &> /dev/null; then
     # 설치된 버전이 최신 버전인지 확인
     if [ "$INSTALLED_PODMAN_VERSION" != "$PODMAN_VERSION" ]; then
         echo "Updating Podman from version $INSTALLED_PODMAN_VERSION to $PODMAN_VERSION..."
+        # podman이 실행 중인 경우 종료
+        echo "Stopping running Podman processes..."
+        podman ps -q | xargs -r podman stop
+        # Podman API 서버 중지
+        sudo systemctl stop podman.service
+        sudo systemctl stop podman.socket
+
+        # Podman API 서버 중지 및 비활성화
+        sudo systemctl disable --now podman.socket
+        sudo systemctl disable --now podman.service
+
+        sleep 2  # 잠시 대기하여 서비스가 완전히 중지되도록 함
         INSTALL_PODMAN=true
     else
         echo "Podman is already up-to-date."

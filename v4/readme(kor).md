@@ -10,6 +10,7 @@
 5. https://go.dev/doc/articles/race_detector
 6. https://eng.uber.com/dynamic-data-race-detection-in-go-code/
 7. https://hackernoon.com/how-to-write-benchmarks-in-golang-like-an-expert-0w1834gs
+8. podman_new_install.sh 버그 있음. 수정 해야함.  
 
 기타 정리 안된 내용
 

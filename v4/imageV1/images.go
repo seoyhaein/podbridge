@@ -159,7 +159,7 @@ func (b *Builder) Run(s string) error {
 	return nil
 }
 
-//WorkDir commit by seoy
+// WorkDir commit by seoy
 func (b *Builder) WorkDir(path string) error {
 	if utils.IsEmptyString(path) {
 		return fmt.Errorf("path is empty")
